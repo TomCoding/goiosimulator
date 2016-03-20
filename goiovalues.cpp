@@ -14,11 +14,14 @@ int main(int argc, const char *argv[]) {
   gat->apply_ammunition(loch);
   cout << gat->get_clipsize() << endl;
 
-  // while (gat->get_clipsize > 0) {
-  // }
+  auto armor = new goio::GoioObj(goio::CmpType::ARMOR, 1000, 100);
+  while (gat->get_clipsize() > 0 && gat->get_health() > 0) {
+    gat->shoot(armor);
+  }
 
   delete gat;
   delete loch;
+  delete armor;
 
   return 0;
 }

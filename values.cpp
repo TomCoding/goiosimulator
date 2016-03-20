@@ -1,6 +1,9 @@
 #include "values.h"
 #include <cmath>
 
+#include <iostream>
+#include <iomanip>
+
 namespace goio {
 
   //Ammunition
@@ -92,14 +95,79 @@ namespace goio {
             DmgType direct_dmg_type, double aoe_dmg, DmgType aoe_dmg_type) :
               GunInfo(clipsize, rof, reload, direct_dmg,
                     direct_dmg_type, aoe_dmg, aoe_dmg_type) {
-    this->max_health = max_health;
+    this->max_health = health = max_health;
   }
 
-  void Gun::add_health(double add) {
-    health += add;
-    if (health > max_health)
+  void Gun::add_health(double health) {
+    this->health += health;
+    if (this->health > max_health)
       health = max_health;
-    else if (health < 0)
-      health = 0;
+    else if (this->health < 0)
+      this->health = 0;
+  }
+
+  double Gun::shoot(GoioObj* obj, bool aoe, double aoe_range) {
+    std::cout << std::fixed << std::setprecision(2);
+    std::cout << "shoot health:" << std::setw(10) << std::right << health;
+    if (health == 0)
+      return 0;
+
+    dec_clipsize();
+
+    GoioObj* tmpobj;
+    if (obj->get_health() > 0)
+      tmpobj = obj;
+    else
+      tmpobj = obj->get_hull();
+
+    tmpobj->add_health(-get_direct_dmg()*dmg_types[tmpobj->get_cmp_type()][get_direct_dmg_type()]);
+
+    if (aoe)
+      tmpobj->add_health(-get_aoe_dmg()*dmg_types[tmpobj->get_cmp_type()][get_aoe_dmg_type()]);
+
+    std::cout << std::setw(10) << std::right << tmpobj->get_health() << std::endl;
+
+    if (get_ammo()->get_proportional_self_damage())
+      add_health(-get_max_health()/(get_max_clipsize()*get_ammo()->get_clipsize()));
+
+    return 1/get_rof_changed();
+  }
+
+
+
+  //GoioObj
+  GoioObj::GoioObj(CmpType cmp_type, double max_health, double hull_max_health) :
+            GoioObj() {
+    this->cmp_type = cmp_type;
+    this->max_health = health = max_health;
+
+    hull = new GoioObj();
+    hull->cmp_type = CmpType::HULL;
+    hull->max_health = hull->health = hull_max_health;
+    hull->hull = nullptr;
+  }
+
+  GoioObj::~GoioObj() {
+    delete hull;
+  }
+
+  bool GoioObj::add_health(double health) {
+    this->health += health;
+    if (this->health > max_health)
+      this->health = max_health;
+    else if (this->health < 0) {
+      this->health = 0;
+      return false;
+    }
+    return true;
+  }
+
+  void GoioObj::reset() {
+    health = max_health;
+  }
+
+  void GoioObj::reset_all() {
+    reset();
+    hull->health = hull->max_health;
   }
 }

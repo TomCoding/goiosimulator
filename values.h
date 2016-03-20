@@ -3,22 +3,56 @@
 namespace goio {
 
   enum DmgType {
-    PIERCING,
-    SHATTER,
-    EXPLOSIVE,
-    IMPACT,
-    FLECHETTE
+    FIRE      = 0,
+    FLECHETTE = 1,
+    SHATTER   = 2,
+    PIERCING  = 3,
+    EXPLOSIVE = 4,
+    IMPACT    = 5
   };
 
-  // class GoioObj {
-  //   private:
-  //     double time;
-  //
-  //   public:
-  //     GoioObj() : time(0) {};
-  //     double get_time() { return time; }
-  // };
+  enum CmpType {
+    BALLOON    = 0,
+    HULL       = 1,
+    ARMOR      = 2,
+    COMPONENTS = 3
+  };
 
+  static const double dmg_types[6][4] = {
+    {1.5,  1.3, 0.8,  0.25}, // fire
+    {1.8,  0.2, 0.25, 0},    // flechette
+    {0.2,  0.1, 0.2,  2},    // shatter
+    {0.2,  0.2, 1.5,  0.2},  // piercing
+    {0.25, 1.4, 0.3,  0.3},  // explosive
+    {1.8,  1.5, 0.8,  0.6},  // impact
+  };
+
+  class GoioObj {
+    private:
+      CmpType cmp_type;
+      double max_health;
+      double health;
+      GoioObj* hull;
+
+      GoioObj() {};
+
+    public:
+      GoioObj(CmpType cmp_type, double max_health = 0, double hull_max_health = 0);
+      ~GoioObj();
+
+      inline CmpType get_cmp_type() { return cmp_type; };
+      inline double  get_max_health() { return max_health; };
+      inline double  get_health() { return health; };
+      inline GoioObj* get_hull() { return hull; };
+
+      /*
+       * Return `false` if object gets destroyed, otherwise `true`
+       */
+      bool add_health(double health);
+
+      void reset();
+      void reset_all();
+  };
 
   class Ammunition {
     private:
@@ -34,7 +68,7 @@ namespace goio {
     public:
       inline double get_clipsize() { return clipsize; }
       inline double get_damage() { return damage; }
-      inline bool   proportional_get_self_damage() { return proportional_self_damage; }
+      inline bool   get_proportional_self_damage() { return proportional_self_damage; }
   };
 
   class Lochnagar : public Ammunition {
@@ -82,8 +116,15 @@ namespace goio {
       void set_aoe_dmg(double cur_aoe_dmg);
       void set_aoe_dmg_type(DmgType cur_aoe_dmg_type);
 
+      inline int dec_clipsize() {
+        if (--cur_clipsize < 0)
+          cur_clipsize = 0;
+        return cur_clipsize;
+      }
+
     public:
-      inline int get_clipsize() { return cur_clipsize; }
+      inline int     get_max_clipsize() { return clipsize; }
+      inline int     get_clipsize() { return cur_clipsize; }
       inline double  get_rof() { return cur_rof; }
       inline double  get_reload() { return cur_reload; }
       inline double  get_direct_dmg() { return cur_direct_dmg; }
@@ -106,12 +147,14 @@ namespace goio {
       Gun(double max_health,
           int clipsize, double rof, double reload, double direct_dmg,
           DmgType direct_dmg_type, double aoe_dmg, DmgType aoe_dmg_type);
-      void add_health(double add);
+      void add_health(double health);
 
     public:
-      inline double get_rof_changed() { return max_health/health; }
+      inline double get_rof_changed() { return max_health/health*get_rof(); }
       inline double get_health() { return health; }
       inline double get_max_health() { return max_health; }
+
+      double shoot(GoioObj* obj, bool aoe = true, double aoe_range = 0);
   };
 
   class LightGun : public Gun {
