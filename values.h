@@ -1,4 +1,7 @@
 #include <cmath>
+#include <map>
+#include <functional>
+#include <string>
 
 namespace goio {
 
@@ -19,31 +22,34 @@ namespace goio {
   };
 
   static const double dmg_types[6][4] = {
-    {1.5,  1.3, 0.8,  0.25}, // fire
-    {1.8,  0.2, 0.25, 0},    // flechette
-    {0.2,  0.1, 0.2,  2},    // shatter
-    {0.2,  0.2, 1.5,  0.2},  // piercing
-    {0.25, 1.4, 0.3,  0.3},  // explosive
-    {1.8,  1.5, 0.8,  0.6},  // impact
+    // balloon  hull  armor  components
+      {  1.5,   1.3,   0.8,  0.25  }, // fire
+      {  1.8,   0.2,   0.25, 0     }, // flechette
+      {  0.2,   0.1,   0.2,  2     }, // shatter
+      {  0.2,   0.2,   1.5,  0.2   }, // piercing
+      {  0.25,  1.4,   0.3,  0.3   }, // explosive
+      {  1.8,   1.5,   0.8,  0.6   }, // impact
   };
 
   class GoioObj {
     private:
+      std::string name;
       CmpType cmp_type;
       double max_health;
       double health;
       GoioObj* hull;
 
-      GoioObj() {};
+      GoioObj() : name(""), cmp_type(CmpType::HULL), max_health(0), health(0), hull(nullptr) {}
 
     public:
-      GoioObj(CmpType cmp_type, double max_health = 0, double hull_max_health = 0);
+      GoioObj(std::string name, CmpType cmp_type, double max_health = 0, double hull_max_health = 0);
       ~GoioObj();
 
-      inline CmpType get_cmp_type() { return cmp_type; };
-      inline double  get_max_health() { return max_health; };
-      inline double  get_health() { return health; };
-      inline GoioObj* get_hull() { return hull; };
+      inline std::string get_name() { return name; }
+      inline CmpType get_cmp_type() { return cmp_type; }
+      inline double  get_max_health() { return max_health; }
+      inline double  get_health() { return health; }
+      inline GoioObj* get_hull() { return hull; }
 
       /*
        * Return `false` if object gets destroyed, otherwise `true`
@@ -63,7 +69,9 @@ namespace goio {
     protected:
       Ammunition(double clipsize,
                  double damage,
-                 bool   proportional_self_damage);
+                 bool   proportional_self_damage) : clipsize(clipsize),
+                                damage(damage),
+                                proportional_self_damage(proportional_self_damage) {}
 
     public:
       inline double get_clipsize() { return clipsize; }
@@ -90,6 +98,7 @@ namespace goio {
       DmgType direct_dmg_type;
       double  aoe_dmg;
       DmgType aoe_dmg_type;
+      double  aoe_radius;
 
       int     cur_clipsize;
       double  cur_rof;
@@ -98,6 +107,7 @@ namespace goio {
       DmgType cur_direct_dmg_type;
       double  cur_aoe_dmg;
       DmgType cur_aoe_dmg_type;
+      double  cur_aoe_radius;
       Ammunition* cur_ammo;
 
     protected:
@@ -107,14 +117,33 @@ namespace goio {
               double direct_dmg,
               DmgType direct_dmg_type,
               double aoe_dmg,
-              DmgType aoe_dmg_type);
+              DmgType aoe_dmg_type,
+              double aoe_radius) : clipsize(clipsize),
+                                   rof(rof),
+                                   reload(reload),
+                                   direct_dmg(direct_dmg),
+                                   direct_dmg_type(direct_dmg_type),
+                                   aoe_dmg(aoe_dmg),
+                                   aoe_dmg_type(aoe_dmg_type),
+                                   aoe_radius(aoe_radius),
+                                   cur_clipsize(clipsize),
+                                   cur_rof(rof),
+                                   cur_reload(reload),
+                                   cur_direct_dmg(direct_dmg),
+                                   cur_direct_dmg_type(direct_dmg_type),
+                                   cur_aoe_dmg(aoe_dmg),
+                                   cur_aoe_dmg_type(aoe_dmg_type),
+                                   cur_aoe_radius(aoe_radius),
+                                   cur_ammo(nullptr) {}
+
       void set_clipsize(double clipsize);
       void set_rof(double rof);
-      void set_reload(double cur_reload);
-      void set_direct_dmg(double cur_direct_dmg);
-      void set_direct_dmg_type(DmgType cur_direct_dmg_type);
-      void set_aoe_dmg(double cur_aoe_dmg);
-      void set_aoe_dmg_type(DmgType cur_aoe_dmg_type);
+      void set_reload(double reload);
+      void set_direct_dmg(double direct_dmg);
+      void set_direct_dmg_type(DmgType direct_dmg_type);
+      void set_aoe_dmg(double aoe_dmg);
+      void set_aoe_dmg_type(DmgType aoe_dmg_type);
+      void set_aoe_radius(double aoe_radius);
 
       inline int dec_clipsize() {
         if (--cur_clipsize < 0)
@@ -131,6 +160,7 @@ namespace goio {
       inline DmgType get_direct_dmg_type() { return cur_direct_dmg_type; }
       inline double  get_aoe_dmg() { return cur_aoe_dmg; }
       inline DmgType get_aoe_dmg_type() { return cur_aoe_dmg_type; }
+      inline double  get_aoe_radius() { return cur_aoe_radius; }
       inline Ammunition* get_ammo() { return cur_ammo; }
 
       void apply_ammunition(Ammunition* ammo);
@@ -138,44 +168,74 @@ namespace goio {
       void reset();
   };
 
-  class Gun : public GunInfo {
-    private:
-      double health;
-      double max_health;
-
+  class Gun : public GunInfo, public GoioObj {
     protected:
-      Gun(double max_health,
+      Gun(std::string name, double max_health,
           int clipsize, double rof, double reload, double direct_dmg,
-          DmgType direct_dmg_type, double aoe_dmg, DmgType aoe_dmg_type);
-      void add_health(double health);
+          DmgType direct_dmg_type, double aoe_dmg, DmgType aoe_dmg_type,
+          double aoe_radius) :
+                  GunInfo(clipsize, rof, reload, direct_dmg, direct_dmg_type,
+                          aoe_dmg, aoe_dmg_type, aoe_radius),
+                  GoioObj(name, CmpType::COMPONENTS, max_health) {}
 
     public:
-      inline double get_rof_changed() { return max_health/health*get_rof(); }
-      inline double get_health() { return health; }
-      inline double get_max_health() { return max_health; }
+      inline double get_rof_changed() { return get_health()/get_max_health()*get_rof(); }
+      inline double get_time_per_shot() { return get_max_health()/get_health()/get_rof(); }
 
-      double shoot(GoioObj* obj, bool aoe = true, double aoe_range = 0);
+      bool shoot(GoioObj* obj, bool aoe, double aoe_range);
+      inline bool shoot(GoioObj* obj) { return shoot(obj, true, 0); }
   };
 
   class LightGun : public Gun {
     protected:
-      LightGun(int clipsize, double rof, double reload, double direct_dmg,
-               DmgType direct_dmg_type, double aoe_dmg, DmgType aoe_dmg_type) :
-                  Gun(250, clipsize, rof, reload, direct_dmg, direct_dmg_type,
-                      aoe_dmg, aoe_dmg_type) {};
+      LightGun(std::string name, int clipsize, double rof, double reload,
+               double direct_dmg, DmgType direct_dmg_type, double aoe_dmg,
+               DmgType aoe_dmg_type, double aoe_radius) :
+                  Gun(name, 250, clipsize, rof, reload, direct_dmg, direct_dmg_type,
+                      aoe_dmg, aoe_dmg_type, aoe_radius) {};
   };
 
   class Gatling : public LightGun {
     public:
-      Gatling() : LightGun(
+      Gatling(std::string name = "") : LightGun(
+                      name,
                       82,
                       8.33,
                       5,
                       7.5,
                       DmgType::PIERCING,
                       10,
-                      DmgType::SHATTER
+                      DmgType::SHATTER,
+                      0
       ) {};
+  };
+
+  class TimeObj {
+    private:
+      double time;
+
+      typedef std::function<double ()> TimeFunc;
+      typedef std::function<bool (GoioObj*)> TimeDmgFunc;
+      struct FuncData {
+        TimeDmgFunc timedmgfunc;
+        GoioObj* obj;
+        TimeFunc timefunc;
+      };
+
+      std::multimap<double, FuncData*> events;
+
+      bool register_event(FuncData* funcdata);
+
+    public:
+      TimeObj() : time(0), events() {}
+      ~TimeObj();
+
+      inline double get_time() { return time; }
+      bool next_event();
+      bool register_event(TimeDmgFunc timedmgfunc, GoioObj* obj,
+                          TimeFunc timefunc, double time = 0, bool rel = true);
+
+      void reset();
   };
 
 }

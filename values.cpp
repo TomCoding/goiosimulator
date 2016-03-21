@@ -6,65 +6,48 @@
 
 namespace goio {
 
-  //Ammunition
-  Ammunition::Ammunition(double clipsize, double damage,
-              bool proportional_self_damage) {
-      this->clipsize = clipsize;
-      this->damage = damage;
-      this->proportional_self_damage = proportional_self_damage;
-    }
-
-
-
   //GunInfo
-  GunInfo::GunInfo(int clipsize, double rof, double reload, double direct_dmg,
-              DmgType direct_dmg_type, double aoe_dmg, DmgType aoe_dmg_type) {
-      this->clipsize = cur_clipsize = clipsize;
-      this->rof = cur_rof = rof;
-      this->reload = cur_reload = reload;
-      this->direct_dmg = cur_direct_dmg = direct_dmg;
-      this->direct_dmg_type = cur_direct_dmg_type = direct_dmg_type;
-      this->aoe_dmg = cur_aoe_dmg = aoe_dmg;
-      this->aoe_dmg_type = cur_aoe_dmg_type = aoe_dmg_type;
-
-      cur_ammo = nullptr;
-  }
-
   void GunInfo::set_clipsize(double clipsize) {
-    if (cur_clipsize < 0)
+    if (clipsize < 0)
       this->cur_clipsize = 0;
     else
       this->cur_clipsize = std::round(clipsize);
   }
   void GunInfo::set_rof(double rof) {
-    if (cur_rof < 0)
+    if (rof < 0)
       this->cur_rof = 0;
     else
-      this->cur_rof = cur_rof;
+      this->cur_rof = rof;
   }
-  void GunInfo::set_reload(double cur_reload) {
+  void GunInfo::set_reload(double reload) {
     if (reload < 0)
       this->cur_reload = 0;
     else
-      this->cur_reload = cur_reload;
+      this->cur_reload = reload;
   }
-  void GunInfo::set_direct_dmg(double cur_direct_dmg) {
-    if (cur_direct_dmg < 0)
+  void GunInfo::set_direct_dmg(double direct_dmg) {
+    if (direct_dmg < 0)
       this->cur_direct_dmg = 0;
     else
-      this->cur_direct_dmg = cur_direct_dmg;
+      this->cur_direct_dmg = direct_dmg;
   }
-  void GunInfo::set_direct_dmg_type(DmgType cur_direct_dmg_type) {
-    this->cur_direct_dmg_type = cur_direct_dmg_type;
+  void GunInfo::set_direct_dmg_type(DmgType direct_dmg_type) {
+    this->cur_direct_dmg_type = direct_dmg_type;
   }
-  void GunInfo::set_aoe_dmg(double cur_aoe_dmg) {
-    if (cur_aoe_dmg < 0)
+  void GunInfo::set_aoe_dmg(double aoe_dmg) {
+    if (aoe_dmg < 0)
       this->cur_aoe_dmg = 0;
     else
-      this->cur_aoe_dmg = cur_aoe_dmg;
+      this->cur_aoe_dmg = aoe_dmg;
   }
-  void GunInfo::set_aoe_dmg_type(DmgType cur_aoe_dmg_type) {
-    this->cur_aoe_dmg_type = cur_aoe_dmg_type;
+  void GunInfo::set_aoe_dmg_type(DmgType aoe_dmg_type) {
+    this->cur_aoe_dmg_type = aoe_dmg_type;
+  }
+  void GunInfo::set_aoe_radius(double aoe_radius) {
+    if (aoe_radius < 0)
+      this->cur_aoe_radius = 0;
+    else
+      this->cur_aoe_radius = aoe_radius;
   }
 
   void GunInfo::apply_ammunition(Ammunition* ammo) {
@@ -90,27 +73,9 @@ namespace goio {
 
 
   //Gun
-  Gun::Gun(double max_health,
-            int clipsize, double rof, double reload, double direct_dmg,
-            DmgType direct_dmg_type, double aoe_dmg, DmgType aoe_dmg_type) :
-              GunInfo(clipsize, rof, reload, direct_dmg,
-                    direct_dmg_type, aoe_dmg, aoe_dmg_type) {
-    this->max_health = health = max_health;
-  }
-
-  void Gun::add_health(double health) {
-    this->health += health;
-    if (this->health > max_health)
-      health = max_health;
-    else if (this->health < 0)
-      this->health = 0;
-  }
-
-  double Gun::shoot(GoioObj* obj, bool aoe, double aoe_range) {
-    std::cout << std::fixed << std::setprecision(2);
-    std::cout << "shoot health:" << std::setw(10) << std::right << health;
-    if (health == 0)
-      return 0;
+  bool Gun::shoot(GoioObj* obj, bool aoe, double aoe_range) {
+    if (get_health() == 0)
+      return false;
 
     dec_clipsize();
 
@@ -122,29 +87,28 @@ namespace goio {
 
     tmpobj->add_health(-get_direct_dmg()*dmg_types[tmpobj->get_cmp_type()][get_direct_dmg_type()]);
 
-    if (aoe)
-      tmpobj->add_health(-get_aoe_dmg()*dmg_types[tmpobj->get_cmp_type()][get_aoe_dmg_type()]);
-
-    std::cout << std::setw(10) << std::right << tmpobj->get_health() << std::endl;
+    if (aoe && aoe_range <= get_aoe_radius()) {
+      double falloff;
+      if (aoe_range/2 <= get_aoe_radius())
+        falloff = 1;
+      else
+        falloff = 1.8-1.6*(aoe_range/get_aoe_radius());
+      tmpobj->add_health(-falloff*get_aoe_dmg()*dmg_types[tmpobj->get_cmp_type()][get_aoe_dmg_type()]);
+    }
 
     if (get_ammo()->get_proportional_self_damage())
       add_health(-get_max_health()/(get_max_clipsize()*get_ammo()->get_clipsize()));
 
-    return 1/get_rof_changed();
+    return true;
   }
 
 
 
   //GoioObj
-  GoioObj::GoioObj(CmpType cmp_type, double max_health, double hull_max_health) :
-            GoioObj() {
-    this->cmp_type = cmp_type;
-    this->max_health = health = max_health;
-
-    hull = new GoioObj();
-    hull->cmp_type = CmpType::HULL;
+  GoioObj::GoioObj(std::string name, CmpType cmp_type, double max_health, double hull_max_health) :
+            name(name), cmp_type(cmp_type), max_health(max_health), health(max_health),
+            hull(new GoioObj()) {
     hull->max_health = hull->health = hull_max_health;
-    hull->hull = nullptr;
   }
 
   GoioObj::~GoioObj() {
@@ -169,5 +133,57 @@ namespace goio {
   void GoioObj::reset_all() {
     reset();
     hull->health = hull->max_health;
+  }
+
+
+
+  //TimeObj
+  TimeObj::~TimeObj() {
+    for (auto it = events.begin(); it != events.end(); ++it) {
+      delete it->second;
+    }
+  }
+
+  bool TimeObj::next_event() {
+    if (events.empty())
+      return false;
+
+    auto it = events.cbegin();
+    time = it->first;
+    auto funcdata = it->second;
+    auto ret = funcdata->timedmgfunc(funcdata->obj);
+
+    register_event(funcdata);
+    events.erase(it);
+    return ret;
+  }
+
+  bool TimeObj::register_event(FuncData* funcdata) {
+    events.insert(std::make_pair(time+funcdata->timefunc(), funcdata));
+    return true;
+  }
+
+  bool TimeObj::register_event(TimeDmgFunc timedmgfunc, GoioObj* obj,
+                               TimeFunc timefunc, double time, bool rel) {
+    double comp_time;
+    if (rel)
+      comp_time = this->time+time;
+    else
+      comp_time = time;
+
+    if (comp_time < time)
+      return false;
+
+    auto funcdata = new FuncData {timedmgfunc, obj, timefunc};
+    events.insert(std::make_pair(comp_time, funcdata));
+    return true;
+  }
+
+  void TimeObj::reset() {
+    time = 0;
+    for (auto it = events.begin(); it != events.end(); ++it) {
+      delete it->second;
+    }
+    events.clear();
   }
 }
