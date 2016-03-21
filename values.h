@@ -4,6 +4,8 @@
 #include <string>
 
 namespace goio {
+  typedef std::function<double ()> TimeFunc;
+  typedef std::function<TimeFunc ()> TimeCheckFunc;
 
   enum DmgType {
     FIRE      = 0,
@@ -13,6 +15,13 @@ namespace goio {
     EXPLOSIVE = 4,
     IMPACT    = 5
   };
+  static const std::string DmgTypeString[] {"fire",
+                                            "flechette",
+                                            "shatter",
+                                            "piercing",
+                                            "explosive",
+                                            "impact"};
+  inline const std::string get_dmg_type_string(DmgType val) { return DmgTypeString[val]; }
 
   enum CmpType {
     BALLOON    = 0,
@@ -20,6 +29,11 @@ namespace goio {
     ARMOR      = 2,
     COMPONENTS = 3
   };
+  static const std::string CmpTypeString[] {"balloon",
+                                            "hull",
+                                            "armor",
+                                            "component"};
+  inline const std::string get_cmp_type_string(CmpType val) { return CmpTypeString[val]; }
 
   static const double dmg_types[6][4] = {
     // balloon  hull  armor  components
@@ -60,6 +74,49 @@ namespace goio {
       void reset_all();
   };
 
+  typedef std::function<bool (GoioObj*)> TimeDmgFunc;
+
+  class Ship : public GoioObj {
+    public:
+      Ship(std::string name, double max_health, double hull_max_health) :
+                GoioObj(name, CmpType::ARMOR, max_health, hull_max_health) {};
+  };
+
+  class Pyramidion : public Ship {
+    public:
+      Pyramidion(std::string name) : Ship(name, 650, 700) {}
+  };
+
+  class Goldfish : public Ship {
+    public:
+      Goldfish(std::string name) : Ship(name, 400, 1100) {}
+  };
+
+  class Junker : public Ship {
+    public:
+      Junker(std::string name) : Ship(name, 700, 500) {}
+  };
+
+  class Galleon : public Ship {
+    public:
+      Galleon(std::string name) : Ship(name, 800, 1400) {}
+  };
+
+  class Squid : public Ship {
+    public:
+      Squid(std::string name) : Ship(name, 230, 950) {}
+  };
+
+  class Spire : public Ship {
+    public:
+      Spire(std::string name) : Ship(name, 400, 950) {}
+  };
+
+  class Mobula : public Ship {
+    public:
+      Mobula(std::string name) : Ship(name, 600, 700) {}
+  };
+
   class Ammunition {
     private:
       double clipsize;
@@ -82,7 +139,7 @@ namespace goio {
   class Lochnagar : public Ammunition {
     public:
       Lochnagar() : Ammunition(
-                      0.5,
+                      0.4,
                       2.25,
                       true
       ) {};
@@ -93,7 +150,7 @@ namespace goio {
     private:
       int     clipsize;
       double  rof;
-      double  reload;
+      double  reload_;
       double  direct_dmg;
       DmgType direct_dmg_type;
       double  aoe_dmg;
@@ -120,7 +177,7 @@ namespace goio {
               DmgType aoe_dmg_type,
               double aoe_radius) : clipsize(clipsize),
                                    rof(rof),
-                                   reload(reload),
+                                   reload_(reload),
                                    direct_dmg(direct_dmg),
                                    direct_dmg_type(direct_dmg_type),
                                    aoe_dmg(aoe_dmg),
@@ -138,7 +195,7 @@ namespace goio {
 
       void set_clipsize(double clipsize);
       void set_rof(double rof);
-      void set_reload(double reload);
+      void set_reload(double reload_);
       void set_direct_dmg(double direct_dmg);
       void set_direct_dmg_type(DmgType direct_dmg_type);
       void set_aoe_dmg(double aoe_dmg);
@@ -165,7 +222,7 @@ namespace goio {
 
       void apply_ammunition(Ammunition* ammo);
 
-      void reset();
+      void reload(bool with_ammo = true);
   };
 
   class Gun : public GunInfo, public GoioObj {
@@ -181,9 +238,12 @@ namespace goio {
     public:
       inline double get_rof_changed() { return get_health()/get_max_health()*get_rof(); }
       inline double get_time_per_shot() { return get_max_health()/get_health()/get_rof(); }
+      inline double get_reload_changed() { return get_max_health()/get_health()*get_reload(); }
 
       bool shoot(GoioObj* obj, bool aoe, double aoe_range);
       inline bool shoot(GoioObj* obj) { return shoot(obj, true, 0); }
+
+      TimeFunc get_time_func();
   };
 
   class LightGun : public Gun {
@@ -213,27 +273,31 @@ namespace goio {
   class TimeObj {
     private:
       double time;
-
-      typedef std::function<double ()> TimeFunc;
-      typedef std::function<bool (GoioObj*)> TimeDmgFunc;
       struct FuncData {
+        GoioObj* registrar;
         TimeDmgFunc timedmgfunc;
         GoioObj* obj;
-        TimeFunc timefunc;
+        double time_prev;
+        double time_next;
+        double time_cur;
+        TimeCheckFunc timecheckfunc;
       };
 
       std::multimap<double, FuncData*> events;
+      std::multimap<GoioObj*, FuncData*> registrars;
 
-      bool register_event(FuncData* funcdata);
+      bool register_event(FuncData* funcdata, double time);
+      bool recalc_next_event(FuncData* funcdata);
 
     public:
-      TimeObj() : time(0), events() {}
+      TimeObj() : time(0), events(), registrars() {}
       ~TimeObj();
 
       inline double get_time() { return time; }
       bool next_event();
-      bool register_event(TimeDmgFunc timedmgfunc, GoioObj* obj,
-                          TimeFunc timefunc, double time = 0, bool rel = true);
+      bool register_event(GoioObj* registrar, TimeDmgFunc timedmgfunc,
+                          GoioObj* obj, TimeCheckFunc timecheckfunc,
+                          double time = 0, bool rel = true);
 
       void reset();
   };
