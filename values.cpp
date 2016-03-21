@@ -50,8 +50,14 @@ namespace goio {
       this->cur_aoe_radius = aoe_radius;
   }
 
+  int GunInfo::get_max_clipsize() {
+    if (get_ammo() != nullptr)
+      return clipsize*get_ammo()->get_clipsize();
+    return clipsize;
+  }
+
   void GunInfo::apply_ammunition(Ammunition* ammo) {
-    set_clipsize(get_max_clipsize() * ammo->get_clipsize());
+    set_clipsize(clipsize * ammo->get_clipsize());
     set_direct_dmg(get_direct_dmg() * ammo->get_damage());
     set_aoe_dmg(get_aoe_dmg() * ammo->get_damage());
 
@@ -86,14 +92,18 @@ namespace goio {
     cout << setw(5) << get_clipsize();
     cout << setw(8) << get_health();
 
-    dec_clipsize();
-
     GoioObj* tmpobj;
     if (obj->get_health() > 0)
       tmpobj = obj;
-    else
+    else {
       tmpobj = obj->get_hull();
+      if (tmpobj->get_health() == 0) {
+        done = true;
+        return false;
+      }
+    }
 
+    dec_clipsize();
     tmpobj->add_health(-get_direct_dmg()*dmg_types[tmpobj->get_cmp_type()][get_direct_dmg_type()]);
 
     if (aoe && aoe_range <= get_aoe_radius()) {
@@ -106,12 +116,14 @@ namespace goio {
     }
 
     if (get_ammo()->get_proportional_self_damage())
-      add_health(-get_max_health()/(get_max_clipsize()*get_ammo()->get_clipsize()));
+      add_health(-get_max_health()/get_max_clipsize());
 
     return true;
   }
 
   TimeFunc Gun::get_time_func() {
+    if (done)
+      return nullptr;
     if (get_health() == 0)
       return nullptr;
     if (get_clipsize() > 0)
@@ -122,9 +134,49 @@ namespace goio {
 
 
 
+  //RepairTool
+  bool RepairTool::repair(GoioObj* obj) {
+    if (obj->get_health() == obj->get_max_health() ||
+        (obj->get_health() == 0 && obj->get_hull()->get_health() == 0)) {
+      done = 2;
+      std::cout << "                            ";
+      return false;
+    }
+
+    using namespace std;
+    cout << fixed << setprecision(2);
+    cout << setw(15) << right << get_name();
+    cout << "             ";
+
+    if (obj->get_health() > 0) {
+      done = 0;
+      obj->add_health(get_heal());
+    } else {
+      done = 1;
+      obj->add_rebuild(get_rebuild_power());
+    }
+
+    return true;
+  }
+
+  TimeFunc RepairTool::get_time_func() {
+    switch (done) {
+      case 1:
+        return std::bind(&RepairTool::get_swing, this);
+      case 2:
+        return nullptr;
+      default:
+        return std::bind(&RepairTool::get_cooldown, this);
+    };
+  }
+
+
+
   //GoioObj
-  GoioObj::GoioObj(std::string name, CmpType cmp_type, double max_health, double hull_max_health) :
+  GoioObj::GoioObj(std::string name, CmpType cmp_type, int part_type_multiplier,
+                   double max_health, double hull_max_health) :
             name(name), cmp_type(cmp_type), max_health(max_health), health(max_health),
+            rebuild_state(-1), part_type_multiplier(part_type_multiplier),
             hull(new GoioObj()) {
     hull->max_health = hull->health = hull_max_health;
   }
@@ -134,14 +186,27 @@ namespace goio {
   }
 
   bool GoioObj::add_health(double health) {
+    if (health > 0 && cmp_type == CmpType::HULL)
+      return false;
+
     this->health += health;
     if (this->health > max_health)
       this->health = max_health;
-    else if (this->health < 0) {
+    else if (this->health <= 0) {
       this->health = 0;
+      rebuild_state = 0;
       return false;
     }
     return true;
+  }
+
+  bool GoioObj::add_rebuild(int rebuild_progress) {
+    rebuild_state += rebuild_progress;
+    if (rebuild_state >= get_rebuild_value()) {
+      health = max_health*health_after_rebuild;
+      return true;
+    }
+    return false;
   }
 
   void GoioObj::reset() {
@@ -176,11 +241,25 @@ namespace goio {
 
     auto ret = funcdata->timedmgfunc(funcdata->obj);
 
+    auto iterpair = registrars.equal_range(funcdata->obj);
+    for (auto it = iterpair.first; it != iterpair.second; ++it) {
+      recalc_next_event(it->second);
+    }
+
     cout << setw(13) << right << funcdata->obj->get_name()
-         << setw(8) << right << get_cmp_type_string(funcdata->obj->get_cmp_type())
-         << setw(8) << right << funcdata->obj->get_health()
-         << setw(10) << right << get_cmp_type_string(funcdata->obj->get_hull()->get_cmp_type())
-         << setw(8) << right << funcdata->obj->get_hull()->get_health() << endl;
+         << setw(10) << right << get_cmp_type_string(funcdata->obj->get_cmp_type())
+         << setw(8) << right << funcdata->obj->get_health();
+    if (funcdata->obj->get_health() == 0)
+      cout << setw(3) << right << setprecision(0)
+           << funcdata->obj->get_rebuild_state() << setprecision(2) << setw(7);
+    else
+      cout << setw(10);
+    cout << right << get_cmp_type_string(funcdata->obj->get_hull()->get_cmp_type())
+         << setw(8) << right << funcdata->obj->get_hull()->get_health();
+    if (funcdata->obj->get_hull()->get_health() == 0)
+      cout << setw(3) << right << setprecision(0)
+           << funcdata->obj->get_hull()->get_rebuild_state();
+    cout << endl;
 
     TimeFunc timefunc = funcdata->timecheckfunc();
     if (timefunc != nullptr) {
@@ -208,22 +287,32 @@ namespace goio {
   }
 
   bool TimeObj::recalc_next_event(FuncData* funcdata) {
-    auto fac = (time-funcdata->time_prev)/(funcdata->time_next-funcdata->time_prev);
-    auto comp_time = funcdata->timecheckfunc()();
+    bool res;
+    auto old_time_next = funcdata->time_next;
 
-    auto iterpair = events.equal_range(funcdata->time_next);
+    auto timefunc = funcdata->timecheckfunc();
+    if (timefunc != nullptr) {
+      auto fac = (time-funcdata->time_prev)/(funcdata->time_next-funcdata->time_prev);
+      auto comp_time = timefunc();
 
-    funcdata->time_next = time+(1-fac)*comp_time;
-    funcdata->time_prev = funcdata->time_next - comp_time;
+      funcdata->time_next = time+(1-fac)*comp_time;
+      funcdata->time_prev = funcdata->time_next - comp_time;
 
+      register_event(funcdata, funcdata->time_next);
+      res = true;
+    } else {
+      funcdata->time_cur = get_time();
+      res = false;
+    }
+
+    auto iterpair = events.equal_range(old_time_next);
     for (auto it = iterpair.first; it != iterpair.second; ++it) {
       if (it->second == funcdata) {
         events.erase(it);
         break;
       }
     }
-    register_event(funcdata, funcdata->time_next);
-    return true;
+    return res;
   }
 
   bool TimeObj::register_event(GoioObj* registrar, TimeDmgFunc timedmgfunc,
@@ -247,9 +336,10 @@ namespace goio {
 
   void TimeObj::reset() {
     time = 0;
-    for (auto it = events.begin(); it != events.end(); ++it) {
+    for (auto it = registrars.begin(); it != registrars.end(); ++it) {
       delete it->second;
     }
     events.clear();
+    registrars.clear();
   }
 }

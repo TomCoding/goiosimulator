@@ -51,24 +51,38 @@ namespace goio {
       CmpType cmp_type;
       double max_health;
       double health;
+      int rebuild_state;
+      int part_type_multiplier;
       GoioObj* hull;
 
-      GoioObj() : name(""), cmp_type(CmpType::HULL), max_health(0), health(0), hull(nullptr) {}
+      GoioObj() : name(""), cmp_type(CmpType::HULL), max_health(0), health(0),
+                  rebuild_state(-1), part_type_multiplier(-1), hull(nullptr) {}
 
     public:
-      GoioObj(std::string name, CmpType cmp_type, double max_health = 0, double hull_max_health = 0);
+      GoioObj(std::string name, CmpType cmp_type, int part_type_multiplier = -1,
+              double max_health = 0, double hull_max_health = 0);
       ~GoioObj();
+
+      const int    rebuild_base_hits         = 9;
+      const double rebuild_health_multiplier = 0.05;
+      const double health_after_rebuild      = 0.333333333333;
+
+      inline int get_rebuild_value() {
+        return std::round((rebuild_base_hits+max_health*rebuild_health_multiplier)*part_type_multiplier);
+      }
 
       inline std::string get_name() { return name; }
       inline CmpType get_cmp_type() { return cmp_type; }
       inline double  get_max_health() { return max_health; }
       inline double  get_health() { return health; }
+      inline double  get_rebuild_state() { return rebuild_state; }
       inline GoioObj* get_hull() { return hull; }
 
       /*
        * Return `false` if object gets destroyed, otherwise `true`
        */
       bool add_health(double health);
+      bool add_rebuild(int rebuild_progress);
 
       void reset();
       void reset_all();
@@ -79,7 +93,7 @@ namespace goio {
   class Ship : public GoioObj {
     public:
       Ship(std::string name, double max_health, double hull_max_health) :
-                GoioObj(name, CmpType::ARMOR, max_health, hull_max_health) {};
+                GoioObj(name, CmpType::ARMOR, 1, max_health, hull_max_health) {};
   };
 
   class Pyramidion : public Ship {
@@ -146,6 +160,66 @@ namespace goio {
   };
 
 
+  class RepairInfo {
+    private:
+      double swing;
+      double heal;
+      int    rebuild_power;
+      int    extinguish;
+      double cooldown;
+
+    protected:
+      RepairInfo(double swing,
+                 double heal,
+                 int rebuild_power,
+                 int extinguish,
+                 double cooldown) : swing(swing),
+                                    heal(heal),
+                                    rebuild_power(rebuild_power),
+                                    extinguish(extinguish),
+                                    cooldown(cooldown) {}
+
+    public:
+      inline double get_swing() { return swing; }
+      inline double get_heal() { return heal; }
+      inline int    get_rebuild_power() { return rebuild_power; }
+      inline int    get_extinguish() { return extinguish; }
+      inline double get_cooldown() { return cooldown; }
+  };
+
+  class RepairTool : public RepairInfo, public GoioObj {
+    private:
+      int done; // 0 = normal, 1 = rebuild swings, 2 = done
+
+    protected:
+      RepairTool(std::string name, double swing, double heal,
+                 int rebuild_power, int extinguish, double cooldown) :
+                      RepairInfo(swing, heal, rebuild_power, extinguish, cooldown),
+                      GoioObj(name, CmpType::COMPONENTS),
+                      done(0) {}
+
+    public:
+      bool repair(GoioObj* obj);
+
+      TimeFunc get_time_func();
+  };
+
+  class Spanner : public RepairTool {
+    public:
+      Spanner(std::string name) : RepairTool(name, 0.7, 40, 5, 0, 2) {}
+  };
+
+  class Mallet : public RepairTool {
+    public:
+      Mallet(std::string name) : RepairTool(name, 0.65, 250, 2, 0, 9) {}
+  };
+
+  class PipeWrench : public RepairTool {
+    public:
+      PipeWrench(std::string name) : RepairTool(name, 0.667, 120, 4, 0, 5) {}
+  };
+
+
   class GunInfo {
     private:
       int     clipsize;
@@ -209,7 +283,7 @@ namespace goio {
       }
 
     public:
-      inline int     get_max_clipsize() { return clipsize; }
+      int get_max_clipsize();
       inline int     get_clipsize() { return cur_clipsize; }
       inline double  get_rof() { return cur_rof; }
       inline double  get_reload() { return cur_reload; }
@@ -226,6 +300,9 @@ namespace goio {
   };
 
   class Gun : public GunInfo, public GoioObj {
+    private:
+      bool done;
+
     protected:
       Gun(std::string name, double max_health,
           int clipsize, double rof, double reload, double direct_dmg,
@@ -233,7 +310,8 @@ namespace goio {
           double aoe_radius) :
                   GunInfo(clipsize, rof, reload, direct_dmg, direct_dmg_type,
                           aoe_dmg, aoe_dmg_type, aoe_radius),
-                  GoioObj(name, CmpType::COMPONENTS, max_health) {}
+                  GoioObj(name, CmpType::COMPONENTS, 2.33, max_health),
+                  done(false) {}
 
     public:
       inline double get_rof_changed() { return get_health()/get_max_health()*get_rof(); }
@@ -274,12 +352,12 @@ namespace goio {
     private:
       double time;
       struct FuncData {
-        GoioObj* registrar;
+        GoioObj* registrar;  // key in registrars
         TimeDmgFunc timedmgfunc;
         GoioObj* obj;
         double time_prev;
-        double time_next;
-        double time_cur;
+        double time_next;    // key in events
+        double time_cur;     // if set, not in events (on hold)
         TimeCheckFunc timecheckfunc;
       };
 
@@ -298,6 +376,7 @@ namespace goio {
       bool register_event(GoioObj* registrar, TimeDmgFunc timedmgfunc,
                           GoioObj* obj, TimeCheckFunc timecheckfunc,
                           double time = 0, bool rel = true);
+      inline bool done() { return events.empty(); }
 
       void reset();
   };
