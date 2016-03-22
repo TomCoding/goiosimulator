@@ -50,16 +50,17 @@ namespace goio {
       this->cur_aoe_radius = aoe_radius;
   }
 
-  int GunInfo::get_max_clipsize() {
+  int GunInfo::get_max_clipsize() const {
     if (get_ammo() != nullptr)
       return clipsize*get_ammo()->get_clipsize();
     return clipsize;
   }
 
-  void GunInfo::apply_ammunition(Ammunition* ammo) {
+  void GunInfo::apply_ammunition(const Ammunition* ammo) {
     set_clipsize(clipsize * ammo->get_clipsize());
-    set_direct_dmg(get_direct_dmg() * ammo->get_damage());
-    set_aoe_dmg(get_aoe_dmg() * ammo->get_damage());
+    set_direct_dmg(direct_dmg * ammo->get_damage());
+    set_aoe_dmg(aoe_dmg * ammo->get_damage());
+    set_aoe_radius(aoe_radius * ammo->get_aoe_radius());
 
     cur_ammo = ammo;
   }
@@ -72,6 +73,7 @@ namespace goio {
     set_direct_dmg_type(direct_dmg_type);
     set_aoe_dmg(aoe_dmg);
     set_aoe_dmg_type(aoe_dmg_type);
+    set_aoe_radius(aoe_radius);
 
     if (with_ammo)
       apply_ammunition(get_ammo());
@@ -173,14 +175,6 @@ namespace goio {
 
 
   //GoioObj
-  GoioObj::GoioObj(std::string name, CmpType cmp_type, int part_type_multiplier,
-                   double max_health, double hull_max_health) :
-            name(name), cmp_type(cmp_type), max_health(max_health), health(max_health),
-            rebuild_state(-1), part_type_multiplier(part_type_multiplier),
-            hull(new GoioObj()) {
-    hull->max_health = hull->health = hull_max_health;
-  }
-
   GoioObj::~GoioObj() {
     delete hull;
   }
@@ -209,13 +203,10 @@ namespace goio {
     return false;
   }
 
-  void GoioObj::reset() {
+  void GoioObj::reset(bool hull) {
     health = max_health;
-  }
-
-  void GoioObj::reset_all() {
-    reset();
-    hull->health = hull->max_health;
+    if (hull)
+      this->hull->health = this->hull->max_health;
   }
 
 
