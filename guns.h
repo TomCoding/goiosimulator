@@ -19,26 +19,6 @@ namespace goio {
       const DmgType aoe_dmg_type;
       const double  aoe_radius;
 
-      int     cur_clipsize;
-      double  cur_rof;
-      double  cur_reload;
-      double  cur_direct_dmg;
-      DmgType cur_direct_dmg_type;
-      double  cur_aoe_dmg;
-      DmgType cur_aoe_dmg_type;
-      double  cur_aoe_radius;
-
-      const Ammunition* cur_ammo;
-
-      GunInfo(const GunInfo& obj) : clipsize(obj.clipsize), rof(obj.rof),
-          reload_(obj.reload_), direct_dmg(obj.direct_dmg), direct_dmg_type(obj.direct_dmg_type),
-          aoe_dmg(obj.aoe_dmg), aoe_dmg_type(obj.aoe_dmg_type), aoe_radius(obj.aoe_radius),
-          cur_clipsize(obj.cur_clipsize), cur_rof(obj.cur_rof), cur_reload(obj.cur_reload),
-          cur_direct_dmg(obj.cur_direct_dmg), cur_direct_dmg_type(obj.cur_direct_dmg_type),
-          cur_aoe_dmg(obj.cur_aoe_dmg), cur_aoe_dmg_type(obj.cur_aoe_dmg_type),
-          cur_aoe_radius(obj.cur_aoe_radius), cur_ammo(obj.cur_ammo) {}
-      GunInfo& operator=(const GunInfo&) { return *this; };
-
     protected:
       GunInfo(int clipsize,
               double rof,
@@ -54,17 +34,65 @@ namespace goio {
                                    direct_dmg_type(direct_dmg_type),
                                    aoe_dmg(aoe_dmg),
                                    aoe_dmg_type(aoe_dmg_type),
-                                   aoe_radius(aoe_radius),
-                                   cur_clipsize(clipsize),
-                                   cur_rof(rof),
-                                   cur_reload(reload),
-                                   cur_direct_dmg(direct_dmg),
-                                   cur_direct_dmg_type(direct_dmg_type),
-                                   cur_aoe_dmg(aoe_dmg),
-                                   cur_aoe_dmg_type(aoe_dmg_type),
-                                   cur_aoe_radius(aoe_radius),
-                                   cur_ammo(nullptr) {}
+                                   aoe_radius(aoe_radius) {}
       virtual ~GunInfo() {};
+
+    public:
+      inline int     get_orig_clipsize() const { return clipsize; }
+      inline double  get_orig_rof() const { return rof; }
+      inline double  get_orig_reload() const { return reload_; }
+      inline double  get_orig_direct_dmg() const { return direct_dmg; }
+      inline DmgType get_orig_direct_dmg_type() const { return direct_dmg_type; }
+      inline double  get_orig_aoe_dmg() const { return aoe_dmg; }
+      inline DmgType get_orig_aoe_dmg_type() const { return aoe_dmg_type; }
+      inline double  get_orig_aoe_radius() const { return aoe_radius; }
+  };
+
+  class Gun : public GunInfo, public GoioObj {
+    private:
+      int     cur_clipsize;
+      double  cur_rof;
+      double  cur_reload;
+      double  cur_direct_dmg;
+      DmgType cur_direct_dmg_type;
+      double  cur_aoe_dmg;
+      DmgType cur_aoe_dmg_type;
+      double  cur_aoe_radius;
+
+      const Ammunition* cur_ammo;
+
+      bool done;
+
+      Gun(const Gun& obj) : GunInfo(obj.get_orig_clipsize(), obj.get_orig_rof(),
+                  obj.get_orig_reload(), obj.get_orig_direct_dmg(),
+                  obj.get_orig_direct_dmg_type(), obj.get_orig_aoe_dmg(),
+                  obj.get_orig_aoe_dmg_type(), obj.get_orig_aoe_radius()),
+              GoioObj(obj.get_name(), CmpType::COMPONENTS, 2.33, obj.get_max_health()),
+              cur_clipsize(obj.cur_clipsize), cur_rof(obj.cur_rof), cur_reload(obj.cur_reload),
+              cur_direct_dmg(obj.cur_direct_dmg), cur_direct_dmg_type(obj.cur_direct_dmg_type),
+              cur_aoe_dmg(obj.cur_aoe_dmg), cur_aoe_dmg_type(obj.cur_aoe_dmg_type),
+              cur_aoe_radius(obj.cur_aoe_radius), cur_ammo(obj.cur_ammo),
+              done(false) {}
+      Gun& operator=(const Gun&) { return *this; };
+
+    protected:
+      Gun(const std::string name, double max_health,
+          int clipsize, double rof, double reload, double direct_dmg,
+          DmgType direct_dmg_type, double aoe_dmg, DmgType aoe_dmg_type,
+          double aoe_radius) :
+                  GunInfo(clipsize, rof, reload, direct_dmg, direct_dmg_type,
+                          aoe_dmg, aoe_dmg_type, aoe_radius),
+                  GoioObj(name, CmpType::COMPONENTS, 2.33, max_health),
+                  cur_clipsize(clipsize),
+                  cur_rof(rof),
+                  cur_reload(reload),
+                  cur_direct_dmg(direct_dmg),
+                  cur_direct_dmg_type(direct_dmg_type),
+                  cur_aoe_dmg(aoe_dmg),
+                  cur_aoe_dmg_type(aoe_dmg_type),
+                  cur_aoe_radius(aoe_radius),
+                  cur_ammo(nullptr),
+                  done(false) {}
 
       void set_clipsize(double clipsize);
       void set_rof(double rof);
@@ -82,6 +110,8 @@ namespace goio {
       }
 
     public:
+      virtual ~Gun() {}
+
       int get_max_clipsize() const;
       inline int     get_clipsize() const { return cur_clipsize; }
       inline double  get_rof() const { return cur_rof; }
@@ -96,24 +126,6 @@ namespace goio {
       void apply_ammunition(const Ammunition* ammo);
 
       void reload(bool with_ammo = true);
-  };
-
-  class Gun : public GunInfo, public GoioObj {
-    private:
-      bool done;
-
-    protected:
-      Gun(const std::string name, double max_health,
-          int clipsize, double rof, double reload, double direct_dmg,
-          DmgType direct_dmg_type, double aoe_dmg, DmgType aoe_dmg_type,
-          double aoe_radius) :
-                  GunInfo(clipsize, rof, reload, direct_dmg, direct_dmg_type,
-                          aoe_dmg, aoe_dmg_type, aoe_radius),
-                  GoioObj(name, CmpType::COMPONENTS, 2.33, max_health),
-                  done(false) {}
-
-    public:
-      virtual ~Gun() {}
 
       inline double get_rof_changed() const { return get_health()/get_max_health()*get_rof(); }
       inline double get_time_per_shot() const { return get_max_health()/get_health()/get_rof(); }

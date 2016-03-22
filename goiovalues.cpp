@@ -5,10 +5,6 @@
 
 using namespace std;
 
-namespace goio {
-
-}
-
 int main() {
   auto gat = new goio::Gatling("Gatling1");
 

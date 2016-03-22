@@ -1,84 +1,85 @@
 #include "guns.h"
+#include<cmath>
 
 #include <iostream>
 #include <iomanip>
 
 namespace goio {
 
-  void GunInfo::set_clipsize(double clipsize) {
+  void Gun::set_clipsize(double clipsize) {
     if (clipsize < 0)
-      this->cur_clipsize = 0;
+      cur_clipsize = 0;
     else
-      this->cur_clipsize = std::round(clipsize);
+      cur_clipsize = std::round(clipsize);
   }
-  void GunInfo::set_rof(double rof) {
+  void Gun::set_rof(double rof) {
     if (rof < 0)
-      this->cur_rof = 0;
+      cur_rof = 0;
     else
-      this->cur_rof = rof;
+      cur_rof = rof;
   }
-  void GunInfo::set_reload(double reload) {
+  void Gun::set_reload(double reload) {
     if (reload < 0)
-      this->cur_reload = 0;
+      cur_reload = 0;
     else
-      this->cur_reload = reload;
+      cur_reload = reload;
   }
-  void GunInfo::set_direct_dmg(double direct_dmg) {
+  void Gun::set_direct_dmg(double direct_dmg) {
     if (direct_dmg < 0)
-      this->cur_direct_dmg = 0;
+      cur_direct_dmg = 0;
     else
-      this->cur_direct_dmg = direct_dmg;
+      cur_direct_dmg = direct_dmg;
   }
-  void GunInfo::set_direct_dmg_type(DmgType direct_dmg_type) {
-    this->cur_direct_dmg_type = direct_dmg_type;
+  void Gun::set_direct_dmg_type(DmgType direct_dmg_type) {
+    cur_direct_dmg_type = direct_dmg_type;
   }
-  void GunInfo::set_aoe_dmg(double aoe_dmg) {
+  void Gun::set_aoe_dmg(double aoe_dmg) {
     if (aoe_dmg < 0)
-      this->cur_aoe_dmg = 0;
+      cur_aoe_dmg = 0;
     else
-      this->cur_aoe_dmg = aoe_dmg;
+      cur_aoe_dmg = aoe_dmg;
   }
-  void GunInfo::set_aoe_dmg_type(DmgType aoe_dmg_type) {
-    this->cur_aoe_dmg_type = aoe_dmg_type;
+  void Gun::set_aoe_dmg_type(DmgType aoe_dmg_type) {
+    cur_aoe_dmg_type = aoe_dmg_type;
   }
-  void GunInfo::set_aoe_radius(double aoe_radius) {
+  void Gun::set_aoe_radius(double aoe_radius) {
     if (aoe_radius < 0)
-      this->cur_aoe_radius = 0;
+      cur_aoe_radius = 0;
     else
-      this->cur_aoe_radius = aoe_radius;
+      cur_aoe_radius = aoe_radius;
   }
 
-  int GunInfo::get_max_clipsize() const {
+  int Gun::get_max_clipsize() const {
     if (get_ammo() != nullptr)
-      return clipsize*get_ammo()->get_clipsize();
-    return clipsize;
+      return get_orig_clipsize()*get_ammo()->get_clipsize();
+    return get_orig_clipsize();
   }
 
-  void GunInfo::apply_ammunition(const Ammunition* ammo) {
-    set_clipsize(clipsize * ammo->get_clipsize());
-    set_direct_dmg(direct_dmg * ammo->get_damage());
-    set_aoe_dmg(aoe_dmg * ammo->get_damage());
-    set_aoe_radius(aoe_radius * ammo->get_aoe_radius());
+  void Gun::apply_ammunition(const Ammunition* ammo) {
+    set_clipsize(get_orig_clipsize() * ammo->get_clipsize());
+    set_direct_dmg(get_orig_direct_dmg() * ammo->get_damage());
+    set_aoe_dmg(get_orig_aoe_dmg() * ammo->get_damage());
+    set_aoe_radius(get_orig_aoe_radius() * ammo->get_aoe_radius());
 
     cur_ammo = ammo;
   }
 
-  void GunInfo::reload(bool with_ammo) {
-    set_clipsize(clipsize);
-    set_rof(rof);
-    set_reload(reload_);
-    set_direct_dmg(direct_dmg);
-    set_direct_dmg_type(direct_dmg_type);
-    set_aoe_dmg(aoe_dmg);
-    set_aoe_dmg_type(aoe_dmg_type);
-    set_aoe_radius(aoe_radius);
+  void Gun::reload(bool with_ammo) {
+    set_rof(get_orig_rof());
+    set_reload(get_orig_reload());
+    set_direct_dmg_type(get_orig_direct_dmg_type());
+    set_aoe_dmg_type(get_orig_aoe_dmg_type());
 
     if (with_ammo)
       apply_ammunition(get_ammo());
-    else
+    else {
+      set_clipsize(get_orig_clipsize());
+      set_direct_dmg(get_orig_direct_dmg());
+      set_aoe_dmg(get_orig_aoe_dmg());
+      set_aoe_radius(get_orig_aoe_radius());
       cur_ammo = nullptr;
+    }
   }
-
 
   bool Gun::shoot(GoioObj* obj, bool aoe, double aoe_range) {
     if (get_health() == 0 || get_clipsize() == 0)
