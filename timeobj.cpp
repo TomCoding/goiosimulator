@@ -1,5 +1,6 @@
 #include "timeobj.h"
 #include "goioobj.h"
+#include "goioactor.h"
 
 #include <iostream>
 #include <iomanip>
@@ -100,7 +101,7 @@ namespace goio {
     return res;
   }
 
-  bool TimeObj::register_event(GoioObj* registrar, TimeDmgFunc timedmgfunc,
+  bool TimeObj::register_event(GoioActor* registrar, TimeDmgFunc timedmgfunc,
                                GoioObj* obj, TimeCheckFunc timecheckfunc,
                                double time, bool rel) {
     double comp_time;

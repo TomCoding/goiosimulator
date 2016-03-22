@@ -2,7 +2,6 @@
 #define __GOIOOBJ_H
 
 #include "dmg_types.h"
-
 #include <functional>
 #include <cmath>
 #include <string>

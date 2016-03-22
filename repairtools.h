@@ -2,6 +2,7 @@
 #define __REPAIRTOOLS_H
 
 #include "goioobj.h"
+#include "goioactor.h"
 #include <string>
 
 namespace goio {
@@ -34,7 +35,7 @@ namespace goio {
       inline double get_cooldown() const { return cooldown; }
   };
 
-  class RepairTool : public RepairInfo, public GoioObj {
+  class RepairTool : public RepairInfo, public GoioActor {
     private:
       int done; // 0 = normal, 1 = rebuild swings, 2 = done
 
@@ -42,7 +43,7 @@ namespace goio {
       RepairTool(const std::string name, double swing, double heal,
                  int rebuild_power, int extinguish, double cooldown) :
                       RepairInfo(swing, heal, rebuild_power, extinguish, cooldown),
-                      GoioObj(name, CmpType::COMPONENTS),
+                      GoioActor(name, CmpType::COMPONENTS),
                       done(0) {}
 
     public:
@@ -50,7 +51,7 @@ namespace goio {
 
       bool repair(GoioObj* obj);
 
-      TimeFunc get_time_func();
+      TimeFunc get_time_func() override;
   };
 
   class Spanner : public RepairTool {

@@ -2,6 +2,7 @@
 #define __TIMEOBJ_H
 
 #include "goioobj.h"
+#include "goioactor.h"
 #include <map>
 
 namespace goio {
@@ -31,7 +32,7 @@ namespace goio {
 
       inline double get_time() const { return time; }
       bool next_event();
-      bool register_event(GoioObj* registrar, TimeDmgFunc timedmgfunc,
+      bool register_event(GoioActor* registrar, TimeDmgFunc timedmgfunc,
                           GoioObj* obj, TimeCheckFunc timecheckfunc,
                           double time = 0, bool rel = true);
       inline bool done() const { return events.empty(); }
