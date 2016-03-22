@@ -1,6 +1,8 @@
-#include "values.h"
+#include "goiovalues.h"
+
 #include <iostream>
 #include <iomanip>
+
 using namespace std;
 
 namespace goio {

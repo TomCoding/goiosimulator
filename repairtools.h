@@ -1,0 +1,73 @@
+#ifndef __REPAIRTOOLS_H
+#define __REPAIRTOOLS_H
+
+#include "goioobj.h"
+#include <string>
+
+namespace goio {
+
+  class RepairInfo {
+    private:
+      const double swing;
+      const double heal;
+      const int    rebuild_power;
+      const int    extinguish;
+      const double cooldown;
+
+    protected:
+      RepairInfo(double swing,
+                 double heal,
+                 int rebuild_power,
+                 int extinguish,
+                 double cooldown) : swing(swing),
+                                    heal(heal),
+                                    rebuild_power(rebuild_power),
+                                    extinguish(extinguish),
+                                    cooldown(cooldown) {}
+      virtual ~RepairInfo() {};
+
+    public:
+      inline double get_swing() const { return swing; }
+      inline double get_heal() const { return heal; }
+      inline int    get_rebuild_power() const { return rebuild_power; }
+      inline int    get_extinguish() const { return extinguish; }
+      inline double get_cooldown() const { return cooldown; }
+  };
+
+  class RepairTool : public RepairInfo, public GoioObj {
+    private:
+      int done; // 0 = normal, 1 = rebuild swings, 2 = done
+
+    protected:
+      RepairTool(const std::string name, double swing, double heal,
+                 int rebuild_power, int extinguish, double cooldown) :
+                      RepairInfo(swing, heal, rebuild_power, extinguish, cooldown),
+                      GoioObj(name, CmpType::COMPONENTS),
+                      done(0) {}
+
+    public:
+      virtual ~RepairTool() {}
+
+      bool repair(GoioObj* obj);
+
+      TimeFunc get_time_func();
+  };
+
+  class Spanner : public RepairTool {
+    public:
+      explicit Spanner(const std::string name) : RepairTool(name, 0.7, 40, 5, 0, 2) {}
+  };
+
+  class Mallet : public RepairTool {
+    public:
+      explicit Mallet(const std::string name) : RepairTool(name, 0.65, 250, 2, 0, 9) {}
+  };
+
+  class PipeWrench : public RepairTool {
+    public:
+      explicit PipeWrench(const std::string name) : RepairTool(name, 0.667, 120, 4, 0, 5) {}
+  };
+
+}
+
+#endif // __REPAIRTOOLS_H
