@@ -25,9 +25,10 @@ namespace goio {
     cout << fixed << setprecision(2);
     cout << setw(8) << right << get_time();
 
-    auto ret = funcdata->timedmgfunc(funcdata->obj);
+    bool changed = false;
+    auto ret = funcdata->timedmgfunc(funcdata->obj, changed);
 
-    // update directly associated actors
+    // update targeted actor
     auto iterpair = registrars.equal_range(funcdata->obj);
     for (auto it = iterpair.first; it != iterpair.second; ++it) {
       recalc_next_event(it->second);
@@ -36,9 +37,18 @@ namespace goio {
     // update to recipient associated actors
     auto iterpair2 = recipients.equal_range(funcdata->obj);
     for (auto it = iterpair2.first; it != iterpair2.second; ++it) {
-      // don't update current actor and don't update actions on hold
-      if (it->second != funcdata && it->second->time_cur == 0)
+      // don't update current actor itself
+      if (it->second != funcdata)
         recalc_next_event(it->second);
+    }
+
+    // update to actor associated actors
+    if (changed) {
+      auto iterpair3 = recipients.equal_range(funcdata->registrar);
+      for (auto it = iterpair3.first; it != iterpair3.second; ++it) {
+        if (it->second != funcdata)
+          recalc_next_event(it->second);
+      }
     }
 
     cout << setw(13) << right << funcdata->obj->get_name()
@@ -78,6 +88,9 @@ namespace goio {
   }
 
   bool TimeObj::recalc_next_event(FuncData* funcdata) {
+    if (funcdata->time_prev < 0)
+      return true;
+
     bool res;
     auto old_time_next = funcdata->time_next;
 
@@ -129,7 +142,7 @@ namespace goio {
     if (comp_time < time)
       return false;
 
-    auto funcdata = new FuncData {registrar, timedmgfunc, obj, get_time(),
+    auto funcdata = new FuncData {registrar, timedmgfunc, obj, -1,
                                   comp_time, -1, timecheckfunc};
     events.insert(std::make_pair(comp_time, funcdata));
     registrars.insert(std::make_pair(registrar, funcdata));

@@ -17,7 +17,7 @@ namespace goio {
       cur_swing = swing;
   }
 
-  bool RepairTool::repair(GoioObj* obj) {
+  bool RepairTool::repair(GoioObj* obj, bool&) {
     cur_swing = get_swing();
     if (obj->get_health() == obj->get_max_health() ||
         (obj->get_health() == 0 && obj->get_hull()->get_health() == 0)) {

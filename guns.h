@@ -62,7 +62,7 @@ namespace goio {
 
       const Ammunition* cur_ammo;
 
-      bool done;
+      bool during_reload;
 
       Gun(const Gun& obj) : GunInfo(obj.get_orig_clipsize(), obj.get_orig_rof(),
                   obj.get_orig_reload(), obj.get_orig_direct_dmg(),
@@ -73,12 +73,12 @@ namespace goio {
               cur_direct_dmg(obj.cur_direct_dmg), cur_direct_dmg_type(obj.cur_direct_dmg_type),
               cur_aoe_dmg(obj.cur_aoe_dmg), cur_aoe_dmg_type(obj.cur_aoe_dmg_type),
               cur_aoe_radius(obj.cur_aoe_radius), cur_ammo(obj.cur_ammo),
-              done(false) {}
+              during_reload(false) {}
       Gun& operator=(const Gun&) { return *this; };
 
       void set_clipsize(double clipsize);
       void set_rof(double rof);
-      void set_reload(double reload_);
+      void set_reload(double reload);
       void set_direct_dmg(double direct_dmg);
       void set_direct_dmg_type(DmgType direct_dmg_type);
       void set_aoe_dmg(double aoe_dmg);
@@ -108,7 +108,7 @@ namespace goio {
                   cur_aoe_dmg_type(aoe_dmg_type),
                   cur_aoe_radius(aoe_radius),
                   cur_ammo(nullptr),
-                  done(false) {}
+                  during_reload(false) {}
 
     public:
       virtual ~Gun() {}
@@ -132,8 +132,8 @@ namespace goio {
       inline double get_time_per_shot() const { return get_max_health()/get_health()/get_rof(); }
       inline double get_reload_changed() const { return get_max_health()/get_health()*get_reload(); }
 
-      bool shoot(GoioObj* obj, bool aoe, double aoe_range);
-      inline bool shoot(GoioObj* obj) { return shoot(obj, true, 0); }
+      bool shoot(GoioObj* obj, bool& changed, bool aoe, double aoe_range);
+      inline bool shoot(GoioObj* obj, bool& changed) { return shoot(obj, changed, true, 0); }
 
       TimeFunc get_time_func(const GoioObj*, double, bool&) override;
   };

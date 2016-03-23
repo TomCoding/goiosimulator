@@ -55,7 +55,7 @@ namespace goio {
       void set_cur_swing(double);
       inline double get_cur_swing() const { return cur_swing; }
 
-      bool repair(GoioObj* obj);
+      bool repair(GoioObj* obj, bool&);
 
       void reset(bool = true) override;
 

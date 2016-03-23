@@ -7,7 +7,14 @@ namespace goio {
     delete hull;
   }
 
-  bool GoioObj::add_health(double health) {
+  void GoioObj::set_cur_cooldown(double cooldown) {
+    if (cooldown < 0)
+      this->cooldown = 0;
+    else
+      this->cooldown = cooldown;
+  }
+
+  bool GoioObj::add_health(double health, double cooldown) {
     if (health > 0 && cmp_type == CmpType::HULL)
       return false;
 
@@ -17,8 +24,12 @@ namespace goio {
     else if (this->health <= 0) {
       this->health = 0;
       rebuild_state = 0;
+      this->cooldown = 0;
       return false;
     }
+
+    set_cur_cooldown(cooldown);
+
     return true;
   }
 
@@ -33,6 +44,7 @@ namespace goio {
 
   void GoioObj::reset(bool hull) {
     health = max_health;
+    cooldown = 0;
     if (hull)
       this->hull->health = this->hull->max_health;
   }

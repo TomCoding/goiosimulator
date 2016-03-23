@@ -34,7 +34,7 @@ namespace goio {
     cur_tool = tool;
   }
 
-  bool Engineer::repair(GoioObj* obj) {
+  bool Engineer::repair(GoioObj* obj, bool& changed) {
     if (obj->get_health() == 0)
       select_tool(spanner);
     else {
@@ -62,7 +62,7 @@ namespace goio {
       }
     }
 
-    return cur_tool->repair(obj);
+    return cur_tool->repair(obj, changed);
   }
 
   TimeFunc Engineer::get_time_func(const GoioObj* obj, double time, bool& force) {

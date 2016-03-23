@@ -82,7 +82,11 @@ namespace goio {
     }
   }
 
-  bool Gun::shoot(GoioObj* obj, bool aoe, double aoe_range) {
+  bool Gun::shoot(GoioObj* obj, bool& changed, bool aoe, double aoe_range) {
+    if (during_reload) {
+      reload();
+      during_reload = false;
+    }
     if (get_health() == 0 || get_clipsize() == 0) {
       std::cout << "                            ";
       return false;
@@ -94,7 +98,6 @@ namespace goio {
     else {
       tmpobj = obj->get_hull();
       if (tmpobj->get_health() == 0) {
-        done = true;
         std::cout << "                            ";
         return false;
       }
@@ -120,19 +123,23 @@ namespace goio {
       tmpobj->add_health(-falloff*get_aoe_dmg()*dmg_types[tmpobj->get_cmp_type()][get_aoe_dmg_type()]);
     }
 
-    if (get_ammo()->get_proportional_self_damage())
+    if (get_ammo()->get_proportional_self_damage()) {
       add_health(-get_max_health()/get_max_clipsize());
+      changed = true;
+    }
 
     return true;
   }
 
   TimeFunc Gun::get_time_func(const GoioObj* obj, double, bool&) {
-    if (done || get_health() == 0 || (obj->get_health() == 0 &&
-                                      obj->get_hull()->get_health() == 0))
+    if (during_reload)
+      return std::bind(&Gun::get_reload_changed, this);
+
+    if (get_health() == 0 || (obj->get_health() == 0 && obj->get_hull()->get_health() == 0))
       return nullptr;
     if (get_clipsize() > 0)
       return std::bind(&Gun::get_time_per_shot, this);
-    reload();
+    during_reload = true;
     return std::bind(&Gun::get_reload_changed, this);
   }
 
