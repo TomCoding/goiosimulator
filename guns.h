@@ -132,8 +132,8 @@ namespace goio {
       inline double get_time_per_shot() const { return get_max_health()/get_health()/get_rof(); }
       inline double get_reload_changed() const { return get_max_health()/get_health()*get_reload(); }
 
-      bool shoot(GoioObj* obj, bool& changed, bool aoe, double aoe_range);
-      inline bool shoot(GoioObj* obj, bool& changed) { return shoot(obj, changed, true, 0); }
+      bool shoot(GoioObj* obj, double, bool& changed, bool aoe, double aoe_range);
+      inline bool shoot(GoioObj* obj, double time, bool& changed) { return shoot(obj, time, changed, true, 0); }
 
       TimeFunc get_time_func(const GoioObj*, double, bool&) override;
   };

@@ -26,7 +26,7 @@ namespace goio {
     cout << setw(8) << right << get_time();
 
     bool changed = false;
-    auto ret = funcdata->timedmgfunc(funcdata->obj, changed);
+    auto ret = funcdata->timedmgfunc(funcdata->obj, get_time(), changed);
 
     // update targeted actor
     auto iterpair = registrars.equal_range(funcdata->obj);

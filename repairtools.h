@@ -39,13 +39,14 @@ namespace goio {
     private:
       int done; // 0 = normal, 1 = rebuild swings, 2 = done
       double cur_swing;
+      double repair_wait;
 
     protected:
       RepairTool(const std::string name, double swing, double heal,
                  int rebuild_power, int extinguish, double cooldown) :
                       RepairInfo(swing, heal, rebuild_power, extinguish, cooldown),
                       GoioActor(name, CmpType::COMPONENTS),
-                      done(0), cur_swing(swing) {}
+                      done(0), cur_swing(swing), repair_wait(0) {}
 
     public:
       virtual ~RepairTool() {}
@@ -54,8 +55,9 @@ namespace goio {
 
       void set_cur_swing(double);
       inline double get_cur_swing() const { return cur_swing; }
+      inline double wait_cooldown() const { return repair_wait; }
 
-      bool repair(GoioObj* obj, bool&);
+      bool repair(GoioObj* obj, double time, bool&);
 
       void reset(bool = true) override;
 

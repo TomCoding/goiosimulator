@@ -17,12 +17,18 @@ namespace goio {
       cur_swing = swing;
   }
 
-  bool RepairTool::repair(GoioObj* obj, bool&) {
+  bool RepairTool::repair(GoioObj* obj, double time, bool&) {
     cur_swing = get_swing();
     if (obj->get_health() == obj->get_max_health() ||
-        (obj->get_health() == 0 && obj->get_hull()->get_health() == 0)) {
+              (obj->get_health() == 0 && obj->get_hull()->get_health() == 0)) {
       done = 2;
       std::cout << "                            ";
+      return false;
+    } else if (obj->get_cooldown_end() > time) {
+      std::cout << "                            ";
+      done = 0;
+      if (repair_wait == 0)
+        repair_wait = obj->get_cooldown_end() - time;
       return false;
     }
 
@@ -33,10 +39,12 @@ namespace goio {
 
     if (obj->get_health() > 0) {
       done = 0;
-      obj->add_health(get_heal());
+      obj->add_health(get_heal(), time + get_cooldown());
+      repair_wait = get_cooldown();
     } else {
       done = 1;
       obj->add_rebuild(get_rebuild_power());
+      repair_wait = 0;
     }
 
     return true;
@@ -60,12 +68,15 @@ namespace goio {
           if (timediff > 0)
             cur_swing = timediff;
           else
-            // slightly delayed, to prevent possible insta-rebuilds
             cur_swing = swing_foreshadowing_delay;
           force = true;
           return std::bind(&RepairTool::get_cur_swing, this);
         }
-        return std::bind(&RepairTool::get_cooldown, this);
+
+        if (wait_cooldown() > 0)
+          return std::bind(&RepairTool::wait_cooldown, this);
+        else
+          return std::bind(&RepairTool::get_cooldown, this);
       default:
         assert(false);
     }

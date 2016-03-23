@@ -82,7 +82,7 @@ namespace goio {
     }
   }
 
-  bool Gun::shoot(GoioObj* obj, bool& changed, bool aoe, double aoe_range) {
+  bool Gun::shoot(GoioObj* obj, double, bool& changed, bool aoe, double aoe_range) {
     if (during_reload) {
       reload();
       during_reload = false;

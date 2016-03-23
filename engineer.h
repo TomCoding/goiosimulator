@@ -47,7 +47,7 @@ namespace goio {
 
       inline void set_mode(RepairMode mode) { this->mode = mode; }
 
-      bool repair(GoioObj* obj, bool&);
+      bool repair(GoioObj* obj, double time, bool&);
 
       TimeFunc get_time_func(const GoioObj*, double, bool&) override;
   };

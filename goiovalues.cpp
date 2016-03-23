@@ -23,27 +23,27 @@ int main() {
 
   using namespace std::placeholders;
   time->register_event(gat,
-                       std::bind(static_cast<bool (goio::Gatling::*)(goio::GoioObj*, bool&)>
-                                    (&goio::Gatling::shoot), gat, _1, _2),
+                       std::bind(static_cast<bool (goio::Gatling::*)(goio::GoioObj*, double, bool&)>
+                                    (&goio::Gatling::shoot), gat, _1, _2, _3),
                        armor,
                        std::bind(&goio::Gatling::get_time_func, gat, _1, _2, _3));
   time->register_event(wrench,
-                       std::bind(&goio::PipeWrench::repair, wrench, _1, _2),
+                       std::bind(&goio::PipeWrench::repair, wrench, _1, _2, _3),
                        armor,
                        std::bind(&goio::PipeWrench::get_time_func, wrench, _1, _2, _3),
                        1);
   time->register_event(wrench2,
-                       std::bind(&goio::PipeWrench::repair, wrench2, _1, _2),
+                       std::bind(&goio::PipeWrench::repair, wrench2, _1, _2, _3),
                        gat,
                        std::bind(&goio::PipeWrench::get_time_func, wrench2, _1, _2, _3),
                        1);
   // time->register_event(engi,
-  //                      std::bind(&goio::Engineer::repair, engi, _1, _2),
+  //                      std::bind(&goio::Engineer::repair, engi, _1, _2, _3),
   //                      armor,
   //                      std::bind(&goio::Engineer::get_time_func, engi, _1, _2, _3),
   //                      1);
   // time->register_event(engi2,
-  //                      std::bind(&goio::Engineer::repair, engi2, _1, _2),
+  //                      std::bind(&goio::Engineer::repair, engi2, _1, _2, _3),
   //                      armor,
   //                      std::bind(&goio::Engineer::get_time_func, engi2, _1, _2, _3),
   //                      1);
@@ -54,7 +54,7 @@ int main() {
   std::cout << "\033[0m";
   int i = 0;
   while (time->next_event() || !time->done())
-    if (++i > 1000 || time->get_time() > 900) break;
+    if (++i > 1000 || time->get_time() > 500) break;
 
   delete gat;
   delete loch;
