@@ -135,7 +135,7 @@ namespace goio {
       bool shoot(GoioObj* obj, bool aoe, double aoe_range);
       inline bool shoot(GoioObj* obj) { return shoot(obj, true, 0); }
 
-      TimeFunc get_time_func(const GoioObj*, double) override;
+      TimeFunc get_time_func(const GoioObj*, double, bool&) override;
   };
 
   class LightGun : public Gun {

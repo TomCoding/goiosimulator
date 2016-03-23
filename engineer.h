@@ -49,7 +49,7 @@ namespace goio {
 
       bool repair(GoioObj* obj);
 
-      TimeFunc get_time_func(const GoioObj*, double) override;
+      TimeFunc get_time_func(const GoioObj*, double, bool&) override;
   };
 
 }

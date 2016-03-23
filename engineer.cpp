@@ -65,9 +65,19 @@ namespace goio {
     return cur_tool->repair(obj);
   }
 
-  TimeFunc Engineer::get_time_func(const GoioObj* obj, double time) {
+  TimeFunc Engineer::get_time_func(const GoioObj* obj, double time, bool& force) {
     if (cur_tool == nullptr)
       return nullptr;
-    return cur_tool->get_time_func(obj, time);
+
+    if (obj->get_health() == 0) {
+      auto timediff = cur_tool->get_cur_swing() - time;
+      if (timediff > 0)
+        cur_tool->set_cur_swing(timediff);
+      else
+        cur_tool->set_cur_swing(RepairTool::swing_foreshadowing_delay);
+      force = true;
+    }
+
+    return cur_tool->get_time_func(obj, time, force);
   }
 }

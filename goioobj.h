@@ -60,7 +60,7 @@ namespace goio {
   };
 
   typedef std::function<double ()> TimeFunc;
-  typedef std::function<TimeFunc (const GoioObj*, double)> TimeCheckFunc;
+  typedef std::function<TimeFunc (const GoioObj*, double, bool&)> TimeCheckFunc;
 
   typedef std::function<bool (GoioObj*)> TimeDmgFunc;
 

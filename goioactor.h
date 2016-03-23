@@ -14,7 +14,7 @@ namespace goio {
                         hull_max_health) {}
       virtual ~GoioActor() {}
 
-      virtual TimeFunc get_time_func(const GoioObj*, double) = 0;
+      virtual TimeFunc get_time_func(const GoioObj*, double, bool&) = 0;
   };
 
 }

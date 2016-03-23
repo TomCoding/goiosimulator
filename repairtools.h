@@ -38,22 +38,28 @@ namespace goio {
   class RepairTool : public RepairInfo, public GoioActor {
     private:
       int done; // 0 = normal, 1 = rebuild swings, 2 = done
+      double cur_swing;
 
     protected:
       RepairTool(const std::string name, double swing, double heal,
                  int rebuild_power, int extinguish, double cooldown) :
                       RepairInfo(swing, heal, rebuild_power, extinguish, cooldown),
                       GoioActor(name, CmpType::COMPONENTS),
-                      done(0) {}
+                      done(0), cur_swing(swing) {}
 
     public:
       virtual ~RepairTool() {}
+
+      static constexpr double swing_foreshadowing_delay = 0.1;
+
+      void set_cur_swing(double);
+      inline double get_cur_swing() const { return cur_swing; }
 
       bool repair(GoioObj* obj);
 
       void reset(bool = true) override;
 
-      TimeFunc get_time_func(const GoioObj*, double) override;
+      TimeFunc get_time_func(const GoioObj*, double, bool&) override;
   };
 
   class Spanner : public RepairTool {

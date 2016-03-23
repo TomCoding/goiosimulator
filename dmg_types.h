@@ -43,6 +43,15 @@ namespace goio {
       {  1.8,   1.5,   0.8,  0.6   }, // impact
   };
 
+  /*
+   * Radius where aoe damage starts to decrease.
+   */
+  static constexpr double aoe_radius_dmg_falloff = 0.5;
+  /*
+   * Minimum damage reduction inside aoe radius.
+   */
+  static constexpr double aoe_dmg_falloff_min = 0.2;
+
 }
 
 #endif // __DMG_TYPES_H

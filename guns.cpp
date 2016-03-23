@@ -1,4 +1,5 @@
 #include "guns.h"
+#include "dmg_types.h"
 #include<cmath>
 
 #include <iostream>
@@ -82,14 +83,10 @@ namespace goio {
   }
 
   bool Gun::shoot(GoioObj* obj, bool aoe, double aoe_range) {
-    if (get_health() == 0 || get_clipsize() == 0)
+    if (get_health() == 0 || get_clipsize() == 0) {
+      std::cout << "                            ";
       return false;
-
-    using namespace std;
-    cout << fixed << setprecision(2);
-    cout << setw(15) << right << get_name();
-    cout << setw(5) << get_clipsize();
-    cout << setw(8) << get_health();
+    }
 
     GoioObj* tmpobj;
     if (obj->get_health() > 0)
@@ -98,19 +95,28 @@ namespace goio {
       tmpobj = obj->get_hull();
       if (tmpobj->get_health() == 0) {
         done = true;
+        std::cout << "                            ";
         return false;
       }
     }
+
+    using namespace std;
+    cout << fixed << setprecision(2);
+    cout << setw(15) << right << get_name();
+    cout << setw(5) << get_clipsize();
+    cout << setw(8) << get_health();
 
     dec_clipsize();
     tmpobj->add_health(-get_direct_dmg()*dmg_types[tmpobj->get_cmp_type()][get_direct_dmg_type()]);
 
     if (aoe && aoe_range <= get_aoe_radius()) {
       double falloff;
-      if (aoe_range/2 <= get_aoe_radius())
+      if (aoe_range*aoe_radius_dmg_falloff <= get_aoe_radius())
         falloff = 1;
       else
-        falloff = 1.8-1.6*(aoe_range/get_aoe_radius());
+        // falloff = 1.8-1.6*(aoe_range/get_aoe_radius());
+        // 0.2 + 0.8*(r-l/(r/2)
+        falloff = aoe_dmg_falloff_min + (1-aoe_dmg_falloff_min)*(get_aoe_radius()-aoe_range)/(get_aoe_radius()/aoe_radius_dmg_falloff);
       tmpobj->add_health(-falloff*get_aoe_dmg()*dmg_types[tmpobj->get_cmp_type()][get_aoe_dmg_type()]);
     }
 
@@ -120,10 +126,9 @@ namespace goio {
     return true;
   }
 
-  TimeFunc Gun::get_time_func(const GoioObj*, double) {
-    if (done)
-      return nullptr;
-    if (get_health() == 0)
+  TimeFunc Gun::get_time_func(const GoioObj* obj, double, bool&) {
+    if (done || get_health() == 0 || (obj->get_health() == 0 &&
+                                      obj->get_hull()->get_health() == 0))
       return nullptr;
     if (get_clipsize() > 0)
       return std::bind(&Gun::get_time_per_shot, this);

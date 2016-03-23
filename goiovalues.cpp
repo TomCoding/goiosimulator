@@ -26,26 +26,26 @@ int main() {
                        std::bind(static_cast<bool (goio::Gatling::*)(goio::GoioObj*)>
                                     (&goio::Gatling::shoot), gat, _1),
                        armor,
-                       std::bind(&goio::Gatling::get_time_func, gat, _1, _2));
-  time->register_event(wrench,
-                       std::bind(&goio::PipeWrench::repair, wrench, _1),
-                       armor,
-                       std::bind(&goio::PipeWrench::get_time_func, wrench, _1, _2),
-                       1);
+                       std::bind(&goio::Gatling::get_time_func, gat, _1, _2, _3));
+  // time->register_event(wrench,
+  //                      std::bind(&goio::PipeWrench::repair, wrench, _1),
+  //                      armor,
+  //                      std::bind(&goio::PipeWrench::get_time_func, wrench, _1, _2, _3),
+  //                      1);
   time->register_event(wrench2,
                        std::bind(&goio::PipeWrench::repair, wrench2, _1),
                        gat,
-                       std::bind(&goio::PipeWrench::get_time_func, wrench2, _1, _2),
+                       std::bind(&goio::PipeWrench::get_time_func, wrench2, _1, _2, _3),
                        1);
-  // time->register_event(engi,
-  //                      std::bind(&goio::Engineer::repair, engi, _1),
-  //                      armor,
-  //                      std::bind(&goio::Engineer::get_time_func, engi, _1, _2),
-  //                      1);
+  time->register_event(engi,
+                       std::bind(&goio::Engineer::repair, engi, _1),
+                       armor,
+                       std::bind(&goio::Engineer::get_time_func, engi, _1, _2, _3),
+                       1);
   // time->register_event(engi2,
   //                      std::bind(&goio::Engineer::repair, engi2, _1),
   //                      armor,
-  //                      std::bind(&goio::Engineer::get_time_func, engi2, _1, _2),
+  //                      std::bind(&goio::Engineer::get_time_func, engi2, _1, _2, _3),
   //                      1);
 
   std::cout << "\033[1m";

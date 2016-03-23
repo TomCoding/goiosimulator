@@ -56,7 +56,8 @@ namespace goio {
            << funcdata->obj->get_hull()->get_rebuild_state();
     cout << endl;
 
-    TimeFunc timefunc = funcdata->timecheckfunc(funcdata->obj, get_time()-funcdata->time_prev);
+    bool force = true;
+    TimeFunc timefunc = funcdata->timecheckfunc(funcdata->obj, 0, force);
     if (timefunc != nullptr) {
       funcdata->time_prev = funcdata->time_next;
       funcdata->time_next = time+timefunc();
@@ -76,22 +77,23 @@ namespace goio {
     return ret;
   }
 
-  bool TimeObj::register_event(FuncData* funcdata, double time) {
-    events.insert(std::make_pair(time, funcdata));
-    return true;
-  }
-
   bool TimeObj::recalc_next_event(FuncData* funcdata) {
     bool res;
     auto old_time_next = funcdata->time_next;
 
-    auto timefunc = funcdata->timecheckfunc(funcdata->obj, get_time()-funcdata->time_prev);
+    bool force = false;
+    auto timefunc = funcdata->timecheckfunc(funcdata->obj, get_time()-funcdata->time_prev, force);
     if (timefunc != nullptr) {
-      auto fac = (time-funcdata->time_prev)/(funcdata->time_next-funcdata->time_prev);
       auto comp_time = timefunc();
+      if (!force) {
+        auto fac = (time-funcdata->time_prev)/(funcdata->time_next-funcdata->time_prev);
 
-      funcdata->time_next = time+(1-fac)*comp_time;
-      funcdata->time_prev = funcdata->time_next - comp_time;
+        funcdata->time_next = get_time() + (1-fac)*comp_time;
+        funcdata->time_prev = funcdata->time_next - comp_time;
+      } else {
+        funcdata->time_next = get_time() + comp_time;
+        funcdata->time_prev = get_time();
+      }
 
       register_event(funcdata, funcdata->time_next);
       res = true;
@@ -108,6 +110,11 @@ namespace goio {
       }
     }
     return res;
+  }
+
+  bool TimeObj::register_event(FuncData* funcdata, double time) {
+    events.insert(std::make_pair(time, funcdata));
+    return true;
   }
 
   bool TimeObj::register_event(GoioActor* registrar, TimeDmgFunc timedmgfunc,
