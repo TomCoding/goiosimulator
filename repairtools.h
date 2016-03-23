@@ -51,7 +51,9 @@ namespace goio {
 
       bool repair(GoioObj* obj);
 
-      TimeFunc get_time_func() override;
+      void reset(bool = true) override;
+
+      TimeFunc get_time_func(const GoioObj*, double) override;
   };
 
   class Spanner : public RepairTool {

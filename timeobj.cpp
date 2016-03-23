@@ -27,9 +27,18 @@ namespace goio {
 
     auto ret = funcdata->timedmgfunc(funcdata->obj);
 
+    // update directly associated actors
     auto iterpair = registrars.equal_range(funcdata->obj);
     for (auto it = iterpair.first; it != iterpair.second; ++it) {
       recalc_next_event(it->second);
+    }
+
+    // update to recipient associated actors
+    auto iterpair2 = recipients.equal_range(funcdata->obj);
+    for (auto it = iterpair2.first; it != iterpair2.second; ++it) {
+      // don't update current actor and don't update actions on hold
+      if (it->second != funcdata && it->second->time_cur == 0)
+        recalc_next_event(it->second);
     }
 
     cout << setw(13) << right << funcdata->obj->get_name()
@@ -47,7 +56,7 @@ namespace goio {
            << funcdata->obj->get_hull()->get_rebuild_state();
     cout << endl;
 
-    TimeFunc timefunc = funcdata->timecheckfunc();
+    TimeFunc timefunc = funcdata->timecheckfunc(funcdata->obj, get_time()-funcdata->time_prev);
     if (timefunc != nullptr) {
       funcdata->time_prev = funcdata->time_next;
       funcdata->time_next = time+timefunc();
@@ -76,7 +85,7 @@ namespace goio {
     bool res;
     auto old_time_next = funcdata->time_next;
 
-    auto timefunc = funcdata->timecheckfunc();
+    auto timefunc = funcdata->timecheckfunc(funcdata->obj, get_time()-funcdata->time_prev);
     if (timefunc != nullptr) {
       auto fac = (time-funcdata->time_prev)/(funcdata->time_next-funcdata->time_prev);
       auto comp_time = timefunc();
@@ -117,6 +126,7 @@ namespace goio {
                                   comp_time, -1, timecheckfunc};
     events.insert(std::make_pair(comp_time, funcdata));
     registrars.insert(std::make_pair(registrar, funcdata));
+    recipients.insert(std::make_pair(obj, funcdata));
     return true;
   }
 
@@ -127,6 +137,7 @@ namespace goio {
     }
     events.clear();
     registrars.clear();
+    recipients.clear();
   }
 
 }

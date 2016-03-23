@@ -30,7 +30,11 @@ namespace goio {
     return true;
   }
 
-  TimeFunc RepairTool::get_time_func() {
+  void RepairTool::reset(bool) {
+    done = 0;
+  }
+
+  TimeFunc RepairTool::get_time_func(const GoioObj* obj, double time) {
     switch (done) {
       case 1:
         return std::bind(&RepairTool::get_swing, this);

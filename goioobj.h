@@ -8,9 +8,6 @@
 
 namespace goio {
 
-  typedef std::function<double ()> TimeFunc;
-  typedef std::function<TimeFunc ()> TimeCheckFunc;
-
   class GoioObj {
     private:
       const std::string name;
@@ -61,6 +58,9 @@ namespace goio {
 
       virtual void reset(bool hull = true);
   };
+
+  typedef std::function<double ()> TimeFunc;
+  typedef std::function<TimeFunc (const GoioObj*, double)> TimeCheckFunc;
 
   typedef std::function<bool (GoioObj*)> TimeDmgFunc;
 

@@ -120,7 +120,7 @@ namespace goio {
     return true;
   }
 
-  TimeFunc Gun::get_time_func() {
+  TimeFunc Gun::get_time_func(const GoioObj*, double) {
     if (done)
       return nullptr;
     if (get_health() == 0)

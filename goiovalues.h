@@ -6,5 +6,6 @@
 #include "repairtools.h"
 #include "ammunitions.h"
 #include "timeobj.h"
+#include "engineer.h"
 
 #endif // __GOIOVALUES_H

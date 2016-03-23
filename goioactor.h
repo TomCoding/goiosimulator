@@ -2,7 +2,7 @@
 #define __GOIOACTOR_H
 
 #include "goioobj.h"
-#include<string>
+#include <string>
 
 namespace goio {
 
@@ -14,7 +14,7 @@ namespace goio {
                         hull_max_health) {}
       virtual ~GoioActor() {}
 
-      virtual TimeFunc get_time_func() = 0;
+      virtual TimeFunc get_time_func(const GoioObj*, double) = 0;
   };
 
 }

@@ -14,24 +14,40 @@ int main() {
   auto wrench = new goio::PipeWrench("Wrench1");
   auto wrench2 = new goio::PipeWrench("Wrench2");
 
+  auto engi = new goio::Engineer("Engi1");
+  auto engi2 = new goio::Engineer("Engi2");
+
   auto time = new goio::TimeObj();
 
   auto armor = new goio::Galleon("Gall1");
+
+  using namespace std::placeholders;
   time->register_event(gat,
                        std::bind(static_cast<bool (goio::Gatling::*)(goio::GoioObj*)>
-                                    (&goio::Gatling::shoot), gat, std::placeholders::_1),
+                                    (&goio::Gatling::shoot), gat, _1),
                        armor,
-                       std::bind(&goio::Gatling::get_time_func, gat));
+                       std::bind(&goio::Gatling::get_time_func, gat, _1, _2));
   time->register_event(wrench,
-                       std::bind(&goio::PipeWrench::repair, wrench, std::placeholders::_1),
+                       std::bind(&goio::PipeWrench::repair, wrench, _1),
                        armor,
-                       std::bind(&goio::PipeWrench::get_time_func, wrench),
+                       std::bind(&goio::PipeWrench::get_time_func, wrench, _1, _2),
                        1);
   time->register_event(wrench2,
-                       std::bind(&goio::PipeWrench::repair, wrench2, std::placeholders::_1),
+                       std::bind(&goio::PipeWrench::repair, wrench2, _1),
                        gat,
-                       std::bind(&goio::PipeWrench::get_time_func, wrench2),
+                       std::bind(&goio::PipeWrench::get_time_func, wrench2, _1, _2),
                        1);
+  // time->register_event(engi,
+  //                      std::bind(&goio::Engineer::repair, engi, _1),
+  //                      armor,
+  //                      std::bind(&goio::Engineer::get_time_func, engi, _1, _2),
+  //                      1);
+  // time->register_event(engi2,
+  //                      std::bind(&goio::Engineer::repair, engi2, _1),
+  //                      armor,
+  //                      std::bind(&goio::Engineer::get_time_func, engi2, _1, _2),
+  //                      1);
+
   std::cout << "\033[1m";
   std::cout << "    time          actor  clip health       target      type  health (R)  type  health (R)" << endl;
   std::cout << "=========================================================================================" << endl;
@@ -45,6 +61,8 @@ int main() {
   delete armor;
   delete wrench;
   delete wrench2;
+  delete engi;
+  delete engi2;
   delete time;
 
   return 0;

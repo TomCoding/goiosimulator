@@ -22,12 +22,13 @@ namespace goio {
 
       std::multimap<double, FuncData*> events;
       std::multimap<GoioObj*, FuncData*> registrars;
+      std::multimap<GoioObj*, FuncData*> recipients;
 
       bool register_event(FuncData* funcdata, double time);
       bool recalc_next_event(FuncData* funcdata);
 
     public:
-      TimeObj() : time(0), events(), registrars() {}
+      TimeObj() : time(0), events(), registrars(), recipients() {}
       ~TimeObj();
 
       inline double get_time() const { return time; }
