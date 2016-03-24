@@ -7,6 +7,9 @@ using namespace std;
 
 int main() {
   auto gat = new goio::Gatling("Gatling1");
+  // gat->set_hull_health(1000);
+
+  auto gat2 = new goio::Gatling("Gatling2");
 
   auto loch = new goio::Lochnagar();
   gat->apply_ammunition(loch);
@@ -37,6 +40,12 @@ int main() {
                        gat,
                        std::bind(&goio::PipeWrench::get_time_func, wrench2, _1, _2, _3),
                        1);
+  time->register_event(gat2,
+                       std::bind(static_cast<bool (goio::Gatling::*)(goio::GoioObj*, double, bool&)>
+                                    (&goio::Gatling::shoot), gat2, _1, _2, _3),
+                       gat,
+                       std::bind(&goio::Gatling::get_time_func, gat2, _1, _2, _3),
+                       160);
   // time->register_event(engi,
   //                      std::bind(&goio::Engineer::repair, engi, _1, _2, _3),
   //                      armor,
@@ -57,6 +66,7 @@ int main() {
     if (++i > 1000 || time->get_time() > 500) break;
 
   delete gat;
+  delete gat2;
   delete loch;
   delete armor;
   delete wrench;

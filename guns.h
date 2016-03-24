@@ -124,7 +124,7 @@ namespace goio {
       inline double  get_aoe_radius() const { return cur_aoe_radius; }
       inline const Ammunition* get_ammo() const { return cur_ammo; }
 
-      void apply_ammunition(const Ammunition* ammo);
+      bool apply_ammunition(const Ammunition* ammo);
 
       void reload(bool with_ammo = true);
 

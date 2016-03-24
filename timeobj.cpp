@@ -99,27 +99,41 @@ namespace goio {
     if (timefunc != nullptr) {
       auto comp_time = timefunc();
       if (!force) {
-        auto fac = (time-funcdata->time_prev)/(funcdata->time_next-funcdata->time_prev);
+        if (funcdata->time_cur > 0) {
+          auto fac = (funcdata->time_cur-funcdata->time_prev)/(funcdata->time_next-funcdata->time_prev);
 
-        funcdata->time_next = get_time() + (1-fac)*comp_time;
-        funcdata->time_prev = funcdata->time_next - comp_time;
+          auto time_next = funcdata->time_cur + (1-fac)*comp_time;
+          if (time_next < get_time())
+            time_next = get_time();
+          funcdata->time_next = time_next;
+          funcdata->time_prev = time_next - comp_time;
+          funcdata->time_cur = 0;
+        } else {
+          auto fac = (time-funcdata->time_prev)/(funcdata->time_next-funcdata->time_prev);
+
+          funcdata->time_next = get_time() + (1-fac)*comp_time;
+          funcdata->time_prev = funcdata->time_next - comp_time;
+        }
       } else {
         funcdata->time_next = get_time() + comp_time;
         funcdata->time_prev = get_time();
       }
 
-      register_event(funcdata, funcdata->time_next);
+      if (old_time_next != funcdata->time_next)
+        register_event(funcdata, funcdata->time_next);
       res = true;
     } else {
       funcdata->time_cur = get_time();
       res = false;
     }
 
-    auto iterpair = events.equal_range(old_time_next);
-    for (auto it = iterpair.first; it != iterpair.second; ++it) {
-      if (it->second == funcdata) {
-        events.erase(it);
-        break;
+    if (old_time_next != funcdata->time_next) {
+      auto iterpair = events.equal_range(old_time_next);
+      for (auto it = iterpair.first; it != iterpair.second; ++it) {
+        if (it->second == funcdata) {
+          events.erase(it);
+          break;
+        }
       }
     }
     return res;

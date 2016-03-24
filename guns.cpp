@@ -56,13 +56,16 @@ namespace goio {
     return get_orig_clipsize();
   }
 
-  void Gun::apply_ammunition(const Ammunition* ammo) {
+  bool Gun::apply_ammunition(const Ammunition* ammo) {
+    if (ammo == nullptr)
+      return false;
     set_clipsize(get_orig_clipsize() * ammo->get_clipsize());
     set_direct_dmg(get_orig_direct_dmg() * ammo->get_damage());
     set_aoe_dmg(get_orig_aoe_dmg() * ammo->get_damage());
     set_aoe_radius(get_orig_aoe_radius() * ammo->get_aoe_radius());
 
     cur_ammo = ammo;
+    return true;
   }
 
   void Gun::reload(bool with_ammo) {
@@ -71,7 +74,7 @@ namespace goio {
     set_direct_dmg_type(get_orig_direct_dmg_type());
     set_aoe_dmg_type(get_orig_aoe_dmg_type());
 
-    if (with_ammo)
+    if (get_ammo() != nullptr && with_ammo)
       apply_ammunition(get_ammo());
     else {
       set_clipsize(get_orig_clipsize());
@@ -103,12 +106,6 @@ namespace goio {
       }
     }
 
-    using namespace std;
-    cout << fixed << setprecision(2);
-    cout << setw(15) << right << get_name();
-    cout << setw(5) << get_clipsize();
-    cout << setw(8) << get_health();
-
     dec_clipsize();
     tmpobj->add_health(-get_direct_dmg()*dmg_types[tmpobj->get_cmp_type()][get_direct_dmg_type()]);
 
@@ -123,10 +120,16 @@ namespace goio {
       tmpobj->add_health(-falloff*get_aoe_dmg()*dmg_types[tmpobj->get_cmp_type()][get_aoe_dmg_type()]);
     }
 
-    if (get_ammo()->get_proportional_self_damage()) {
+    if (get_ammo() != nullptr && get_ammo()->get_proportional_self_damage()) {
       add_health(-get_max_health()/get_max_clipsize());
       changed = true;
     }
+
+    using namespace std;
+    cout << fixed << setprecision(2);
+    cout << setw(15) << right << get_name();
+    cout << setw(5) << get_clipsize();
+    cout << setw(8) << get_health();
 
     return true;
   }

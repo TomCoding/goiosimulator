@@ -12,7 +12,7 @@ namespace goio {
     private:
       const std::string name;
       const CmpType cmp_type;
-      const double max_health;
+      double max_health;
       double health;
       int rebuild_state;
       const int part_type_multiplier;
@@ -27,6 +27,8 @@ namespace goio {
                   rebuild_state(obj.rebuild_state), part_type_multiplier(obj.part_type_multiplier),
                   hull(obj.hull), cooldown_end(0) {}
       GoioObj& operator=(const GoioObj&) { return *this; };
+
+      bool set_health_int(double health, GoioObj* obj);
 
     public:
       GoioObj(const std::string name, CmpType cmp_type, int part_type_multiplier = -1,
@@ -57,6 +59,9 @@ namespace goio {
        */
       bool add_health(double health, double cooldown_end = 0);
       bool add_rebuild(int rebuild_progress);
+
+      void set_health(double health);
+      void set_hull_health(double health);
 
       inline void reset_cooldown() { cooldown_end = 0; }
 

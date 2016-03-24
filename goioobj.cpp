@@ -10,20 +10,8 @@ namespace goio {
   bool GoioObj::add_health(double health, double cooldown_end) {
     if ((health > 0 && cmp_type == CmpType::HULL) || health == 0)
       return false;
-
-    this->health += health;
-    if (this->health > max_health)
-      this->health = max_health;
-    else if (this->health <= 0) {
-      this->health = 0;
-      rebuild_state = 0;
-      this->cooldown_end = 0;
-      return false;
-    }
-
     this->cooldown_end = cooldown_end;
-
-    return true;
+    return set_health_int(this->health + health, this);
   }
 
   bool GoioObj::add_rebuild(int rebuild_progress) {
@@ -33,6 +21,34 @@ namespace goio {
       return true;
     }
     return false;
+  }
+
+  bool GoioObj::set_health_int(double health, GoioObj* obj) {
+    if (health > obj->max_health)
+      obj->health = obj->max_health;
+    else if (health <= 0) {
+      obj->health = 0;
+      if (obj->cmp_type != CmpType::HULL) {
+        obj->rebuild_state = 0;
+        obj->cooldown_end = 0;
+      }
+      return false;
+    } else
+      obj->health = health;
+    return true;
+  }
+
+  void GoioObj::set_health(double health) {
+    if (health > max_health)
+      max_health = health;
+    cooldown_end = 0;
+    set_health_int(health, this);
+  }
+
+  void GoioObj::set_hull_health(double health) {
+    if (health > hull->max_health)
+      hull->max_health = health;
+    set_health_int(health, hull);
   }
 
   void GoioObj::reset(bool hull) {

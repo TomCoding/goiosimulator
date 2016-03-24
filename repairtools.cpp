@@ -60,7 +60,18 @@ namespace goio {
       case 1:
         return std::bind(&RepairTool::get_cur_swing, this);
       case 2:
-        return nullptr;
+        if (obj->get_health() == obj->get_max_health())
+          return nullptr;
+
+        if (obj->get_health() == 0) {
+          if (obj->get_hull()->get_health() == 0)
+            return nullptr;
+          cur_swing = swing_foreshadowing_delay;
+          force = true;
+          return std::bind(&RepairTool::get_cur_swing, this);
+        }
+
+        return std::bind(&RepairTool::get_cooldown, this);
       case 0:
         if (obj->get_health() == 0) {
           auto timediff = get_cur_swing() - time;
