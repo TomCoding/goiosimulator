@@ -24,6 +24,8 @@ namespace goio {
   }
 
   bool GoioObj::set_health_int(double health, GoioObj* obj) {
+    if (obj->health == -1)
+      return true;
     if (health > obj->max_health)
       obj->health = obj->max_health;
     else if (health <= 0) {
@@ -46,6 +48,10 @@ namespace goio {
   }
 
   void GoioObj::set_hull_health(double health) {
+    if (health == -1) {
+      hull->max_health = hull->health = -1;
+      return;
+    }
     if (health > hull->max_health)
       hull->max_health = health;
     set_health_int(health, hull);

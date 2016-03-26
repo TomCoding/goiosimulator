@@ -31,6 +31,12 @@ namespace goio {
         repair_wait = obj->get_cooldown_end() - time;
       return false;
     }
+    if (done == 2) {
+      std::cout << "                            ";
+      done = 1;  // start swing
+      // cur_swing = swing_foreshadowing_delay;
+      return false;
+    }
 
     using namespace std;
     cout << fixed << setprecision(2);

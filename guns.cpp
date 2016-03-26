@@ -135,11 +135,10 @@ namespace goio {
   }
 
   TimeFunc Gun::get_time_func(const GoioObj* obj, double, bool&) {
-    if (during_reload)
-      return std::bind(&Gun::get_reload_changed, this);
-
     if (get_health() == 0 || (obj->get_health() == 0 && obj->get_hull()->get_health() == 0))
       return nullptr;
+    // if (during_reload)
+    //   return std::bind(&Gun::get_reload_changed, this);
     if (get_clipsize() > 0)
       return std::bind(&Gun::get_time_per_shot, this);
     during_reload = true;

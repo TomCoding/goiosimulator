@@ -32,7 +32,7 @@ namespace goio {
 
     public:
       GoioObj(const std::string name, CmpType cmp_type, int part_type_multiplier = -1,
-              double max_health = 0, double hull_max_health = 0) :
+              double max_health = 0, double hull_max_health = -1) :
               name(name), cmp_type(cmp_type), max_health(max_health), health(max_health),
               rebuild_state(-1), part_type_multiplier(part_type_multiplier),
               hull(new GoioObj(hull_max_health)), cooldown_end(0) {}

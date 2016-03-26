@@ -11,6 +11,7 @@ namespace goio {
     private:
       double time;
       struct FuncData {
+        int id;
         GoioObj* registrar;  // key in registrars
         TimeDmgFunc timedmgfunc;
         GoioObj* obj;
@@ -24,8 +25,10 @@ namespace goio {
       std::multimap<GoioObj*, FuncData*> registrars;
       std::multimap<GoioObj*, FuncData*> recipients;
 
-      bool register_event(FuncData* funcdata, double time);
+      void register_event(FuncData* funcdata, double time);
       bool recalc_next_event(FuncData* funcdata);
+
+      static int max_id;
 
     public:
       TimeObj() : time(0), events(), registrars(), recipients() {}
@@ -33,10 +36,11 @@ namespace goio {
 
       inline double get_time() const { return time; }
       bool next_event();
-      bool register_event(GoioActor* registrar, TimeDmgFunc timedmgfunc,
+      int register_event(GoioActor* registrar, TimeDmgFunc timedmgfunc,
                           GoioObj* obj, TimeCheckFunc timecheckfunc,
                           double time = 0, bool rel = true);
-      inline bool done() const { return events.empty(); }
+
+      bool unregister_event(int id);
 
       void reset();
   };
