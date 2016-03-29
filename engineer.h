@@ -26,6 +26,7 @@ namespace goio {
       double wrench_treshhold;
 
       RepairTool* cur_tool;
+      bool delay;
 
       Engineer(const Engineer& obj) : GoioActor(obj.get_name(), CmpType::HULL),
                               mode(obj.mode),
@@ -34,7 +35,7 @@ namespace goio {
                               spanner(new Spanner(obj.spanner->get_name())),
                               mallet_treshhold(obj.mallet_treshhold),
                               wrench_treshhold(obj.wrench_treshhold),
-                              cur_tool(nullptr) {}
+                              cur_tool(nullptr), delay(false) {}
       Engineer& operator=(const Engineer&) { return *this; }
 
       void select_tool(RepairTool* tool);

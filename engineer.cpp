@@ -4,11 +4,13 @@
 
 #include <cassert>
 
+#include <iostream>
+
 namespace goio {
 
   Engineer::Engineer(const std::string name, RepairMode mode) :
                      GoioActor::GoioActor(name, CmpType::HULL),
-                     mode(mode), cur_tool(nullptr) {
+                     mode(mode), cur_tool(nullptr), delay(false) {
     std::string tmpname;
     if (name.length() == 0)
       tmpname = "Engineer ";
@@ -29,9 +31,45 @@ namespace goio {
   }
 
   void Engineer::select_tool(RepairTool* tool) {
-    if (cur_tool != nullptr)
-      cur_tool->reset();
+    if (tool == nullptr) {
+      mallet->reset();
+      wrench->reset();
+      spanner->reset();
+      cur_tool = nullptr;
+      return;
+    } else if (tool == cur_tool) {
+      delay = false;
+      return;
+    }
+
+    double swing;
+    bool set_swing;
+    if (cur_tool != nullptr) {
+      if (cur_tool == mallet) {
+        wrench->reset();
+        spanner->reset();
+      } else if (cur_tool == wrench) {
+        mallet->reset();
+        spanner->reset();
+      } else if (cur_tool == spanner) {
+        mallet->reset();
+        wrench->reset();
+      }
+      if (delay) {
+        swing = cur_tool->get_cur_swing();
+        delay = false;
+      } else
+        swing = cur_tool->get_cur_swing()/cur_tool->get_swing()*tool->get_swing();
+      set_swing = true;
+    } else
+      set_swing = false;
+
     cur_tool = tool;
+    if (set_swing)
+      cur_tool->set_cur_swing(swing);
+    // std::cout << std::endl << cur_tool->get_name()
+    //           << " " << cur_tool->get_done() << " "
+    //           << cur_tool->get_cur_swing() << std::endl << "        ";
   }
 
   bool Engineer::repair(GoioObj* obj, double time, bool& changed) {
@@ -68,16 +106,18 @@ namespace goio {
   TimeFunc Engineer::get_time_func(const GoioObj* obj, double time, bool& force) {
     if (cur_tool == nullptr)
       return nullptr;
-
-    if (obj->get_health() == 0) {
-      auto timediff = cur_tool->get_cur_swing() - time;
-      if (timediff > 0)
-        cur_tool->set_cur_swing(timediff);
-      else
-        cur_tool->set_cur_swing(RepairTool::swing_foreshadowing_delay);
-      force = true;
+    switch(cur_tool->get_done()) {
+      case 2:
+          if (obj->get_health() == 0 && obj->get_hull()->get_health() != 0)
+            delay = true;
+        break;
+      case 0:
+          if (obj->get_health() == 0 && cur_tool->get_cur_swing() - time < -0.00000001)
+            delay = true;
+        break;
+      default:
+        break;
     }
-
     return cur_tool->get_time_func(obj, time, force);
   }
 }

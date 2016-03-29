@@ -117,8 +117,11 @@ namespace goio {
         funcdata->time_prev = get_time();
       }
 
-      // if (get_time() > 81 && funcdata->registrar->get_name() == "Gatling1") {
-      //   std::cout << "\nGatling1 recalc: " << get_time()
+      // auto name = funcdata->registrar->get_name();
+      // if (14.3 < get_time() && get_time() < 30 &&
+      //                       (name != "Gatling1" && name != "Wrench2")) {
+      //   std::cout << "\n" << name
+      //             << " recalc: " << get_time()
       //             << " old_P:" << old_time_prev
       //             << " old_N:" << old_time_next
       //             << " P:" << funcdata->time_prev

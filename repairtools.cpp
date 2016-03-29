@@ -22,19 +22,25 @@ namespace goio {
     if (obj->get_health() == obj->get_max_health() ||
               (obj->get_health() == 0 && obj->get_hull()->get_health() == 0)) {
       done = 2;
+      // if (get_name() != "Wrench2")
+      //   std::cout << "\ndone set to 2: " << get_name() << std::endl << "        ";
       std::cout << "                            ";
       return false;
     } else if (obj->get_cooldown_end() > time) {
-      std::cout << "                            ";
       done = 0;
       if (repair_wait == 0)
         repair_wait = obj->get_cooldown_end() - time;
+      // if (get_name() != "Wrench2")
+      //   std::cout << "\ndone set to 0: " << get_name()
+      //             << " repair_wait: " << repair_wait << std::endl << "        ";
+      std::cout << "                            ";
       return false;
     }
     if (done == 2) {
-      std::cout << "                            ";
       done = 1;  // start swing
       // cur_swing = swing_foreshadowing_delay;
+      // std::cout << "\ndone set to 1: " << get_name() << std::endl << "        ";
+      std::cout << "                            ";
       return false;
     }
 
@@ -82,10 +88,14 @@ namespace goio {
         if (obj->get_health() == 0) {
           auto timediff = get_cur_swing() - time;
           // still in swing or ready? (tool usage ahead of time)
-          if (timediff > 0)
+          if (timediff >= -0.00000001)  // take care of floating point errors
             cur_swing = timediff;
           else
             cur_swing = swing_foreshadowing_delay;
+          // std::cout << "\nset swing delay: "
+          //           << cur_swing << " "
+          //           << get_name() << std::endl
+          //           << "                                    ";
           force = true;
           return std::bind(&RepairTool::get_cur_swing, this);
         }
