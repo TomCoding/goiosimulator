@@ -17,8 +17,9 @@ int main() {
   auto wrench = new goio::PipeWrench("Wrench1");
   auto wrench2 = new goio::PipeWrench("Wrench2");
 
-  auto engi = new goio::Engineer("Engi1");
-  auto engi2 = new goio::Engineer("Engi2");
+  auto engi = new goio::MainEngineer("Engi1");
+  auto engi2 = new goio::MainEngineer("Engi2");
+  auto engi3 = new goio::BuffEngineer("Engi3");
 
   auto time = new goio::TimeObj();
 
@@ -56,6 +57,11 @@ int main() {
                        armor,
                        std::bind(&goio::Engineer::get_time_func, engi2, _1, _2, _3),
                        1);
+  auto engi3_id = time->register_event(engi3,
+                       std::bind(&goio::Engineer::repair, engi3, _1, _2, _3),
+                       armor,
+                       std::bind(&goio::Engineer::get_time_func, engi3, _1, _2, _3),
+                       1);
 
   std::cout << "\033[1m";
   std::cout << "    time          actor  clip health       target      type  health (R)  type  health (R)" << endl;
@@ -81,6 +87,7 @@ int main() {
   // time->unregister_event(gat2_id);
   time->unregister_event(engi_id);
   time->unregister_event(engi2_id);
+  time->unregister_event(engi3_id);
 
   delete gat;
   delete gat2;
@@ -90,6 +97,7 @@ int main() {
   delete wrench2;
   delete engi;
   delete engi2;
+  delete engi3;
   delete time;
 
   return 0;
