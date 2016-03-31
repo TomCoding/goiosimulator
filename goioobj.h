@@ -57,7 +57,7 @@ namespace goio {
       /*
        * Return `false` if object gets destroyed, otherwise `true`
        */
-      bool add_health(double health, double cooldown_end = 0);
+      bool add_health(double health, double cooldown_end = -1);
       bool add_rebuild(int rebuild_progress);
 
       void set_health(double health);

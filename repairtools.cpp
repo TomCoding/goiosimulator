@@ -28,8 +28,7 @@ namespace goio {
       return false;
     } else if (obj->get_cooldown_end() > time) {
       done = 0;
-      if (repair_wait == 0)
-        repair_wait = obj->get_cooldown_end() - time;
+      repair_wait = obj->get_cooldown_end() - time;
       // if (get_name() != "Wrench2")
       //   std::cout << "\ndone set to 0: " << get_name()
       //             << " repair_wait: " << repair_wait << std::endl << "        ";
@@ -46,6 +45,8 @@ namespace goio {
 
     using namespace std;
     cout << fixed << setprecision(2);
+    // cout << "\ncooldownR: " << obj->get_name() << " "
+    //      << obj->get_cooldown_end() << endl << "        ";
     cout << setw(15) << right << get_name();
     cout << "             ";
 
@@ -97,6 +98,7 @@ namespace goio {
           //           << get_name() << std::endl
           //           << "                                    ";
           force = true;
+          repair_wait = 0;
           return std::bind(&RepairTool::get_cur_swing, this);
         }
 

@@ -1,6 +1,8 @@
 #include "goioobj.h"
 #include "dmg_types.h"
 
+#include <iostream>
+
 namespace goio {
 
   GoioObj::~GoioObj() {
@@ -10,7 +12,11 @@ namespace goio {
   bool GoioObj::add_health(double health, double cooldown_end) {
     if ((health > 0 && cmp_type == CmpType::HULL) || health == 0)
       return false;
-    this->cooldown_end = cooldown_end;
+    if (cooldown_end >= 0) {
+      this->cooldown_end = cooldown_end;
+      // std::cout << "\ncooldownS: " << get_name() << " " << cooldown_end << std::endl
+      //           << "                                    ";
+    }
     return set_health_int(this->health + health, this);
   }
 
@@ -33,6 +39,8 @@ namespace goio {
       if (obj->cmp_type != CmpType::HULL) {
         obj->rebuild_state = 0;
         obj->cooldown_end = 0;
+        // std::cout << "\ncooldown0: 0" << std::endl
+        //           << "        ";
       }
       return false;
     } else
