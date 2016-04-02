@@ -55,13 +55,14 @@ namespace goio {
 
     cout << setw(13) << right << funcdata->obj->get_name()
          << setw(10) << right << get_cmp_type_string(funcdata->obj->get_cmp_type())
-         << setw(8) << right << funcdata->obj->get_health();
+         << setw(8) << right << funcdata->obj->get_health() << setprecision(0);
     if (funcdata->obj->get_health() == 0)
-      cout << setw(3) << right << setprecision(0)
-           << funcdata->obj->get_rebuild_state() << setprecision(2) << setw(7);
+      cout << setw(3) << right
+           << funcdata->obj->get_rebuild_state() << setw(3);
     else
-      cout << setw(10);
-    cout << right << get_cmp_type_string(funcdata->obj->get_hull()->get_cmp_type())
+      cout << setw(6);
+    cout << right << funcdata->obj->get_fire_stacks() << setprecision(2);
+    cout << setw(7) << right << get_cmp_type_string(funcdata->obj->get_hull()->get_cmp_type())
          << setw(8) << right << funcdata->obj->get_hull()->get_health();
     if (funcdata->obj->get_hull()->get_health() == 0)
       cout << setw(3) << right << setprecision(0)

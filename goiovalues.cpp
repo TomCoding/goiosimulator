@@ -15,6 +15,9 @@ int main() {
   auto wrench = new goio::PipeWrench("Wrench1");
   auto wrench2 = new goio::PipeWrench("Wrench2");
 
+  auto ext = new goio::FireExtinguisher("Ext1");
+  auto chem = new goio::ChemicalSpray("Chem1");
+
   auto engi = new goio::MainEngineer("Engi1");
   auto engi2 = new goio::MainEngineer("Engi2");
   auto engi3 = new goio::BuffEngineer("Engi3");
@@ -22,48 +25,21 @@ int main() {
   auto time = new goio::TimeObj();
 
   auto armor = new goio::Galleon("Gall1");
+  armor->set_fire(10);
 
-  using namespace std::placeholders;
-  auto gat_id = time->register_event(gat,
-                       std::bind(static_cast<bool (goio::Gatling::*)(goio::GoioObj*, double, bool&)>
-                                    (&goio::Gatling::shoot), gat, _1, _2, _3),
-                       armor,
-                       std::bind(&goio::Gatling::get_time_func, gat, _1, _2, _3));
-  // auto wrench_id = time->register_event(wrench,
-  //                      std::bind(&goio::PipeWrench::repair, wrench, _1, _2, _3),
-  //                      armor,
-  //                      std::bind(&goio::PipeWrench::get_time_func, wrench, _1, _2, _3),
-  //                      1);
-  auto wrench2_id = time->register_event(wrench2,
-                       std::bind(&goio::PipeWrench::repair, wrench2, _1, _2, _3),
-                       gat,
-                       std::bind(&goio::PipeWrench::get_time_func, wrench2, _1, _2, _3),
-                       1);
-  // auto gat2_id = time->register_event(gat2,
-  //                      std::bind(static_cast<bool (goio::Gatling::*)(goio::GoioObj*, double, bool&)>
-  //                                   (&goio::Gatling::shoot), gat2, _1, _2, _3),
-  //                      gat,
-  //                      std::bind(&goio::Gatling::get_time_func, gat2, _1, _2, _3),
-  //                      30);
-  auto engi_id = time->register_event(engi,
-                       std::bind(&goio::Engineer::repair, engi, _1, _2, _3),
-                       armor,
-                       std::bind(&goio::Engineer::get_time_func, engi, _1, _2, _3),
-                       1);
-  auto engi2_id = time->register_event(engi2,
-                       std::bind(&goio::Engineer::repair, engi2, _1, _2, _3),
-                       armor,
-                       std::bind(&goio::Engineer::get_time_func, engi2, _1, _2, _3),
-                       1);
-  // auto engi3_id = time->register_event(engi3,
-  //                      std::bind(&goio::Engineer::repair, engi3, _1, _2, _3),
-  //                      armor,
-  //                      std::bind(&goio::Engineer::get_time_func, engi3, _1, _2, _3),
-  //                      1);
+  // auto gat_id = time->register_shoot_event(gat, armor);
+  // auto wrench_id = time->register_repair_event(wrench, armor, 1);
+  // auto wrench2_id = time->register_repair_event(wrench2, gat, 1);
+  // auto gat2_id = time->register_shoot_event(gat2, gat, 30);
+  // auto engi_id = time->register_repair_event(engi, armor, 1);
+  // auto engi2_id = time->register_repair_event(engi2, armor, 1);
+  // auto engi3_id = time->register_repair_event(engi3, armor, 1);
+  // auto ext_id = time->register_repair_event(ext, armor, 1);
+  auto chem_id = time->register_repair_event(chem, armor, 1);
 
   std::cout << "\033[1m";
-  std::cout << "    time          actor  clip health       target      type  health (R)  type  health (R)" << endl;
-  std::cout << "=========================================================================================" << endl;
+  std::cout << "    time          actor  clip health       target      type  health(R) fire type  health(R)" << endl;
+  std::cout << "===========================================================================================" << endl;
   std::cout << "\033[0m";
   int i = 0;
   while (time->next_event()) {
@@ -79,13 +55,15 @@ int main() {
     //   time->unregister_event(gat2_id);
   }
 
-  time->unregister_event(gat_id);
+  // time->unregister_event(gat_id);
   // time->unregister_event(wrench_id);
-  time->unregister_event(wrench2_id);
+  // time->unregister_event(wrench2_id);
   // time->unregister_event(gat2_id);
-  time->unregister_event(engi_id);
-  time->unregister_event(engi2_id);
+  // time->unregister_event(engi_id);
+  // time->unregister_event(engi2_id);
   // time->unregister_event(engi3_id);
+  // time->unregister_event(ext_id);
+  time->unregister_event(chem_id);
 
   delete gat;
   delete gat2;
@@ -96,6 +74,8 @@ int main() {
   delete engi;
   delete engi2;
   delete engi3;
+  delete ext;
+  delete chem;
   delete time;
 
   return 0;

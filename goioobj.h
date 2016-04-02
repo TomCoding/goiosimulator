@@ -14,18 +14,25 @@ namespace goio {
       const CmpType cmp_type;
       double max_health;
       double health;
+      int fire_stacks;
       int rebuild_state;
       const int part_type_multiplier;
       GoioObj* hull;
       double cooldown_end;
+      double immunity_end;
+
+      static const int max_fire_stacks = 20;
 
       GoioObj(double max_health) : name(""), cmp_type(CmpType::HULL),
-                  max_health(max_health), health(max_health), rebuild_state(-1),
-                  part_type_multiplier(-1), hull(nullptr), cooldown_end(0) {}
+                  max_health(max_health), health(max_health),
+                  fire_stacks(-1), rebuild_state(-1),
+                  part_type_multiplier(-1),
+                  hull(nullptr), cooldown_end(0), immunity_end(0) {}
       GoioObj(const GoioObj& obj) : name(obj.name), cmp_type(obj.cmp_type),
                   max_health(obj.max_health), health(obj.max_health),
-                  rebuild_state(obj.rebuild_state), part_type_multiplier(obj.part_type_multiplier),
-                  hull(obj.hull), cooldown_end(0) {}
+                  fire_stacks(obj.fire_stacks), rebuild_state(obj.rebuild_state),
+                  part_type_multiplier(obj.part_type_multiplier),
+                  hull(obj.hull), cooldown_end(0), immunity_end(0) {}
       GoioObj& operator=(const GoioObj&) { return *this; };
 
       bool set_health_int(double health, GoioObj* obj);
@@ -34,8 +41,9 @@ namespace goio {
       GoioObj(const std::string name, CmpType cmp_type, int part_type_multiplier = -1,
               double max_health = 0, double hull_max_health = -1) :
               name(name), cmp_type(cmp_type), max_health(max_health), health(max_health),
-              rebuild_state(-1), part_type_multiplier(part_type_multiplier),
-              hull(new GoioObj(hull_max_health)), cooldown_end(0) {}
+              fire_stacks(-1), rebuild_state(-1),
+              part_type_multiplier(part_type_multiplier),
+              hull(new GoioObj(hull_max_health)), cooldown_end(0), immunity_end(0) {}
       virtual ~GoioObj();
 
       static const     int    rebuild_base_hits         = 9;
@@ -50,18 +58,22 @@ namespace goio {
       inline CmpType get_cmp_type() const { return cmp_type; }
       inline double  get_max_health() const { return max_health; }
       inline double  get_health() const { return health; }
+      inline int     get_fire_stacks() const { return fire_stacks; }
       inline double  get_rebuild_state() const { return rebuild_state; }
       inline GoioObj* get_hull() const { return hull; }
       inline double  get_cooldown_end() const { return cooldown_end; }
+      inline double  get_immunity_end() const { return immunity_end; }
 
       /*
        * Return `false` if object gets destroyed, otherwise `true`
        */
       bool add_health(double health, double cooldown_end = -1);
+      bool add_fire(int fire, double immunity_end = -1, double cooldown_end = -1);
       bool add_rebuild(int rebuild_progress);
 
       void set_health(double health);
       void set_hull_health(double health);
+      void set_fire(int fire);
 
       inline void reset_cooldown() { cooldown_end = 0; }
 

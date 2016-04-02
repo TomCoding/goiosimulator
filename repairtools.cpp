@@ -19,11 +19,18 @@ namespace goio {
 
   bool RepairTool::repair(GoioObj* obj, double time, bool&) {
     cur_swing = get_swing();
-    if (obj->get_health() == obj->get_max_health() ||
-              (obj->get_health() == 0 && obj->get_hull()->get_health() == 0)) {
+
+    if (obj->get_health() == 0 && obj->get_hull()->get_health() == 0) {
       done = 2;
-      // if (get_name() != "Wrench2")
-      //   std::cout << "\ndone set to 2: " << get_name() << std::endl << "        ";
+      std::cout << "                            ";
+      return false;
+    }
+
+    auto valid = true;
+    if (get_heal() > 0 && obj->get_health() == obj->get_max_health())
+      valid = false;
+    if ((!valid || get_heal() == 0) && (get_extinguish() == 0 || (get_extinguish() > 0 && obj->get_fire_stacks() <= 0))) {
+      done = 2;
       std::cout << "                            ";
       return false;
     } else if (obj->get_cooldown_end() > time) {
@@ -53,6 +60,7 @@ namespace goio {
     if (obj->get_health() > 0) {
       done = 0;
       obj->add_health(get_heal(), time + get_cooldown());
+      obj->add_fire(-get_extinguish(), time + get_fire_immune());
       repair_wait = get_cooldown();
     } else {
       done = 1;
@@ -73,11 +81,18 @@ namespace goio {
       case 1:
         return std::bind(&RepairTool::get_cur_swing, this);
       case 2:
-        if (obj->get_health() == obj->get_max_health())
-          return nullptr;
+        {
+        auto valid = true;
+        if (get_heal() > 0 && obj->get_health() == obj->get_max_health())
+          valid = false;
+        if ((!valid || get_heal() == 0) && (get_extinguish() == 0 || (get_extinguish() > 0 && obj->get_fire_stacks() <= 0)))
+            return nullptr;
+        }
 
         if (obj->get_health() == 0) {
           if (obj->get_hull()->get_health() == 0)
+            return nullptr;
+          if (get_rebuild_power() == 0)
             return nullptr;
           cur_swing = swing_foreshadowing_delay;
           force = true;
@@ -87,6 +102,11 @@ namespace goio {
         return std::bind(&RepairTool::get_cooldown, this);
       case 0:
         if (obj->get_health() == 0) {
+          // if (get_rebuild_power() == 0) {
+          //   done = 2;
+          //   return nullptr;
+          // }
+
           auto timediff = get_cur_swing() - time;
           // still in swing or ready? (tool usage ahead of time)
           if (timediff >= -0.00000001)  // take care of floating point errors
