@@ -7,12 +7,10 @@ using namespace std;
 
 int main() {
   auto gat = new goio::Gatling("Gatling1");
-  gat->set_hull_health(-1);
-
-  auto gat2 = new goio::Gatling("Gatling2");
-
   auto loch = new goio::Lochnagar();
   gat->apply_ammunition(loch);
+
+  auto gat2 = new goio::Gatling("Gatling2");
 
   auto wrench = new goio::PipeWrench("Wrench1");
   auto wrench2 = new goio::PipeWrench("Wrench2");
@@ -57,11 +55,11 @@ int main() {
                        armor,
                        std::bind(&goio::Engineer::get_time_func, engi2, _1, _2, _3),
                        1);
-  auto engi3_id = time->register_event(engi3,
-                       std::bind(&goio::Engineer::repair, engi3, _1, _2, _3),
-                       armor,
-                       std::bind(&goio::Engineer::get_time_func, engi3, _1, _2, _3),
-                       1);
+  // auto engi3_id = time->register_event(engi3,
+  //                      std::bind(&goio::Engineer::repair, engi3, _1, _2, _3),
+  //                      armor,
+  //                      std::bind(&goio::Engineer::get_time_func, engi3, _1, _2, _3),
+  //                      1);
 
   std::cout << "\033[1m";
   std::cout << "    time          actor  clip health       target      type  health (R)  type  health (R)" << endl;
@@ -87,7 +85,7 @@ int main() {
   // time->unregister_event(gat2_id);
   time->unregister_event(engi_id);
   time->unregister_event(engi2_id);
-  time->unregister_event(engi3_id);
+  // time->unregister_event(engi3_id);
 
   delete gat;
   delete gat2;

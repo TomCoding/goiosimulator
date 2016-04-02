@@ -150,19 +150,94 @@ namespace goio {
       ~LightGun() {}
   };
 
+  class Artemis : public LightGun {
+    public:
+      explicit Artemis(const std::string name = "") : LightGun(
+                      name,
+                      4,                   // magazine size
+                      0.63,                // rof
+                      7,                   // reload
+                      70,                  // prim dmg
+                      DmgType::EXPLOSIVE,  // prim dmg type
+                      120,                 // sec dmg
+                      DmgType::SHATTER,    // sec dmg type
+                      2.5                  // aoe radius
+      ) {}
+  };
+
+  class Banshee : public LightGun {
+    public:
+      explicit Banshee(const std::string name = "") : LightGun(
+                      name,
+                      8,                   // magazine size
+                      2,                   // rof
+                      6,                   // reload
+                      25,                  // prim dmg
+                      DmgType::EXPLOSIVE,  // prim dmg type
+                      25,                  // sec dmg
+                      DmgType::FIRE,       // sec dmg type
+                      3                    // aoe radius
+      ) {}
+  };
+
+  class LightCaro : public LightGun {
+    public:
+      explicit LightCaro(const std::string name = "") : LightGun(
+                      name,
+                      5,                   // magazine size
+                      1,                   // rof
+                      6,                   // reload
+                      96,                  // prim dmg
+                      DmgType::FLECHETTE,  // prim dmg type
+                      144,                 // sec dmg
+                      DmgType::SHATTER,    // sec dmg type
+                      0                    // aoe radius
+      ) {}
+  };
+
+  class Flare : public LightGun {
+    public:
+      explicit Flare(const std::string name = "") : LightGun(
+                      name,
+                      2,                   // magazine size
+                      0.5,                 // rof
+                      20,                  // reload
+                      10,                  // prim dmg
+                      DmgType::FIRE,       // prim dmg type
+                      5,                   // sec dmg
+                      DmgType::FIRE,       // sec dmg type
+                      3                    // aoe radius
+      ) {}
+  };
+
+  class Flamethrower : public LightGun {
+    public:
+      explicit Flamethrower(const std::string name = "") : LightGun(
+                      name,
+                      250,                 // magazine size
+                      16.67,               // rof
+                      6,                   // reload
+                      1.2,                 // prim dmg
+                      DmgType::FIRE,       // prim dmg type
+                      0,                   // sec dmg
+                      DmgType::FIRE,       // sec dmg type
+                      4                    // aoe radius
+      ) {}
+  };
+
   class Gatling : public LightGun {
     public:
       explicit Gatling(const std::string name = "") : LightGun(
                       name,
-                      82,
-                      8.33,
-                      5,
-                      7.5,
-                      DmgType::PIERCING,
-                      10,
-                      DmgType::SHATTER,
-                      0
-      ) {};
+                      82,                  // magazine size
+                      8.33,                // rof
+                      5,                   // reload
+                      7.5,                 // prim dmg
+                      DmgType::PIERCING,   // prim dmg type
+                      10,                  // sec dmg
+                      DmgType::SHATTER,    // sec dmg type
+                      0                    // aoe radius
+      ) {}
   };
 
 }
