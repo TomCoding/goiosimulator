@@ -19,6 +19,10 @@ namespace goio {
       const double  aoe_dmg;
       const DmgType aoe_dmg_type;
       const double  aoe_radius;
+      const double  direct_ign_chance;
+      const int     direct_ign_stacks;
+      const double  aoe_ign_chance;
+      const int     aoe_ign_stacks;
 
     protected:
       GunInfo(int clipsize,
@@ -28,14 +32,22 @@ namespace goio {
               DmgType direct_dmg_type,
               double aoe_dmg,
               DmgType aoe_dmg_type,
-              double aoe_radius) : clipsize(clipsize),
-                                   rof(rof),
-                                   reload_(reload),
-                                   direct_dmg(direct_dmg),
-                                   direct_dmg_type(direct_dmg_type),
-                                   aoe_dmg(aoe_dmg),
-                                   aoe_dmg_type(aoe_dmg_type),
-                                   aoe_radius(aoe_radius) {}
+              double aoe_radius,
+              double direct_ign_chance,
+              int direct_ign_stacks,
+              double aoe_ign_chance,
+              int aoe_ign_stacks) : clipsize(clipsize),
+                                    rof(rof),
+                                    reload_(reload),
+                                    direct_dmg(direct_dmg),
+                                    direct_dmg_type(direct_dmg_type),
+                                    aoe_dmg(aoe_dmg),
+                                    aoe_dmg_type(aoe_dmg_type),
+                                    aoe_radius(aoe_radius),
+                                    direct_ign_chance(direct_ign_chance),
+                                    direct_ign_stacks(direct_ign_stacks),
+                                    aoe_ign_chance(aoe_ign_chance),
+                                    aoe_ign_stacks(aoe_ign_stacks) {}
       virtual ~GunInfo() {};
 
     public:
@@ -47,6 +59,10 @@ namespace goio {
       inline double  get_orig_aoe_dmg() const { return aoe_dmg; }
       inline DmgType get_orig_aoe_dmg_type() const { return aoe_dmg_type; }
       inline double  get_orig_aoe_radius() const { return aoe_radius; }
+      inline double  get_orig_direct_ign_chance() const { return direct_ign_chance; }
+      inline int     get_orig_direct_ign_stacks() const { return direct_ign_stacks; }
+      inline double  get_orig_aoe_ign_chance() const { return aoe_ign_chance; }
+      inline int     get_orig_aoe_ign_stacks() const { return aoe_ign_stacks; }
   };
 
   class Gun : public GunInfo, public GoioActor {
@@ -59,6 +75,8 @@ namespace goio {
       double  cur_aoe_dmg;
       DmgType cur_aoe_dmg_type;
       double  cur_aoe_radius;
+      double  cur_direct_ign_chance;
+      double  cur_aoe_ign_chance;
 
       const Ammunition* cur_ammo;
 
@@ -67,13 +85,16 @@ namespace goio {
       Gun(const Gun& obj) : GunInfo(obj.get_orig_clipsize(), obj.get_orig_rof(),
                   obj.get_orig_reload(), obj.get_orig_direct_dmg(),
                   obj.get_orig_direct_dmg_type(), obj.get_orig_aoe_dmg(),
-                  obj.get_orig_aoe_dmg_type(), obj.get_orig_aoe_radius()),
+                  obj.get_orig_aoe_dmg_type(), obj.get_orig_aoe_radius(),
+                  obj.get_orig_direct_ign_chance(), obj.get_orig_direct_ign_stacks(),
+                  obj.get_orig_aoe_ign_chance(), obj.get_orig_aoe_ign_stacks()),
               GoioActor(obj.get_name(), CmpType::COMPONENTS, 2.33, obj.get_max_health()),
               cur_clipsize(obj.cur_clipsize), cur_rof(obj.cur_rof), cur_reload(obj.cur_reload),
               cur_direct_dmg(obj.cur_direct_dmg), cur_direct_dmg_type(obj.cur_direct_dmg_type),
               cur_aoe_dmg(obj.cur_aoe_dmg), cur_aoe_dmg_type(obj.cur_aoe_dmg_type),
-              cur_aoe_radius(obj.cur_aoe_radius), cur_ammo(obj.cur_ammo),
-              during_reload(false) {}
+              cur_aoe_radius(obj.cur_aoe_radius), cur_direct_ign_chance(obj.cur_direct_ign_chance),
+              cur_aoe_ign_chance(obj.cur_aoe_ign_chance),
+              cur_ammo(obj.cur_ammo), during_reload(false) {}
       Gun& operator=(const Gun&) { return *this; };
 
       void set_clipsize(double clipsize);
@@ -84,6 +105,8 @@ namespace goio {
       void set_aoe_dmg(double aoe_dmg);
       void set_aoe_dmg_type(DmgType aoe_dmg_type);
       void set_aoe_radius(double aoe_radius);
+      void set_direct_ign_chance(double ign_chance);
+      void set_aoe_ign_chance(double ign_chance);
 
       inline int dec_clipsize() {
         if (--cur_clipsize < 0)
@@ -95,9 +118,11 @@ namespace goio {
       Gun(const std::string name, double max_health,
           int clipsize, double rof, double reload, double direct_dmg,
           DmgType direct_dmg_type, double aoe_dmg, DmgType aoe_dmg_type,
-          double aoe_radius) :
+          double aoe_radius, double direct_ign_chance, int direct_ign_stacks,
+          double aoe_ign_chance, int aoe_ign_stacks) :
                   GunInfo(clipsize, rof, reload, direct_dmg, direct_dmg_type,
-                          aoe_dmg, aoe_dmg_type, aoe_radius),
+                          aoe_dmg, aoe_dmg_type, aoe_radius, direct_ign_chance,
+                          direct_ign_stacks, aoe_ign_chance, aoe_ign_stacks),
                   GoioActor(name, CmpType::COMPONENTS, 2.33, max_health),
                   cur_clipsize(clipsize),
                   cur_rof(rof),
@@ -107,13 +132,16 @@ namespace goio {
                   cur_aoe_dmg(aoe_dmg),
                   cur_aoe_dmg_type(aoe_dmg_type),
                   cur_aoe_radius(aoe_radius),
+                  cur_direct_ign_chance(direct_ign_chance),
+                  cur_aoe_ign_chance(aoe_ign_chance),
                   cur_ammo(nullptr),
                   during_reload(false) {}
 
     public:
       virtual ~Gun() {}
 
-      int get_max_clipsize() const;
+      int    get_max_clipsize() const;
+      double get_max_rof() const;
       inline int     get_clipsize() const { return cur_clipsize; }
       inline double  get_rof() const { return cur_rof; }
       inline double  get_reload() const { return cur_reload; }
@@ -122,15 +150,17 @@ namespace goio {
       inline double  get_aoe_dmg() const { return cur_aoe_dmg; }
       inline DmgType get_aoe_dmg_type() const { return cur_aoe_dmg_type; }
       inline double  get_aoe_radius() const { return cur_aoe_radius; }
+      inline double  get_direct_ign_chance() const { return cur_direct_ign_chance; }
+      inline double  get_aoe_ign_chance() const { return cur_aoe_ign_chance; }
       inline const Ammunition* get_ammo() const { return cur_ammo; }
 
       bool apply_ammunition(const Ammunition* ammo);
 
       void reload(bool with_ammo = true);
 
-      inline double get_rof_changed() const { return get_health()/get_max_health()*get_rof(); }
-      inline double get_time_per_shot() const { return get_max_health()/get_health()/get_rof(); }
-      inline double get_reload_changed() const { return get_max_health()/get_health()*get_reload(); }
+      double get_rof_changed() const;
+      double get_time_per_shot() const;
+      double get_reload_changed() const;
 
       bool shoot(GoioObj* obj, double, bool& changed, bool aoe, double aoe_range);
       inline bool shoot(GoioObj* obj, double time, bool& changed) { return shoot(obj, time, changed, true, 0); }
@@ -142,9 +172,11 @@ namespace goio {
     protected:
       LightGun(const std::string name, int clipsize, double rof, double reload,
                double direct_dmg, DmgType direct_dmg_type, double aoe_dmg,
-               DmgType aoe_dmg_type, double aoe_radius) :
+               DmgType aoe_dmg_type, double aoe_radius, double direct_ign_chance,
+               int direct_ign_stacks, double aoe_ign_chance, int aoe_ign_stacks) :
                   Gun(name, 250, clipsize, rof, reload, direct_dmg, direct_dmg_type,
-                      aoe_dmg, aoe_dmg_type, aoe_radius) {};
+                      aoe_dmg, aoe_dmg_type, aoe_radius, direct_ign_chance,
+                      direct_ign_stacks, aoe_ign_chance, aoe_ign_stacks) {};
 
     public:
       ~LightGun() {}
@@ -161,7 +193,11 @@ namespace goio {
                       DmgType::EXPLOSIVE,  // prim dmg type
                       120,                 // sec dmg
                       DmgType::SHATTER,    // sec dmg type
-                      2.5                  // aoe radius
+                      2.5,                 // aoe radius
+                      0,                   // prim ign chance
+                      1,                   // prim ign stacks
+                      0,                   // sec ign chance
+                      1                    // sec ign stacks
       ) {}
   };
 
@@ -176,7 +212,11 @@ namespace goio {
                       DmgType::EXPLOSIVE,  // prim dmg type
                       25,                  // sec dmg
                       DmgType::FIRE,       // sec dmg type
-                      3                    // aoe radius
+                      3,                   // aoe radius
+                      0.35,                // prim ign chance
+                      1,                   // prim ign stacks
+                      0.264,               // sec ign chance
+                      2                    // sec ign stacks
       ) {}
   };
 
@@ -191,7 +231,11 @@ namespace goio {
                       DmgType::FLECHETTE,  // prim dmg type
                       144,                 // sec dmg
                       DmgType::SHATTER,    // sec dmg type
-                      0                    // aoe radius
+                      0,                   // aoe radius
+                      0,                   // prim ign chance
+                      1,                   // prim ign stacks
+                      0,                   // sec ign chance
+                      1                    // sec ign stacks
       ) {}
   };
 
@@ -206,7 +250,11 @@ namespace goio {
                       DmgType::FIRE,       // prim dmg type
                       5,                   // sec dmg
                       DmgType::FIRE,       // sec dmg type
-                      3                    // aoe radius
+                      3,                   // aoe radius
+                      0,                   // prim ign chance
+                      1,                   // prim ign stacks
+                      0,                   // sec ign chance
+                      1                    // sec ign stacks
       ) {}
   };
 
@@ -221,7 +269,11 @@ namespace goio {
                       DmgType::FIRE,       // prim dmg type
                       0,                   // sec dmg
                       DmgType::FIRE,       // sec dmg type
-                      4                    // aoe radius
+                      4,                   // aoe radius
+                      0.22,                // prim ign chance
+                      1,                   // prim ign stacks
+                      0,                   // sec ign chance
+                      1                    // sec ign stacks
       ) {}
   };
 
@@ -236,7 +288,11 @@ namespace goio {
                       DmgType::PIERCING,   // prim dmg type
                       10,                  // sec dmg
                       DmgType::SHATTER,    // sec dmg type
-                      0                    // aoe radius
+                      0,                   // aoe radius
+                      0,                   // prim ign chance
+                      1,                   // prim ign stacks
+                      0,                   // sec ign chance
+                      1                    // sec ign stacks
       ) {}
   };
 

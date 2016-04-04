@@ -8,4 +8,13 @@
 #include "timeobj.h"
 #include "engineer.h"
 
+#include <stdlib.h>
+#include <time.h>
+
+namespace goio {
+  inline void init() {
+    srand(time(NULL));
+  }
+}
+
 #endif // __GOIOVALUES_H

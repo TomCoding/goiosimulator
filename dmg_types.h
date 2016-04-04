@@ -52,6 +52,15 @@ namespace goio {
    */
   static constexpr double aoe_dmg_falloff_min = 0.2;
 
+  /*
+   * Ignition chance to apply fire stacks with explosive gun.
+   */
+  static constexpr double explosive_ign_chance = 0.25;
+  /*
+   * Applied stacks if explosive ignition chance is met.
+   */
+  static const int explosive_stacks = 1;
+
 }
 
 #endif // __DMG_TYPES_H

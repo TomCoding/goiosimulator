@@ -49,11 +49,33 @@ namespace goio {
     else
       cur_aoe_radius = aoe_radius;
   }
+  void Gun::set_direct_ign_chance(double ign_chance) {
+    if (ign_chance < 0)
+      cur_direct_ign_chance = 0;
+    else if (ign_chance > 1)
+      cur_direct_ign_chance = 1;
+    else
+      cur_direct_ign_chance = ign_chance;
+  }
+  void Gun::set_aoe_ign_chance(double ign_chance) {
+    if (ign_chance < 0)
+      cur_aoe_ign_chance = 0;
+    else if (ign_chance > 1)
+      cur_aoe_ign_chance = 1;
+    else
+      cur_aoe_ign_chance = ign_chance;
+  }
 
   int Gun::get_max_clipsize() const {
     if (get_ammo() != nullptr)
-      return get_orig_clipsize()*get_ammo()->get_clipsize();
+      return get_orig_clipsize() * get_ammo()->get_clipsize();
     return get_orig_clipsize();
+  }
+
+  double Gun::get_max_rof() const {
+    if (get_ammo() != nullptr)
+      return get_orig_rof() * get_ammo()->get_rof();
+    return get_orig_rof();
   }
 
   bool Gun::apply_ammunition(const Ammunition* ammo) {
@@ -62,14 +84,16 @@ namespace goio {
     set_clipsize(get_orig_clipsize() * ammo->get_clipsize());
     set_direct_dmg(get_orig_direct_dmg() * ammo->get_damage());
     set_aoe_dmg(get_orig_aoe_dmg() * ammo->get_damage());
+    set_rof(get_orig_rof() * ammo->get_rof());
     set_aoe_radius(get_orig_aoe_radius() * ammo->get_aoe_radius());
+    set_direct_ign_chance(get_orig_direct_ign_chance() + ammo->get_ign_chance());
+    set_aoe_ign_chance(get_orig_aoe_ign_chance() + ammo->get_ign_chance());
 
     cur_ammo = ammo;
     return true;
   }
 
   void Gun::reload(bool with_ammo) {
-    set_rof(get_orig_rof());
     set_reload(get_orig_reload());
     set_direct_dmg_type(get_orig_direct_dmg_type());
     set_aoe_dmg_type(get_orig_aoe_dmg_type());
@@ -80,12 +104,27 @@ namespace goio {
       set_clipsize(get_orig_clipsize());
       set_direct_dmg(get_orig_direct_dmg());
       set_aoe_dmg(get_orig_aoe_dmg());
+      set_rof(get_orig_rof());
       set_aoe_radius(get_orig_aoe_radius());
+      set_direct_ign_chance(get_orig_direct_ign_chance());
+      set_aoe_ign_chance(get_orig_aoe_ign_chance());
       cur_ammo = nullptr;
     }
   }
 
-  bool Gun::shoot(GoioObj* obj, double, bool& changed, bool aoe, double aoe_range) {
+  inline double Gun::get_rof_changed() const {
+    return get_health()/get_max_health()*get_max_rof();
+  }
+
+  inline double Gun::get_time_per_shot() const {
+    return get_max_health()/get_health()/get_max_rof();
+  }
+
+  inline double Gun::get_reload_changed() const {
+    return get_max_health()/get_health()*get_reload();
+  }
+
+  bool Gun::shoot(GoioObj* obj, double time, bool& changed, bool aoe, double aoe_range) {
     if (during_reload) {
       reload();
       during_reload = false;
@@ -107,7 +146,16 @@ namespace goio {
     }
 
     dec_clipsize();
-    tmpobj->add_health(-get_direct_dmg()*dmg_types[tmpobj->get_cmp_type()][get_direct_dmg_type()]);
+    tmpobj->add_health(-get_direct_dmg()*dmg_types[get_direct_dmg_type()][tmpobj->get_cmp_type()]);
+    if (tmpobj->get_immunity_end() <= time) {
+      if (get_direct_ign_chance() > 0 && (rand() % 100) < get_direct_ign_chance()*100)
+        tmpobj->add_fire(get_orig_direct_ign_stacks());
+      else if (get_direct_dmg_type() == DmgType::EXPLOSIVE) {
+        auto ign_chance = get_direct_dmg()*dmg_types[DmgType::EXPLOSIVE][tmpobj->get_cmp_type()]*explosive_ign_chance;
+        if ((rand() % 100) < ign_chance*100)
+          tmpobj->add_fire(explosive_stacks);
+      }
+    }
 
     if (aoe && aoe_range <= get_aoe_radius()) {
       double falloff;
@@ -117,7 +165,16 @@ namespace goio {
         // falloff = 1.8-1.6*(aoe_range/get_aoe_radius());
         // 0.2 + 0.8*(r-l/(r/2)
         falloff = aoe_dmg_falloff_min + (1-aoe_dmg_falloff_min)*(get_aoe_radius()-aoe_range)/(get_aoe_radius()/aoe_radius_dmg_falloff);
-      tmpobj->add_health(-falloff*get_aoe_dmg()*dmg_types[tmpobj->get_cmp_type()][get_aoe_dmg_type()]);
+      tmpobj->add_health(-falloff*get_aoe_dmg()*dmg_types[get_aoe_dmg_type()][tmpobj->get_cmp_type()]);
+      if (tmpobj->get_immunity_end() <= time) {
+        if (get_aoe_ign_chance() > 0 && (rand() % 100) < get_aoe_ign_chance()*100)
+          tmpobj->add_fire(get_orig_aoe_ign_stacks());
+        else if (get_aoe_dmg_type() == DmgType::EXPLOSIVE) {
+          auto ign_chance = get_aoe_dmg()*dmg_types[DmgType::EXPLOSIVE][tmpobj->get_cmp_type()]*explosive_ign_chance;
+          if ((rand() % 100) < ign_chance*100)
+            tmpobj->add_fire(explosive_stacks);
+        }
+      }
     }
 
     if (get_ammo() != nullptr && get_ammo()->get_proportional_self_damage()) {
