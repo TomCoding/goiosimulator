@@ -37,12 +37,29 @@ namespace goio {
                               rebuild_tools(),
                               rebuild_treshholds(),
                               cur_tool(nullptr), delay(false) {}
-      Engineer& operator=(const Engineer&) { return *this; }
+      Engineer& operator=(const Engineer& obj) {
+        if (&obj != this) {
+          mode = obj.mode;
+          for (int i = 0; i < 3; ++i)
+            tools[i] = obj.tools[i];
+          for (int i = 0; i < 2; ++i)
+            repair_treshholds[i] = obj.repair_treshholds[i];
+          for (int i = 0; i < 3; ++i)
+            max_rep_tools[i] = obj.max_rep_tools[i];
+          for (int i = 0; i < 3; ++i)
+            rebuild_tools[i] = obj.rebuild_tools[i];
+          for (int i = 0; i < 2; ++i)
+            rebuild_treshholds[i] = obj.rebuild_treshholds[i];
+          cur_tool = obj.cur_tool;
+          delay = obj.delay;
+        }
+        return *this;
+      }
 
       void select_tool(RepairTool* tool);
 
     protected:
-      Engineer(const std::string name, RepairMode mode) : GoioActor(name, CmpType::HULL),
+      Engineer(const std::string& name, RepairMode mode) : GoioActor(name, CmpType::HULL),
                               mode(mode),
                               tools(),
                               repair_treshholds(),
@@ -54,7 +71,7 @@ namespace goio {
       void free_tools();
 
     public:
-      Engineer(const std::string name, RepairTool* tool1, RepairTool* tool2,
+      Engineer(const std::string& name, RepairTool* tool1, RepairTool* tool2,
                RepairTool* tool3, RepairMode mode = RepairMode::CONSTANT_DMG_NO_WAIT);
       virtual ~Engineer() {}
 
@@ -69,14 +86,14 @@ namespace goio {
 
   class MainEngineer : public Engineer {
     public:
-      MainEngineer(const std::string name, bool extinguisher = true,
+      MainEngineer(const std::string& name, bool extinguisher = true,
                    RepairMode mode = RepairMode::CONSTANT_DMG_NO_WAIT);
       ~MainEngineer();
   };
 
   class BuffEngineer : public Engineer {
     public:
-      BuffEngineer(const std::string name, bool extinguisher = true);
+      BuffEngineer(const std::string& name, bool extinguisher = true);
       ~BuffEngineer();
   };
 

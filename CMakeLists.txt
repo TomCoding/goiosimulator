@@ -15,11 +15,18 @@ target_compile_options(goiovalues PUBLIC
     -fdiagnostics-color=always
     -std=c++11 -O3 -ffast-math -g -pedantic -Wall -Wextra -Wcast-align
     -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2
-    -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs
-    -Wnoexcept -Wold-style-cast -Woverloaded-virtual -Wredundant-decls
-    -Wsign-conversion -Wsign-promo -Wstrict-null-sentinel -Wswitch-default
+    -Winit-self -Wmissing-declarations -Wmissing-include-dirs
+    -Wold-style-cast -Woverloaded-virtual -Wredundant-decls
+    -Wsign-conversion -Wsign-promo -Wswitch-default
     -Wundef -Weffc++
 )
+if("${CMAKE_CXX_COMPILER}" MATCHES ".*/g\\+\\+.*")
+target_compile_options(goiovalues PUBLIC
+    -Wlogical-op
+    -Wnoexcept
+    -Wstrict-null-sentinel
+)
+endif()
 
 find_program(MEMORYCHECK_COMMAND valgrind)
 set(MEMORYCHECK_COMMAND_OPTIONS "--trace-children=yes --leak-check=full --show-reachable=yes")

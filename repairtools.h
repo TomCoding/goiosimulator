@@ -46,7 +46,7 @@ namespace goio {
       double repair_wait;
 
     protected:
-      RepairTool(const std::string name, double swing, double heal,
+      RepairTool(const std::string& name, double swing, double heal,
                  int rebuild_power, int extinguish, int fire_immune, double cooldown) :
                       RepairInfo(swing, heal, rebuild_power, extinguish, fire_immune, cooldown),
                       GoioActor(name, CmpType::COMPONENTS),
@@ -72,32 +72,32 @@ namespace goio {
 
   class Spanner : public RepairTool {
     public:
-      explicit Spanner(const std::string name) : RepairTool(name, 0.7, 40, 5, 0, 0, 2) {}
+      explicit Spanner(const std::string& name) : RepairTool(name, 0.7, 40, 5, 0, 0, 2) {}
   };
 
   class Mallet : public RepairTool {
     public:
-      explicit Mallet(const std::string name) : RepairTool(name, 0.65, 250, 2, 0, 0, 9) {}
+      explicit Mallet(const std::string& name) : RepairTool(name, 0.65, 250, 2, 0, 0, 9) {}
   };
 
   class PipeWrench : public RepairTool {
     public:
-      explicit PipeWrench(const std::string name) : RepairTool(name, 0.667, 120, 4, 0, 0, 5) {}
+      explicit PipeWrench(const std::string& name) : RepairTool(name, 0.667, 120, 4, 0, 0, 5) {}
   };
 
   class FireExtinguisher : public RepairTool {
     public:
-      explicit FireExtinguisher(const std::string name) : RepairTool(name, 0.667, 0, 0, 50, 5, 3) {}
+      explicit FireExtinguisher(const std::string& name) : RepairTool(name, 0.667, 0, 0, 50, 5, 3) {}
   };
 
   class ChemicalSpray : public RepairTool {
     public:
-      explicit ChemicalSpray(const std::string name) : RepairTool(name, 0.667, 0, 0, 3, 25, 5) {}
+      explicit ChemicalSpray(const std::string& name) : RepairTool(name, 0.667, 0, 0, 3, 25, 5) {}
   };
 
   class BuffHammer : public RepairTool {
     public:
-      explicit BuffHammer(const std::string name) : RepairTool(name, 0.667, 0, 0, 0, 0, 0.667) {}
+      explicit BuffHammer(const std::string& name) : RepairTool(name, 0.667, 0, 0, 0, 0, 0.667) {}
   };
 
 }

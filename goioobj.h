@@ -16,14 +16,14 @@ namespace goio {
       double health;
       int fire_stacks;
       int rebuild_state;
-      const int part_type_multiplier;
+      const double part_type_multiplier;
       GoioObj* hull;
       double cooldown_end;
       double immunity_end;
 
       static const int max_fire_stacks = 20;
 
-      GoioObj(double max_health) : name(""), cmp_type(CmpType::HULL),
+      explicit GoioObj(double max_health) : name(""), cmp_type(CmpType::HULL),
                   max_health(max_health), health(max_health),
                   fire_stacks(-1), rebuild_state(-1),
                   part_type_multiplier(-1),
@@ -32,13 +32,29 @@ namespace goio {
                   max_health(obj.max_health), health(obj.max_health),
                   fire_stacks(obj.fire_stacks), rebuild_state(obj.rebuild_state),
                   part_type_multiplier(obj.part_type_multiplier),
-                  hull(obj.hull), cooldown_end(0), immunity_end(0) {}
-      GoioObj& operator=(const GoioObj&) { return *this; };
+                  hull(nullptr), cooldown_end(obj.cooldown_end),
+                  immunity_end(obj.immunity_end) {
+        hull = new GoioObj(obj.hull->max_health);
+        hull->health = obj.hull->health;
+        hull->rebuild_state = obj.hull->rebuild_state;
+      }
+      GoioObj& operator=(const GoioObj& obj) {
+        if (&obj != this) {
+          max_health = obj.max_health;
+          health = obj.health;
+          fire_stacks = obj.fire_stacks;
+          rebuild_state = obj.rebuild_state;
+          hull = obj.hull;
+          cooldown_end = obj.cooldown_end;
+          immunity_end = obj.immunity_end;
+        }
+        return *this;
+      };
 
       bool set_health_int(double health, GoioObj* obj);
 
     public:
-      GoioObj(const std::string name, CmpType cmp_type, int part_type_multiplier = -1,
+      GoioObj(const std::string& name, CmpType cmp_type, double part_type_multiplier = -1,
               double max_health = 0, double hull_max_health = -1) :
               name(name), cmp_type(cmp_type), max_health(max_health), health(max_health),
               fire_stacks(-1), rebuild_state(-1),

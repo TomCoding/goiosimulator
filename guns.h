@@ -95,7 +95,23 @@ namespace goio {
               cur_aoe_radius(obj.cur_aoe_radius), cur_direct_ign_chance(obj.cur_direct_ign_chance),
               cur_aoe_ign_chance(obj.cur_aoe_ign_chance),
               cur_ammo(obj.cur_ammo), during_reload(false) {}
-      Gun& operator=(const Gun&) { return *this; };
+      Gun& operator=(const Gun& obj) {
+        if (&obj != this) {
+          cur_clipsize = obj.cur_clipsize;
+          cur_rof = obj.cur_rof;
+          cur_reload = obj.cur_reload;
+          cur_direct_dmg = obj.cur_direct_dmg;
+          cur_direct_dmg_type = obj.cur_direct_dmg_type;
+          cur_aoe_dmg = obj.cur_aoe_dmg;
+          cur_aoe_dmg_type = obj.cur_aoe_dmg_type;
+          cur_aoe_radius = obj.cur_aoe_radius;
+          cur_direct_ign_chance = obj.cur_direct_ign_chance;
+          cur_aoe_ign_chance = obj.cur_aoe_ign_chance;
+          cur_ammo = obj.cur_ammo;
+          during_reload = obj.during_reload;
+        }
+        return *this;
+      }
 
       void set_clipsize(double clipsize);
       void set_rof(double rof);
@@ -115,7 +131,7 @@ namespace goio {
       }
 
     protected:
-      Gun(const std::string name, double max_health,
+      Gun(const std::string& name, double max_health,
           int clipsize, double rof, double reload, double direct_dmg,
           DmgType direct_dmg_type, double aoe_dmg, DmgType aoe_dmg_type,
           double aoe_radius, double direct_ign_chance, int direct_ign_stacks,
@@ -170,7 +186,7 @@ namespace goio {
 
   class LightGun : public Gun {
     protected:
-      LightGun(const std::string name, int clipsize, double rof, double reload,
+      LightGun(const std::string& name, int clipsize, double rof, double reload,
                double direct_dmg, DmgType direct_dmg_type, double aoe_dmg,
                DmgType aoe_dmg_type, double aoe_radius, double direct_ign_chance,
                int direct_ign_stacks, double aoe_ign_chance, int aoe_ign_stacks) :
@@ -184,7 +200,7 @@ namespace goio {
 
   class Artemis : public LightGun {
     public:
-      explicit Artemis(const std::string name = "") : LightGun(
+      explicit Artemis(const std::string& name = "") : LightGun(
                       name,
                       4,                   // magazine size
                       0.63,                // rof
@@ -203,7 +219,7 @@ namespace goio {
 
   class Banshee : public LightGun {
     public:
-      explicit Banshee(const std::string name = "") : LightGun(
+      explicit Banshee(const std::string& name = "") : LightGun(
                       name,
                       8,                   // magazine size
                       2,                   // rof
@@ -222,7 +238,7 @@ namespace goio {
 
   class LightCaro : public LightGun {
     public:
-      explicit LightCaro(const std::string name = "") : LightGun(
+      explicit LightCaro(const std::string& name = "") : LightGun(
                       name,
                       5,                   // magazine size
                       1,                   // rof
@@ -241,7 +257,7 @@ namespace goio {
 
   class Flare : public LightGun {
     public:
-      explicit Flare(const std::string name = "") : LightGun(
+      explicit Flare(const std::string& name = "") : LightGun(
                       name,
                       2,                   // magazine size
                       0.5,                 // rof
@@ -260,7 +276,7 @@ namespace goio {
 
   class Flamethrower : public LightGun {
     public:
-      explicit Flamethrower(const std::string name = "") : LightGun(
+      explicit Flamethrower(const std::string& name = "") : LightGun(
                       name,
                       250,                 // magazine size
                       16.67,               // rof
@@ -279,7 +295,7 @@ namespace goio {
 
   class Gatling : public LightGun {
     public:
-      explicit Gatling(const std::string name = "") : LightGun(
+      explicit Gatling(const std::string& name = "") : LightGun(
                       name,
                       82,                  // magazine size
                       8.33,                // rof

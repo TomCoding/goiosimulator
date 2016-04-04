@@ -8,7 +8,7 @@
 
 namespace goio {
 
-  Engineer::Engineer(const std::string name, RepairTool* tool1, RepairTool* tool2,
+  Engineer::Engineer(const std::string& name, RepairTool* tool1, RepairTool* tool2,
                      RepairTool* tool3, RepairMode mode) :
                      GoioActor::GoioActor(name, CmpType::HULL),
                      mode(mode), tools(), repair_treshholds(),
@@ -85,13 +85,7 @@ namespace goio {
   }
 
   void Engineer::select_tool(RepairTool* tool) {
-    if (tool == nullptr) {
-      tool[0].reset();
-      tool[1].reset();
-      tool[2].reset();
-      cur_tool = nullptr;
-      return;
-    } else if (tool == cur_tool) {
+    if (tool == cur_tool) {
       delay = false;
       return;
     }
@@ -186,7 +180,7 @@ namespace goio {
       delete tools[i];
   }
 
-  MainEngineer::MainEngineer(const std::string name, bool extinguisher, RepairMode mode) :
+  MainEngineer::MainEngineer(const std::string& name, bool extinguisher, RepairMode mode) :
                              Engineer(name, mode) {
     RepairTool* firetool;
     if (extinguisher)
@@ -200,7 +194,7 @@ namespace goio {
     free_tools();
   }
 
-  BuffEngineer::BuffEngineer(const std::string name, bool extinguisher) :
+  BuffEngineer::BuffEngineer(const std::string& name, bool extinguisher) :
                              Engineer(name, RepairMode::CONSTANT_DMG_NO_WAIT) {
     RepairTool* firetool;
     if (extinguisher)

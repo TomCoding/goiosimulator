@@ -12,6 +12,7 @@ int main() {
   // auto ammo1 = new goio::Lochnagar();
   auto ammo1 = new goio::Incendiary();
   gat->apply_ammunition(ammo1);
+  // gat->set_health(30);
 
   auto gat2 = new goio::Gatling("Gatling2");
 
