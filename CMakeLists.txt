@@ -33,4 +33,3 @@ set(MEMORYCHECK_COMMAND_OPTIONS "--trace-children=yes --leak-check=full --show-r
 
 include(CTest)
 add_test(run goiovalues)
-# add_test(valgrind valgrind --leak-check=full ./goiovalues)
