@@ -90,7 +90,12 @@ bool RepairTool::repair(GoioObj* obj, double time, bool&) {
   if (obj->get_health() > 0) {
     done = 0;
     obj->add_health(get_heal(), time + get_cooldown());
-    obj->add_fire(-get_extinguish(), time + get_fire_immune());
+    double immunity_end;
+    if (time + get_fire_immune() > obj->get_immunity_end())
+      immunity_end = time + get_fire_immune();
+    else
+      immunity_end = -1;
+    obj->add_fire(-get_extinguish(), immunity_end);
     repair_wait = get_cooldown();
   } else {
     done = 1;

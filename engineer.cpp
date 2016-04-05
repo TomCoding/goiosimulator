@@ -26,22 +26,24 @@
 #include <iostream>
 
 #include "./goioobj.h"
+#include "./fire.h"
 
 
 namespace goio {
 
 Engineer::Engineer(const std::string& name, RepairTool* tool1,
-                   RepairTool* tool2, RepairTool* tool3, RepairMode mode) :
+                   RepairTool* tool2, RepairTool* tool3,
+                   RepairMode mode, ExtinguishMode extmode) :
                    GoioActor::GoioActor(name, CmpType::HULL),
-                   mode(mode), tools(), repair_treshholds(),
-                   max_rep_tools(), rebuild_tools(), rebuild_treshholds(),
+                   mode(mode), extmode(extmode), tools(), repair_thresholds(),
+                   max_rep_tools(), rebuild_tools(), rebuild_thresholds(),
                    cur_tool(nullptr), delay(false) {
   update_tools(tool1, tool2, tool3);
 }
 
 void Engineer::update_tools(RepairTool* tool1, RepairTool* tool2,
                             RepairTool* tool3) {
-  for (auto i = 0; i < 3; ++i) {
+  for (auto i = 0; i < 4; ++i) {
     double ps1;
     double ps2;
     double ps3;
@@ -65,6 +67,12 @@ void Engineer::update_tools(RepairTool* tool1, RepairTool* tool2,
         ps2 = tool2->get_rebuild_power()/tool2->get_swing();
         ps3 = tool3->get_rebuild_power()/tool3->get_swing();
         ptr_tools = rebuild_tools;
+        break;
+      case 3:
+        ps1 = tool1->get_extinguish()/tool1->get_cooldown();
+        ps2 = tool2->get_extinguish()/tool2->get_cooldown();
+        ps3 = tool3->get_extinguish()/tool3->get_cooldown();
+        ptr_tools = ext_tools;
         break;
       default:
         assert(false);
@@ -101,13 +109,13 @@ void Engineer::update_tools(RepairTool* tool1, RepairTool* tool2,
     }
   }
 
-  repair_treshholds[0] = tools[1]->get_heal() *
+  repair_thresholds[0] = tools[1]->get_heal() *
                          tools[0]->get_cooldown()/tools[1]->get_cooldown();
-  repair_treshholds[1] = tools[2]->get_heal() *
+  repair_thresholds[1] = tools[2]->get_heal() *
                          tools[1]->get_cooldown()/tools[2]->get_cooldown();
-  rebuild_treshholds[0] = rebuild_tools[1]->get_rebuild_power() *
+  rebuild_thresholds[0] = rebuild_tools[1]->get_rebuild_power() *
                           rebuild_tools[0]->get_swing()/tools[1]->get_swing();
-  rebuild_treshholds[1] = rebuild_tools[2]->get_rebuild_power() *
+  rebuild_thresholds[1] = rebuild_tools[2]->get_rebuild_power() *
                           rebuild_tools[1]->get_swing()/tools[2]->get_swing();
 }
 
@@ -152,19 +160,36 @@ void Engineer::select_tool(RepairTool* tool) {
 bool Engineer::repair(GoioObj* obj, double time, bool& changed) {
   if (obj->get_health() == 0) {
     auto rebuilddiff = obj->get_rebuild_value() - obj->get_rebuild_state();
-    if (rebuilddiff > rebuild_treshholds[0])
+    if (rebuilddiff > rebuild_thresholds[0])
       select_tool(rebuild_tools[0]);
-    else if (rebuilddiff > rebuild_treshholds[1])
+    else if (rebuilddiff > rebuild_thresholds[1])
       select_tool(rebuild_tools[1]);
     else
       select_tool(rebuild_tools[2]);
   } else {
+    if (obj->get_fire_stacks() > 0 && ext_tools[0]->get_extinguish() > 0) {
+      switch (extmode) {
+        case ExtinguishMode::INSTANT:
+          select_tool(ext_tools[0]);
+          return cur_tool->repair(obj, time, changed);
+        case ExtinguishMode::THRESHOLD:
+          if (tools[0]->get_heal()/tools[0]->get_cooldown() <
+              Fire::get_fire_dmg(obj, tools[0]->get_cooldown())) {
+            select_tool(ext_tools[0]);
+            return cur_tool->repair(obj, time, changed);
+          }
+          break;
+        default:
+          assert(false);
+      }
+    }
+
     auto healthdiff = obj->get_max_health() - obj->get_health();
     switch (mode) {
       case RepairMode::CONSTANT_DMG_NO_WAIT:
-        if (healthdiff > repair_treshholds[0])
+        if (healthdiff > repair_thresholds[0])
           select_tool(tools[0]);
-        else if (healthdiff > repair_treshholds[1])
+        else if (healthdiff > repair_thresholds[1])
           select_tool(tools[1]);
         else
           select_tool(tools[2]);
@@ -212,10 +237,11 @@ void Engineer::free_tools() {
 }
 
 MainEngineer::MainEngineer(const std::string& name, bool extinguisher,
-                           RepairMode mode) : Engineer(name, mode) {
+                           RepairMode mode, ExtinguishMode extmode) :
+                           Engineer(name, mode, extmode) {
   RepairTool* firetool;
   if (extinguisher)
-    firetool = new FireExtinguisher(name + " Extinguiser");
+    firetool = new FireExtinguisher(name + " Ext");
   else
     firetool = new ChemicalSpray(name + " Chem");
   update_tools(new Mallet(name + " Mallet"),
@@ -227,11 +253,14 @@ MainEngineer::~MainEngineer() {
   free_tools();
 }
 
-BuffEngineer::BuffEngineer(const std::string& name, bool extinguisher) :
-                           Engineer(name, RepairMode::CONSTANT_DMG_NO_WAIT) {
+BuffEngineer::BuffEngineer(const std::string& name, bool extinguisher,
+                           ExtinguishMode extmode) :
+                           Engineer(name,
+                                    RepairMode::CONSTANT_DMG_NO_WAIT,
+                                    extmode) {
   RepairTool* firetool;
   if (extinguisher)
-    firetool = new FireExtinguisher(name + " Extinguiser");
+    firetool = new FireExtinguisher(name + " Ext");
   else
     firetool = new ChemicalSpray(name + " Chem");
   update_tools(new PipeWrench(name + " Wrench"),

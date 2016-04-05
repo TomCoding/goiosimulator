@@ -30,48 +30,75 @@
 namespace goio {
 
 enum RepairMode {
-  CONSTANT_DMG_NO_WAIT,
-  FASTEST_HEAL,
-  // CONSTANT_DMG_WAIT  // anticipate incoming damage and repair accordingly
-  // MIXED  // fastest heal during damage pauses
+  CONSTANT_DMG_NO_WAIT,  // best repair/cooldown relation for current damage
+  FASTEST_HEAL,          // get on full health as fast as possible
+  // CONSTANT_DMG_WAIT   // anticipate incoming damage and repair accordingly
+  // MIXED,              // fastest heal during damage pauses
+};
+
+// enum RebuildMode {
+//   FASTEST_REBUILD,  // rebuild as fast as possible
+//   PREREBUILD,       // only prerebuild
+//   PREREBUILD_WAIT,  // prerebuild and rebuild when no more incoming damage
+// };
+
+// enum FireImmunityMode {
+//   CONSTANT_IMMUNITY,  // keep component constantly immune to fire
+//   NO_IMMUNITY,        // extinguish when needed
+//   ANTICIPATE,         // anticipate incoming fire and maintain immunity if needed
+// };
+
+enum ExtinguishMode {
+  INSTANT,        // instantly extinguish new fires
+  THRESHOLD,      // only extinguish if fire damage higher than repair
+  // ANTICIPATE,  // anticipate incoming fire and extinguish if over threshold
+  // MIXED        // instant extinguish during damage pauses
 };
 
 class Engineer : public GoioActor {
  private:
     RepairMode mode;
+    ExtinguishMode extmode;
 
     RepairTool* tools[3];
-    double repair_treshholds[2];
+    double repair_thresholds[2];
 
     RepairTool* max_rep_tools[3];
 
     RepairTool* rebuild_tools[3];
-    double rebuild_treshholds[2];
+    double rebuild_thresholds[2];
+
+    RepairTool* ext_tools[3];
 
     RepairTool* cur_tool;
     bool delay;
 
     Engineer(const Engineer& obj) : GoioActor(obj.get_name(), CmpType::HULL),
                             mode(obj.mode),
+                            extmode(obj.extmode),
                             tools(),
-                            repair_treshholds(),
+                            repair_thresholds(),
                             max_rep_tools(),
                             rebuild_tools(),
-                            rebuild_treshholds(),
+                            rebuild_thresholds(),
+                            ext_tools(),
                             cur_tool(nullptr), delay(false) {}
     Engineer& operator=(const Engineer& obj) {
       if (&obj != this) {
         mode = obj.mode;
+        extmode = obj.extmode;
         for (int i = 0; i < 3; ++i)
           tools[i] = obj.tools[i];
         for (int i = 0; i < 2; ++i)
-          repair_treshholds[i] = obj.repair_treshholds[i];
+          repair_thresholds[i] = obj.repair_thresholds[i];
         for (int i = 0; i < 3; ++i)
           max_rep_tools[i] = obj.max_rep_tools[i];
         for (int i = 0; i < 3; ++i)
           rebuild_tools[i] = obj.rebuild_tools[i];
         for (int i = 0; i < 2; ++i)
-          rebuild_treshholds[i] = obj.rebuild_treshholds[i];
+          rebuild_thresholds[i] = obj.rebuild_thresholds[i];
+        for (int i = 0; i < 3; ++i)
+          ext_tools[i] = obj.ext_tools[i];
         cur_tool = obj.cur_tool;
         delay = obj.delay;
       }
@@ -81,26 +108,32 @@ class Engineer : public GoioActor {
     void select_tool(RepairTool* tool);
 
  protected:
-    Engineer(const std::string& name, RepairMode mode) :
+    Engineer(const std::string& name, RepairMode mode, ExtinguishMode extmode) :
                             GoioActor(name, CmpType::HULL),
                             mode(mode),
+                            extmode(extmode),
                             tools(),
-                            repair_treshholds(),
+                            repair_thresholds(),
                             max_rep_tools(),
                             rebuild_tools(),
-                            rebuild_treshholds(),
+                            rebuild_thresholds(),
+                            ext_tools(),
                             cur_tool(nullptr), delay(false) {}
     void update_tools(RepairTool* tool1, RepairTool* tool2, RepairTool* tool3);
     void free_tools();
 
  public:
     Engineer(const std::string& name, RepairTool* tool1, RepairTool* tool2,
-             RepairTool* tool3, RepairMode mode = RepairMode::CONSTANT_DMG_NO_WAIT);
+             RepairTool* tool3,
+             RepairMode mode = RepairMode::CONSTANT_DMG_NO_WAIT,
+             ExtinguishMode extmode = ExtinguishMode::THRESHOLD);
     virtual ~Engineer() {}
 
-    inline RepairMode get_mode() const { return mode; }
+    inline RepairMode     get_mode() const { return mode; }
+    inline ExtinguishMode get_extmode() const { return extmode; }
 
     inline void set_mode(RepairMode mode) { this->mode = mode; }
+    inline void set_extmode(ExtinguishMode extmode) { this->extmode = extmode; }
 
     bool repair(GoioObj* obj, double time, bool&);
 
@@ -109,14 +142,16 @@ class Engineer : public GoioActor {
 
 class MainEngineer : public Engineer {
  public:
-    MainEngineer(const std::string& name, bool extinguisher = true,
-                 RepairMode mode = RepairMode::CONSTANT_DMG_NO_WAIT);
+    explicit MainEngineer(const std::string& name, bool extinguisher = true,
+                          RepairMode mode = RepairMode::CONSTANT_DMG_NO_WAIT,
+                          ExtinguishMode extmode = ExtinguishMode::THRESHOLD);
     ~MainEngineer();
 };
 
 class BuffEngineer : public Engineer {
  public:
-    explicit BuffEngineer(const std::string& name, bool extinguisher = true);
+    explicit BuffEngineer(const std::string& name, bool extinguisher = true,
+                          ExtinguishMode extmode = ExtinguishMode::THRESHOLD);
     ~BuffEngineer();
 };
 

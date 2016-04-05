@@ -33,6 +33,7 @@ class Fire : public GoioActor {
  public:
     Fire() : GoioActor("", CmpType::HULL) {}
 
+    static double get_fire_dmg(GoioObj* obj, double time);
     bool burn(GoioObj* obj, double, bool&);
     static inline double get_firetick() { return firetick; }
 

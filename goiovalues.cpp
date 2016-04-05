@@ -33,10 +33,15 @@ int main() {
   auto mon = new goio::Monitor(1);
 
   auto gat = new goio::Gatling("Gatling1");
-  // auto ammo1 = new goio::Lochnagar();
-  auto ammo1 = new goio::Incendiary();
-  gat->apply_ammunition(ammo1);
-  gat->set_health(10);
+  auto gat3 = new goio::Gatling("Gatling3");
+  auto gat4 = new goio::Gatling("Gatling4");
+  auto loch = new goio::Lochnagar();
+  auto inc = new goio::Incendiary();
+  // gat->apply_ammunition(loch);
+  gat->apply_ammunition(inc);
+  // gat3->apply_ammunition(loch);
+  // gat4->apply_ammunition(loch);
+  // gat->set_health(10);
 
   auto gat2 = new goio::Gatling("Gatling2");
 
@@ -57,12 +62,14 @@ int main() {
   auto armor = new goio::Galleon("Gall1");
   armor->set_fire(10);
 
-  auto mon_id = time->register_monitor_event(mon, armor);
+  // auto mon_id = time->register_monitor_event(mon, armor);
   auto gat_id = time->register_shoot_event(gat, armor);
+  // auto gat3_id = time->register_shoot_event(gat3, armor);
+  // auto gat4_id = time->register_shoot_event(gat4, armor);
   // auto wrench_id = time->register_repair_event(wrench, armor, 1);
   // auto wrench2_id = time->register_repair_event(wrench2, gat, 1);
   // auto gat2_id = time->register_shoot_event(gat2, gat, 30);
-  // auto engi_id = time->register_repair_event(engi, armor, 1);
+  auto engi_id = time->register_repair_event(engi, armor, 1);
   // auto engi2_id = time->register_repair_event(engi2, armor, 1);
   // auto engi3_id = time->register_repair_event(engi3, armor, 1);
   // auto ext_id = time->register_repair_event(ext, armor, 1);
@@ -87,12 +94,14 @@ int main() {
     //   time->unregister_event(gat2_id);
   }
 
-  time->unregister_event(mon_id);
+  // time->unregister_event(mon_id);
   time->unregister_event(gat_id);
+  // time->unregister_event(gat3_id);
+  // time->unregister_event(gat4_id);
   // time->unregister_event(wrench_id);
   // time->unregister_event(wrench2_id);
   // time->unregister_event(gat2_id);
-  // time->unregister_event(engi_id);
+  time->unregister_event(engi_id);
   // time->unregister_event(engi2_id);
   // time->unregister_event(engi3_id);
   // time->unregister_event(ext_id);
@@ -102,7 +111,10 @@ int main() {
   delete mon;
   delete gat;
   delete gat2;
-  delete ammo1;
+  delete gat3;
+  delete gat4;
+  delete loch;
+  delete inc;
   delete armor;
   delete wrench;
   delete wrench2;
