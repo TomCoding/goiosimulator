@@ -45,7 +45,9 @@ class Ammunition {
     inline double get_rof() const { return rof; }
     inline double get_aoe_radius() const { return aoe_radius; }
     inline double get_ign_chance() const { return ign_chance; }
-    inline bool   get_proportional_self_damage() const { return proportional_self_damage; }
+    inline bool   get_proportional_self_damage() const {
+      return proportional_self_damage;
+    }
 };
 
 class Lochnagar : public Ammunition {

@@ -25,6 +25,14 @@
 
 namespace goio {
 
-std::function<double ()> percentage = nullptr;
+std::function<double ()> random_percentage = nullptr;
+
+void init() {
+  std::random_device rd;
+  std::mt19937 rng(rd());
+  std::uniform_real_distribution<double> uni(0, 100);
+
+  random_percentage = std::bind(uni, rng);
+}
 
 }  // namespace goio

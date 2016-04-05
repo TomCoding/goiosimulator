@@ -39,7 +39,8 @@ Engineer::Engineer(const std::string& name, RepairTool* tool1,
   update_tools(tool1, tool2, tool3);
 }
 
-void Engineer::update_tools(RepairTool* tool1, RepairTool* tool2, RepairTool* tool3) {
+void Engineer::update_tools(RepairTool* tool1, RepairTool* tool2,
+                            RepairTool* tool3) {
   for (auto i = 0; i < 3; ++i) {
     double ps1;
     double ps2;
@@ -100,10 +101,14 @@ void Engineer::update_tools(RepairTool* tool1, RepairTool* tool2, RepairTool* to
     }
   }
 
-  repair_treshholds[0] = tools[1]->get_heal()*tools[0]->get_cooldown()/tools[1]->get_cooldown();
-  repair_treshholds[1] = tools[2]->get_heal()*tools[1]->get_cooldown()/tools[2]->get_cooldown();
-  rebuild_treshholds[0] = rebuild_tools[1]->get_rebuild_power()*rebuild_tools[0]->get_swing()/tools[1]->get_swing();
-  rebuild_treshholds[1] = rebuild_tools[2]->get_rebuild_power()*rebuild_tools[1]->get_swing()/tools[2]->get_swing();
+  repair_treshholds[0] = tools[1]->get_heal() *
+                         tools[0]->get_cooldown()/tools[1]->get_cooldown();
+  repair_treshholds[1] = tools[2]->get_heal() *
+                         tools[1]->get_cooldown()/tools[2]->get_cooldown();
+  rebuild_treshholds[0] = rebuild_tools[1]->get_rebuild_power() *
+                          rebuild_tools[0]->get_swing()/tools[1]->get_swing();
+  rebuild_treshholds[1] = rebuild_tools[2]->get_rebuild_power() *
+                          rebuild_tools[1]->get_swing()/tools[2]->get_swing();
 }
 
 void Engineer::select_tool(RepairTool* tool) {
@@ -191,7 +196,8 @@ TimeFunc Engineer::get_time_func(const GoioObj* obj, double time, bool& force) {
           delay = true;
       break;
     case 0:
-        if (obj->get_health() == 0 && cur_tool->get_cur_swing() - time < -0.00000001)
+        if (obj->get_health() == 0 &&
+                              cur_tool->get_cur_swing() - time < -0.00000001)
           delay = true;
       break;
     default:
@@ -212,7 +218,9 @@ MainEngineer::MainEngineer(const std::string& name, bool extinguisher,
     firetool = new FireExtinguisher(name + " Extinguiser");
   else
     firetool = new ChemicalSpray(name + " Chem");
-  update_tools(new Mallet(name + " Mallet"), new Spanner(name + " Spanner"), firetool);
+  update_tools(new Mallet(name + " Mallet"),
+               new Spanner(name + " Spanner"),
+               firetool);
 }
 
 MainEngineer::~MainEngineer() {
@@ -226,7 +234,9 @@ BuffEngineer::BuffEngineer(const std::string& name, bool extinguisher) :
     firetool = new FireExtinguisher(name + " Extinguiser");
   else
     firetool = new ChemicalSpray(name + " Chem");
-  update_tools(new PipeWrench(name + " Wrench"), new BuffHammer(name + " Buff"), firetool);
+  update_tools(new PipeWrench(name + " Wrench"),
+               new BuffHammer(name + " Buff"),
+               firetool);
 }
 
 BuffEngineer::~BuffEngineer() {

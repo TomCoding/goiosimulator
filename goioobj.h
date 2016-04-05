@@ -92,7 +92,9 @@ class GoioObj {
     static constexpr double health_after_rebuild      = 0.333333333333;
 
     inline int get_rebuild_value() const {
-      return std::round((rebuild_base_hits+max_health*rebuild_health_multiplier)*part_type_multiplier);
+      return std::round((rebuild_base_hits+max_health *
+                         rebuild_health_multiplier) *
+                        part_type_multiplier);
     }
 
     inline const std::string get_name() const { return name; }

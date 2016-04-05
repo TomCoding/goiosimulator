@@ -27,15 +27,9 @@
 
 namespace goio {
 
-extern std::function<double ()> percentage;
+extern std::function<double ()> random_percentage;
 
-inline void init() {
-  std::random_device rd;
-  std::mt19937 rng(rd());
-  std::uniform_real_distribution<double> uni(0, 100);
-
-  percentage = std::bind(uni, rng);
-}
+void init();
 
 }  // namespace goio
 

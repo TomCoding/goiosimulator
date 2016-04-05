@@ -74,7 +74,9 @@ class TimeObj {
       return register_event(registrar,
                             std::bind(&Actor_t::repair, registrar, _1, _2, _3),
                             obj,
-                            std::bind(&Actor_t::get_time_func, registrar, _1, _2, _3),
+                            std::bind(&Actor_t::get_time_func, registrar, _1,
+                                                                          _2,
+                                                                          _3),
                             time,
                             rel);
     }
@@ -82,10 +84,13 @@ class TimeObj {
     inline int register_shoot_event(Actor_t* registrar, GoioObj* obj,
                               double time = 0, bool rel = true) {
       return register_event(registrar,
-                            std::bind(static_cast<bool (Actor_t::*)(GoioObj*, double, bool&)>
+                            std::bind(static_cast<bool (Actor_t::*)
+                                                  (GoioObj*, double, bool&)>
                                       (&Actor_t::shoot), registrar, _1, _2, _3),
                             obj,
-                            std::bind(&Actor_t::get_time_func, registrar, _1, _2, _3),
+                            std::bind(&Actor_t::get_time_func, registrar, _1,
+                                                                          _2,
+                                                                          _3),
                             time,
                             rel);
     }
@@ -95,7 +100,9 @@ class TimeObj {
       return register_event(registrar,
                             std::bind(&Actor_t::monitor, registrar, _1, _2, _3),
                             obj,
-                            std::bind(&Actor_t::get_time_func, registrar, _1, _2, _3),
+                            std::bind(&Actor_t::get_time_func, registrar, _1,
+                                                                          _2,
+                                                                          _3),
                             time,
                             rel);
     }

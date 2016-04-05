@@ -96,15 +96,18 @@ bool TimeObj::next_event() {
 
   if (!funcdata->fire) {
     cout << setw(13) << right << funcdata->obj->get_name()
-         << setw(10) << right << get_cmp_type_string(funcdata->obj->get_cmp_type())
-         << setw(8) << right << funcdata->obj->get_health() << setprecision(0);
+         << setw(10) << right
+         << get_cmp_type_string(funcdata->obj->get_cmp_type())
+         << setw(8) << right << funcdata->obj->get_health()
+         << setprecision(0);
     if (funcdata->obj->get_health() == 0)
       cout << setw(3) << right
            << funcdata->obj->get_rebuild_state() << setw(3);
     else
       cout << setw(6);
     cout << right << funcdata->obj->get_fire_stacks() << setprecision(2);
-    cout << setw(7) << right << get_cmp_type_string(funcdata->obj->get_hull()->get_cmp_type())
+    cout << setw(7) << right
+         << get_cmp_type_string(funcdata->obj->get_hull()->get_cmp_type())
          << setw(8) << right << funcdata->obj->get_hull()->get_health();
     if (funcdata->obj->get_hull()->get_health() == 0)
       cout << setw(3) << right << setprecision(0)
@@ -149,16 +152,20 @@ bool TimeObj::recalc_next_event(FuncData* funcdata) {
   // auto old_time_cur = funcdata->time_cur;
 
   bool force = false;
-  auto timefunc = funcdata->timecheckfunc(funcdata->obj, get_time()-funcdata->time_prev, force);
+  auto timefunc = funcdata->timecheckfunc(funcdata->obj,
+                                          get_time()-funcdata->time_prev,
+                                          force);
   if (timefunc != nullptr) {
     auto comp_time = timefunc();
     if (!force) {
       double fac;
       if (funcdata->time_cur > 0) {
-        fac = (funcdata->time_cur-funcdata->time_prev)/(funcdata->time_next-funcdata->time_prev);
+        fac = (funcdata->time_cur-funcdata->time_prev) /
+              (funcdata->time_next-funcdata->time_prev);
         funcdata->time_cur = 0;
       } else {
-        fac = (get_time()-funcdata->time_prev)/(funcdata->time_next-funcdata->time_prev);
+        fac = (get_time()-funcdata->time_prev) /
+              (funcdata->time_next-funcdata->time_prev);
       }
       funcdata->time_next = get_time() + (1-fac)*comp_time;
       funcdata->time_prev = funcdata->time_next - comp_time;

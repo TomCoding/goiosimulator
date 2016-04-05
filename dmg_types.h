@@ -39,7 +39,9 @@ namespace goio {
                                             "piercing",
                                             "explosive",
                                             "impact"};
-  inline const std::string get_dmg_type_string(DmgType val) { return DmgTypeString[val]; }
+  inline const std::string get_dmg_type_string(DmgType val) {
+    return DmgTypeString[val];
+  }
 
   enum CmpType {
     BALLOON    = 0,
@@ -51,7 +53,9 @@ namespace goio {
                                             "hull",
                                             "armor",
                                             "component"};
-  inline const std::string get_cmp_type_string(CmpType val) { return CmpTypeString[val]; }
+  inline const std::string get_cmp_type_string(CmpType val) {
+    return CmpTypeString[val];
+  }
 
   static const double dmg_types[6][4] = {
     // balloon  hull  armor  components
