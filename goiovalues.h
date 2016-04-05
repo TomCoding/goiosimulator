@@ -7,6 +7,7 @@
 #include "ammunitions.h"
 #include "timeobj.h"
 #include "engineer.h"
+#include "monitor.h"
 
 #include <stdlib.h>
 #include <time.h>

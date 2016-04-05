@@ -1,6 +1,7 @@
 #include "timeobj.h"
 #include "goioobj.h"
 #include "goioactor.h"
+#include "fire.h"
 
 #include <iostream>
 #include <iomanip>
@@ -11,6 +12,8 @@ namespace goio {
 
   TimeObj::~TimeObj() {
     for (auto it = registrars.begin(); it != registrars.end(); ++it) {
+      if (it->second->fire)
+        delete it->second->registrar;
       delete it->second;
     }
   }
@@ -24,11 +27,18 @@ namespace goio {
     auto funcdata = it->second;
 
     using namespace std;
-    cout << fixed << setprecision(2);
-    cout << setw(8) << right << get_time();
+    if (!funcdata->fire) {
+      cout << fixed << setprecision(2);
+      cout << setw(8) << right << get_time();
+    }
 
     bool changed = false;
     /*auto ret =*/ funcdata->timedmgfunc(funcdata->obj, get_time(), changed);
+    bool fire;
+    if (funcdata->obj->get_fire_stacks() > 0)
+      fire = true;
+    else
+      fire = false;
 
     // update targeted actor
     auto iterpair = registrars.equal_range(funcdata->obj);
@@ -42,7 +52,11 @@ namespace goio {
       // don't update current actor itself
       if (it->second != funcdata)
         recalc_next_event(it->second);
+      if (it->second->fire)
+        fire = false;
     }
+    if (fire)
+      register_burn_event(funcdata->obj);
 
     // update to actor associated actors
     if (changed) {
@@ -53,21 +67,23 @@ namespace goio {
       }
     }
 
-    cout << setw(13) << right << funcdata->obj->get_name()
-         << setw(10) << right << get_cmp_type_string(funcdata->obj->get_cmp_type())
-         << setw(8) << right << funcdata->obj->get_health() << setprecision(0);
-    if (funcdata->obj->get_health() == 0)
-      cout << setw(3) << right
-           << funcdata->obj->get_rebuild_state() << setw(3);
-    else
-      cout << setw(6);
-    cout << right << funcdata->obj->get_fire_stacks() << setprecision(2);
-    cout << setw(7) << right << get_cmp_type_string(funcdata->obj->get_hull()->get_cmp_type())
-         << setw(8) << right << funcdata->obj->get_hull()->get_health();
-    if (funcdata->obj->get_hull()->get_health() == 0)
-      cout << setw(3) << right << setprecision(0)
-           << funcdata->obj->get_hull()->get_rebuild_state();
-    cout << endl;
+    if (!funcdata->fire) {
+      cout << setw(13) << right << funcdata->obj->get_name()
+           << setw(10) << right << get_cmp_type_string(funcdata->obj->get_cmp_type())
+           << setw(8) << right << funcdata->obj->get_health() << setprecision(0);
+      if (funcdata->obj->get_health() == 0)
+        cout << setw(3) << right
+             << funcdata->obj->get_rebuild_state() << setw(3);
+      else
+        cout << setw(6);
+      cout << right << funcdata->obj->get_fire_stacks() << setprecision(2);
+      cout << setw(7) << right << get_cmp_type_string(funcdata->obj->get_hull()->get_cmp_type())
+           << setw(8) << right << funcdata->obj->get_hull()->get_health();
+      if (funcdata->obj->get_hull()->get_health() == 0)
+        cout << setw(3) << right << setprecision(0)
+             << funcdata->obj->get_hull()->get_rebuild_state();
+      cout << endl;
+    }
 
     bool force = true;
     TimeFunc timefunc = funcdata->timecheckfunc(funcdata->obj, 0, force);
@@ -83,6 +99,11 @@ namespace goio {
           funcdata->time_cur = get_time();
           break;
         }
+      }
+      if (funcdata->fire) {
+        delete funcdata->registrar;
+        unregister_event(funcdata->id);
+        return true;
       }
       // ret = false;
     }
@@ -168,6 +189,19 @@ namespace goio {
     events.insert(std::make_pair(time, funcdata));
   }
 
+  void TimeObj::register_burn_event(GoioObj* obj) {
+    auto comp_time = get_time() + Fire::firetick;
+    auto fire = new Fire();
+    auto funcdata = new FuncData {++max_id, fire,
+                          std::bind(&Fire::burn, fire, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
+                          obj, -1, comp_time, -1,
+                          std::bind(&Fire::get_time_func, fire, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
+                          true};
+    events.insert(std::make_pair(comp_time, funcdata));
+    registrars.insert(std::make_pair(fire, funcdata));
+    recipients.insert(std::make_pair(obj, funcdata));
+  }
+
   int TimeObj::register_event(GoioActor* registrar, TimeDmgFunc timedmgfunc,
                               GoioObj* obj, TimeCheckFunc timecheckfunc,
                               double time, bool rel) {
@@ -181,7 +215,7 @@ namespace goio {
       return false;
 
     auto funcdata = new FuncData {++max_id, registrar, timedmgfunc, obj, -1,
-                                  comp_time, -1, timecheckfunc};
+                                  comp_time, -1, timecheckfunc, false};
     events.insert(std::make_pair(comp_time, funcdata));
     registrars.insert(std::make_pair(registrar, funcdata));
     recipients.insert(std::make_pair(obj, funcdata));

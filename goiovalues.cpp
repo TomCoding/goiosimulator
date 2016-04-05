@@ -8,11 +8,13 @@ using namespace std;
 int main() {
   goio::init();
 
+  auto mon = new goio::Monitor(1);
+
   auto gat = new goio::Gatling("Gatling1");
   // auto ammo1 = new goio::Lochnagar();
   auto ammo1 = new goio::Incendiary();
   gat->apply_ammunition(ammo1);
-  // gat->set_health(30);
+  gat->set_health(10);
 
   auto gat2 = new goio::Gatling("Gatling2");
 
@@ -33,6 +35,7 @@ int main() {
   auto armor = new goio::Galleon("Gall1");
   armor->set_fire(10);
 
+  auto mon_id = time->register_monitor_event(mon, armor);
   auto gat_id = time->register_shoot_event(gat, armor);
   // auto wrench_id = time->register_repair_event(wrench, armor, 1);
   // auto wrench2_id = time->register_repair_event(wrench2, gat, 1);
@@ -50,7 +53,7 @@ int main() {
   std::cout << "\033[0m";
   int i = 0;
   while (time->next_event()) {
-    if (++i > 1000) {
+    if (++i > 100000) {
       std::cout << "\nevents limit reached!" << std::endl;
       break;
     }
@@ -62,6 +65,7 @@ int main() {
     //   time->unregister_event(gat2_id);
   }
 
+  time->unregister_event(mon_id);
   time->unregister_event(gat_id);
   // time->unregister_event(wrench_id);
   // time->unregister_event(wrench2_id);
@@ -73,6 +77,7 @@ int main() {
   // time->unregister_event(chem_id);
   // time->unregister_event(banshee_id);
 
+  delete mon;
   delete gat;
   delete gat2;
   delete ammo1;

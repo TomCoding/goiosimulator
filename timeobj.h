@@ -19,6 +19,7 @@ namespace goio {
         double time_next;    // key in events
         double time_cur;     // if set, not in events (on hold)
         TimeCheckFunc timecheckfunc;
+        bool fire;
       };
 
       std::multimap<double, FuncData*> events;
@@ -26,6 +27,7 @@ namespace goio {
       std::multimap<GoioObj*, FuncData*> recipients;
 
       void register_event(FuncData* funcdata, double time);
+      void register_burn_event(GoioObj* obj);
       bool recalc_next_event(FuncData* funcdata);
 
       static int max_id;
@@ -55,6 +57,16 @@ namespace goio {
                                 double time = 0, bool rel = true) {
         return register_event(registrar,
                               std::bind(static_cast<bool (Actor_t::*)(GoioObj*, double, bool&)>(&Actor_t::shoot), registrar, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
+                              obj,
+                              std::bind(&Actor_t::get_time_func, registrar, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
+                              time,
+                              rel);
+      }
+      template <typename Actor_t>
+      inline int register_monitor_event(Actor_t* registrar, GoioObj* obj,
+                                double time = 0, bool rel = true) {
+        return register_event(registrar,
+                              std::bind(&Actor_t::monitor, registrar, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
                               obj,
                               std::bind(&Actor_t::get_time_func, registrar, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
                               time,

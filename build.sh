@@ -18,6 +18,13 @@ Options:
 "
 }
 
+function wait_input() {
+  if [ "$WAIT" == 1 ]; then
+    read -p "
+press enter to run ./$BIN_NAME..."
+  fi
+}
+
 HELP=0
 CPPCHECK=0
 CHECK_OPEN=0
@@ -120,14 +127,12 @@ if [ "$CPPCHECK" == 1 ]; then
 fi
 
 if [ "$SUCCESS" == 1 ]; then
-  if [ "$WAIT" ]; then
-    read -p "
-press enter to run ./$BIN_NAME..."
-  fi
   if [ "$RUN" == 1 ]; then
+    wait_input
     echo
     "$BUILD_DIR/./$BIN_NAME"
   elif [ "$VALGRIND" == 1 ]; then
+    wait_input
     echo
     valgrind --trace-children=yes --leak-check=full --show-reachable=yes "$BUILD_DIR/./$BIN_NAME"
   fi
