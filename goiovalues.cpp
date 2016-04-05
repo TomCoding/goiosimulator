@@ -1,9 +1,11 @@
-#include "goiovalues.h"
+#include "./goiovalues.h"
 
 #include <iostream>
 #include <iomanip>
 
-using namespace std;
+
+using std::cout;
+using std::endl;
 
 int main() {
   goio::init();

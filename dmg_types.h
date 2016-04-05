@@ -1,5 +1,5 @@
-#ifndef __DMG_TYPES_H
-#define __DMG_TYPES_H
+#ifndef DMG_TYPES_H_
+#define DMG_TYPES_H_
 
 #include <string>
 
@@ -35,12 +35,12 @@ namespace goio {
 
   static const double dmg_types[6][4] = {
     // balloon  hull  armor  components
-      {  1.5,   1.3,   0.8,  0.25  }, // fire
-      {  1.8,   0.2,   0.25, 0     }, // flechette
-      {  0.2,   0.1,   0.2,  2     }, // shatter
-      {  0.2,   0.2,   1.5,  0.2   }, // piercing
-      {  0.25,  1.4,   0.3,  0.3   }, // explosive
-      {  1.8,   1.5,   0.8,  0.6   }, // impact
+      {  1.5,   1.3,   0.8,  0.25  },  // fire
+      {  1.8,   0.2,   0.25, 0     },  // flechette
+      {  0.2,   0.1,   0.2,  2     },  // shatter
+      {  0.2,   0.2,   1.5,  0.2   },  // piercing
+      {  0.25,  1.4,   0.3,  0.3   },  // explosive
+      {  1.8,   1.5,   0.8,  0.6   },  // impact
   };
 
   /*
@@ -61,6 +61,6 @@ namespace goio {
    */
   static const int explosive_stacks = 1;
 
-}
+}  // namespace goio
 
-#endif // __DMG_TYPES_H
+#endif  // DMG_TYPES_H_

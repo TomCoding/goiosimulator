@@ -1,22 +1,24 @@
-#ifndef __FIRE_H
-#define __FIRE_H
+#ifndef FIRE_H_
+#define FIRE_H_
 
-#include "goioactor.h"
+#include "./goioactor.h"
+
 
 namespace goio {
 
-  class Fire : public GoioActor {
-    public:
-      Fire() : GoioActor("", CmpType::HULL) {}
+class Fire : public GoioActor {
+ private:
+    static constexpr double firetick = 0.001;
 
-      static constexpr double firetick = 0.001;
+ public:
+    Fire() : GoioActor("", CmpType::HULL) {}
 
-      bool burn(GoioObj* obj, double, bool&);
-      inline double get_firetick() const { return firetick; }
+    bool burn(GoioObj* obj, double, bool&);
+    static inline double get_firetick() { return firetick; }
 
-      TimeFunc get_time_func(const GoioObj* obj, double, bool&) override;
-  };
-  
-}
+    TimeFunc get_time_func(const GoioObj* obj, double, bool&) override;
+};
 
-#endif // __FIRE_H
+}  // namespace goio
+
+#endif  // FIRE_H_

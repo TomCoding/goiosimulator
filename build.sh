@@ -2,6 +2,7 @@
 
 BIN_NAME="goiovalues"
 CPPCHECK_DIR="cppcheck"
+CLANGCHECK_DIR="clangcheck"
 BUILD_DIR="build"
 
 function help() {
@@ -9,6 +10,8 @@ function help() {
 Options:
   --gcc, --g++        Use gcc/g++ compiler.
   --clang, --clang++  Use clang/clang++ compiler.
+  --clangcheck,       Use clang/clang++ compiler and static analyzer.
+  --clangcheckopen,   Same as --clangcheck, additionally open report in browser.
   --cppcheck          Execute cppcheck and generate report after build.
   --cppcheckopen      Same as --cppcheck, additionally open report in browser.
   -r, --run           Run program after compilation.
@@ -27,7 +30,9 @@ press enter to run ./$BIN_NAME..."
 
 HELP=0
 CPPCHECK=0
-CHECK_OPEN=0
+CPPCHECK_OPEN=0
+CLANGCHECK=0
+CLANGCHECK_OPEN=0
 RUN=0
 VALGRIND=0
 WAIT=0
@@ -43,13 +48,22 @@ for i in "$@"; do
       C_COMPILER="clang"
       shift
       ;;
+    "--clangcheck")
+      CLANGCHECK=1
+      shift
+      ;;
+    "--clangcheckopen")
+      CLANGCHECK=1
+      CLANGCHECK_OPEN=1
+      shift
+      ;;
     "--cppcheck")
       CPPCHECK=1
       shift
       ;;
     "--cppcheckopen")
       CPPCHECK=1
-      CHECK_OPEN=1
+      CPPCHECK_OPEN=1
       shift
       ;;
     "-r"|"--run")
@@ -88,18 +102,30 @@ if [ ! -d "$BUILD_DIR" ]; then
   mkdir "$BUILD_DIR"
 fi
 cd "$BUILD_DIR"
-if [ "$CXX_COMPILER" == "clang++" ]; then
-  export CCC_CC=clang
-  export CCC_CXX=clang++
-  scan-build cmake -DCMAKE_CXX_COMPILER="$CXX_COMPILER" -DCMAKE_C_COMPILER="$C_COMPILER" ..
+if [ "$CLANGCHECK" == 1 ]; then
+  analyzer_dir="$(dirname $(readlink -f $(which scan-build)))"
+  CXX_COMPILER="$analyzer_dir/c++-analyzer"
+  C_COMPILER="$analyzer_dir/ccc-analyzer"
+  scan-build -o "../$CLANGCHECK_DIR" cmake -DCMAKE_CXX_COMPILER="$CXX_COMPILER" -DCMAKE_C_COMPILER="$C_COMPILER" ..
 elif [ "$CXX_COMPILER" != "" ]; then
   cmake -DCMAKE_CXX_COMPILER="$CXX_COMPILER" -DCMAKE_C_COMPILER="$C_COMPILER" ..
 fi
 
 SUCCESS="$?"
 if [ "$SUCCESS" == 0 ]; then
-  if [ "$CXX_COMPILER" == "clang++" ]; then
-    scan-build make
+  if [ "$CLANGCHECK" == 1 ]; then
+    if [ "$CLANGCHECK_OPEN" == 1 ]; then
+      OPTION="-V"
+    else
+      OPTION=""
+    fi
+    if [ -f "$BIN_NAME" ]; then
+      make clean
+    fi
+    scan-build -enable-checker core -enable-checker security \
+               -enable-checker deadcode -enable-checker llvm \
+               -enable-checker cplusplus -enable-checker unix \
+               $OPTION -o "../$CLANGCHECK_DIR" make
   else
     make
   fi
@@ -119,10 +145,10 @@ if [ "$CPPCHECK" == 1 ]; then
     rm "$CPPCHECK_DIR"/*.html 2>/dev/null
   fi
   echo
-  cppcheck -i "$BUILD_DIR" --enable=all --xml . 2>"$CPPCHECK_DIR/report.xml" &&
+  cppcheck -i "$BUILD_DIR" --enable=all --suppress=missingIncludeSystem --xml . 2>"$CPPCHECK_DIR/report.xml" &&
   cppcheck-htmlreport --title="$BIN_NAME" --file "$CPPCHECK_DIR/report.xml" --report-dir "$CPPCHECK_DIR" --source-dir . &&
-  if [ "$CHECK_OPEN" == 1 ]; then
-    x-www-browser "$CPPCHECK_DIR/index.html"
+  if [ "$CPPCHECK_OPEN" == 1 ]; then
+    xdg-open "$CPPCHECK_DIR/index.html"
   fi
 fi
 
