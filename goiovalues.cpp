@@ -23,8 +23,6 @@
 #include <iostream>
 #include <iomanip>
 
-#include "./config.h"
-
 
 using std::cout;
 using std::endl;
@@ -40,9 +38,10 @@ int main() {
 
   goio::Config c;
   c.load_config();
+  c.set_filename("testconfig.cfg");
+  c.write();
 
-  if (1 == 2-1)
-    return 0;
+  c.simulate_all();
 
   auto mon = new goio::Monitor(1);
 
@@ -77,23 +76,23 @@ int main() {
   armor->set_fire(10);
 
   // auto mon_id = time->register_monitor_event(mon, armor);
-  auto gat_id = time->register_shoot_event(gat, armor);
+  // auto gat_id = time->register_shoot_event(gat, armor);
   // auto gat3_id = time->register_shoot_event(gat3, armor);
   // auto gat4_id = time->register_shoot_event(gat4, armor);
   // auto wrench_id = time->register_repair_event(wrench, armor, 1);
   // auto wrench2_id = time->register_repair_event(wrench2, gat, 1);
   // auto gat2_id = time->register_shoot_event(gat2, gat, 30);
-  auto engi_id = time->register_repair_event(engi, armor, 1);
+  // auto engi_id = time->register_repair_event(engi, armor, 1);
   // auto engi2_id = time->register_repair_event(engi2, armor, 1);
   // auto engi3_id = time->register_repair_event(engi3, armor, 1);
   // auto ext_id = time->register_repair_event(ext, armor, 1);
   // auto chem_id = time->register_repair_event(chem, armor, 1);
   // auto banshee_id = time->register_shoot_event(banshee, armor);
 
-  std::cout << "\033[1m";
-  std::cout << "    time          actor  clip health       target      type  health(R) fire type  health(R)" << endl;
-  std::cout << "===========================================================================================" << endl;
-  std::cout << "\033[0m";
+  // std::cout << "\033[1m";
+  // std::cout << "    time          actor  clip health       target      type  health(R) fire type  health(R)" << endl;
+  // std::cout << "===========================================================================================" << endl;
+  // std::cout << "\033[0m";
   int i = 0;
   while (time->next_event()) {
     if (++i > 100000) {
@@ -109,13 +108,13 @@ int main() {
   }
 
   // time->unregister_event(mon_id);
-  time->unregister_event(gat_id);
+  // time->unregister_event(gat_id);
   // time->unregister_event(gat3_id);
   // time->unregister_event(gat4_id);
   // time->unregister_event(wrench_id);
   // time->unregister_event(wrench2_id);
   // time->unregister_event(gat2_id);
-  time->unregister_event(engi_id);
+  // time->unregister_event(engi_id);
   // time->unregister_event(engi2_id);
   // time->unregister_event(engi3_id);
   // time->unregister_event(ext_id);

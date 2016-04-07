@@ -29,5 +29,6 @@
 #include "./engineer.h"
 #include "./monitor.h"
 #include "./rng.h"
+#include "./config.h"
 
 #endif  // GOIOVALUES_H_

@@ -23,7 +23,13 @@
 
 #include <libconfig.h++>
 #include <set>
+#include <tuple>
+#include <vector>
+#include <unordered_map>
 #include <string>
+
+#include "./goioobj.h"
+#include "./timeobj.h"
 
 
 namespace goio {
@@ -32,8 +38,22 @@ class Config {
  private:
     static constexpr double MIN_COMP_CONFIG_VERSION = 1.0;
 
+    struct Options {
+      long int max_events;
+      double max_time;
+
+      Options() : max_events(-1), max_time(-1) {}
+    };
+
     std::string filename;
     libconfig::Config* cfg_new;
+    Options options;
+
+    std::vector<
+        std::tuple<std::string,
+                   TimeObj*,
+                   Options*,
+                   std::unordered_map<std::string, Object*>>> simulations;
 
     bool find_unknown_setting(const std::set<std::string>& settings,
                               const libconfig::Setting& settingsobj);
@@ -43,12 +63,21 @@ class Config {
 
  public:
     explicit Config(const std::string& filename = "goiovalues.cfg") :
-                    filename(filename), cfg_new(new libconfig::Config()) {}
-    ~Config() { delete cfg_new; }
+                    filename(filename), cfg_new(new libconfig::Config()),
+                    options(), simulations() {}
+    ~Config();
 
     inline const std::string& get_filename() const { return filename; }
+    inline unsigned int get_simulation_count() const { return simulations.size(); }
+
+    inline void set_filename(const std::string& filename) {
+      this->filename = filename;
+    }
 
     int load_config();
+    bool simulate(unsigned int simulation);
+    bool simulate_all();
+
     int write();
 };
 

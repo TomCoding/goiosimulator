@@ -21,14 +21,30 @@
 #include "./config.h"
 
 #include <libconfig.h++>
-#include <set>
 #include <string>
 #include <iostream>
 #include <iomanip>
 
+#include "./goioactor.h"
+#include "./guns.h"
+#include "./ammunitions.h"
+
 
 namespace goio {
 
+Config::~Config() {
+  for (auto it = simulations.begin(); it != simulations.end(); ++it) {
+    std::cout << "delete: " << std::get<0>(*it) << std::endl;
+    delete std::get<1>(*it);
+    delete std::get<2>(*it);
+    for (auto it2 = std::get<3>(*it).begin();
+                                    it2 != std::get<3>(*it).end(); ++it2) {
+      std::cout << "delete: " << it2->first << std::endl;
+      delete it2->second;
+    }
+  }
+  delete cfg_new;
+}
 
 bool Config::find_unknown_setting(const std::set<std::string>& settings,
                                   const libconfig::Setting& settingsobj) {
@@ -52,12 +68,11 @@ int Config::load_config() {
   using libconfig::Setting;
 
   Config cfg;
-  // Config cfg_new;
 
   try {
     cfg.readFile(filename.c_str());
   } catch (const FileIOException& fioex) {
-    std::cerr << "I/O error while reading file." << std::endl;
+    std::cerr << "I/O error while reading file '" << filename << "'." << std::endl;
     return 1;
   }
   catch (const ParseException& pex) {
@@ -102,6 +117,14 @@ int Config::load_config() {
       const std::string name = simulation[cur_setting];
       sim_new.add(cur_setting, Setting::TypeString) = name;
 
+
+      this->simulations.push_back(
+            std::make_tuple(name,
+                            new TimeObj(),
+                            nullptr,
+                            std::unordered_map<std::string, Object*>()));
+      auto& factory_objects = std::get<3>(this->simulations.back());
+
       cur_setting = "objects";
       simulation_settings.insert(cur_setting);
       sim_new.add(cur_setting, Setting::TypeList);
@@ -123,50 +146,109 @@ int Config::load_config() {
         const std::string obj_type = object[cur_setting];
         obj_new.add(cur_setting, Setting::TypeString) = obj_type;
 
+        cur_setting = "ammo";
+        object_settings.insert(cur_setting);
+        std::string obj_ammo = "";
+        if (object.exists(cur_setting)) {
+          obj_ammo = static_cast<const char*>(object[cur_setting]);
+          obj_new.add(cur_setting, Setting::TypeString) = obj_ammo;
+        }
+
         cur_setting = "health";
         object_settings.insert(cur_setting);
+        double obj_health = -1;
         if (object.exists(cur_setting)) {
-          double obj_health = object[cur_setting];
+          obj_health = object[cur_setting];
           obj_new.add(cur_setting, Setting::TypeFloat) = obj_health;
         }
 
         cur_setting = "hull_health";
         object_settings.insert(cur_setting);
+        double obj_hull_health = -1;
         if (object.exists(cur_setting)) {
-          double obj_hull_health = object[cur_setting];
+          obj_hull_health = object[cur_setting];
           obj_new.add(cur_setting, Setting::TypeFloat) = obj_hull_health;
         }
 
         cur_setting = "fire";
         object_settings.insert(cur_setting);
+        int obj_fire = 0;
         if (object.exists(cur_setting)) {
-          int obj_fire = object[cur_setting];
+          obj_fire = object[cur_setting];
           obj_new.add(cur_setting, Setting::TypeInt) = obj_fire;
         }
 
-        cur_setting = "rebuild";
-        object_settings.insert(cur_setting);
-        if (object.exists(cur_setting)) {
-          int obj_rebuild = object[cur_setting];
-          obj_new.add(cur_setting, Setting::TypeInt) = obj_rebuild;
-        }                         
-
         cur_setting = "cooldown";
         object_settings.insert(cur_setting);
+        double obj_cooldown = -1;
         if (object.exists(cur_setting)) {
-          double obj_cooldown = object[cur_setting];
+          obj_cooldown = object[cur_setting];
           obj_new.add(cur_setting, Setting::TypeFloat) = obj_cooldown;
-        }                         
+        }
 
         cur_setting = "fire_immunity";
         object_settings.insert(cur_setting);
+        double obj_fire_immunity = -1;
         if (object.exists(cur_setting)) {
-          double obj_fire_immunity = object[cur_setting];
+          obj_fire_immunity = object[cur_setting];
           obj_new.add(cur_setting, Setting::TypeFloat) = obj_fire_immunity;
-        }                         
+        }
 
         if (find_unknown_setting(object_settings, object))
           return 1;
+
+        if (factory_objects.find(obj_name) != factory_objects.end()) {
+          std::cout << "Choose different name for different objects: "
+                    << obj_name << std::endl;
+          return 1;
+        }
+        auto obj = ObjectFactory::create(obj_type, obj_name);
+        if (obj == nullptr) {
+          std::cerr << "Unknown type: " << obj_type << std::endl;
+          return 1;
+        }
+
+        factory_objects[obj_name] = obj;
+        if (auto goioobj = dynamic_cast<GoioObj*>(obj)) {
+          if (obj_health >= 0)
+            goioobj->set_health(obj_health);
+          if (obj_hull_health >= 0)
+            goioobj->set_health(obj_hull_health);
+          if (obj_fire > 0)
+            goioobj->set_fire(obj_fire);
+          if (obj_cooldown >= 0)
+            goioobj->add_health(0, obj_cooldown);
+          if (obj_fire_immunity >= 0)
+            goioobj->add_fire(0, obj_fire_immunity);
+
+          if (obj_ammo != "") {
+            if (auto gun = dynamic_cast<Gun*>(obj)) {
+              auto it = factory_objects.find(obj_ammo);
+              Object* ammo_obj;
+              if (it == factory_objects.end()) {
+                ammo_obj = ObjectFactory::create(obj_ammo);
+                factory_objects[obj_ammo] = ammo_obj;
+                if (!dynamic_cast<Ammunition*>(ammo_obj)) {
+                  std::cerr << "dynamic_cast to Ammunition failed: "
+                            << obj_ammo << std::endl;
+                  return 1;
+                }
+              } else {
+                ammo_obj = it->second;
+              }
+              gun->apply_ammunition(static_cast<Ammunition*>(ammo_obj));
+            } else {
+              std::cerr << "'" << obj_name
+                        << "' not a Gun, ammunitions can only be used on guns."
+                        << std::endl;
+              return 1;
+            }
+          }
+        } else {
+          std::cerr << "dynamic_cast to GoioObj failed: "
+                    << obj_type << std::endl;
+          return 1;
+        }
       }
 
       cur_setting = "actors";
@@ -197,20 +279,63 @@ int Config::load_config() {
 
         cur_setting = "start";
         actor_settings.insert(cur_setting);
+        double act_start = -1;
         if (actor.exists(cur_setting)) {
-          double act_start = actor[cur_setting];
+          act_start = actor[cur_setting];
           act_new.add(cur_setting, Setting::TypeFloat) = act_start;
         }
 
         cur_setting = "end";
         actor_settings.insert(cur_setting);
+        double act_end = -1;
         if (actor.exists(cur_setting)) {
-          double act_end = actor[cur_setting];
+          act_end = actor[cur_setting];
           act_new.add(cur_setting, Setting::TypeFloat) = act_end;
         }
 
         if (find_unknown_setting(actor_settings, actor))
           return 1;
+
+        auto actor_it = factory_objects.find(act_name);
+        if (actor_it == factory_objects.end()) {
+          std::cerr << "Unknown actor: " << act_name << std::endl;
+          return 1;
+        }
+        auto recipient_it = factory_objects.find(act_recipient);
+        if (recipient_it == factory_objects.end()) {
+          std::cerr << "Unknown recipient: " << act_recipient << std::endl;
+          return 1;
+        }
+        auto actor_obj = dynamic_cast<GoioActor*>(actor_it->second);
+        if (!actor_obj) {
+          std::cerr << "dynamic_cast for actor to GoioActor failed: "
+                    << act_name << std::endl;
+          return 1;
+        }
+        auto recipient_obj = dynamic_cast<GoioObj*>(recipient_it->second);
+        if (!recipient_obj) {
+          std::cerr << "dynamic_cast for recipient to GoioObj failed: "
+                    << act_recipient << std::endl;
+          return 1;
+        }
+
+        auto timeobj = std::get<1>(this->simulations.back());
+        if (act_action == "shoot") {
+          if (auto gun = dynamic_cast<Gun*>(actor_obj)) {
+            double reg_start = 0;
+            if (act_start > 0)
+              reg_start = act_start;
+            timeobj->register_shoot_event(gun, recipient_obj, reg_start);
+          } else {
+            std::cerr << "dynamic_cast for actor to Gun failed: "
+                      << act_name << std::endl;
+            return 1;
+          }
+        // } else if (act_action == "repair") {
+        } else {
+          std::cerr << "Unknown action: " << act_action << std::endl;
+          return 1;
+        }
       }
 
       cur_setting = "options";
@@ -221,20 +346,25 @@ int Config::load_config() {
         Setting& opt_new = sim_new[cur_setting];
 
         std::set<std::string> option_settings;
+        auto local_options = new Options();
 
         cur_setting = "max_events";
         option_settings.insert(cur_setting);
         if (options.exists(cur_setting)) {
           int opt_max_events = options[cur_setting];
           opt_new.add(cur_setting, Setting::TypeInt) = opt_max_events;
-        }                         
+          local_options->max_events = opt_max_events;
+        }
 
         cur_setting = "max_time";
         option_settings.insert(cur_setting);
         if (options.exists(cur_setting)) {
           double opt_max_time = options[cur_setting];
           opt_new.add(cur_setting, Setting::TypeFloat) = opt_max_time;
-        }                         
+          local_options->max_time = opt_max_time;
+        }
+
+        std::get<2>(this->simulations.back()) = local_options;
 
         if (find_unknown_setting(option_settings, options))
           return 1;
@@ -258,14 +388,16 @@ int Config::load_config() {
       if (options.exists(cur_setting)) {
         int opt_max_events = options[cur_setting];
         opt_new.add(cur_setting, Setting::TypeInt) = opt_max_events;
-      }                         
+        this->options.max_events = opt_max_events;
+      }
 
       cur_setting = "max_time";
       option_settings.insert(cur_setting);
       if (options.exists(cur_setting)) {
         double opt_max_time = options[cur_setting];
         opt_new.add(cur_setting, Setting::TypeFloat) = opt_max_time;
-      }                         
+        this->options.max_time = opt_max_time;
+      }
 
       if (find_unknown_setting(option_settings, options))
         return 1;
@@ -281,6 +413,48 @@ int Config::load_config() {
   }
 
   return 0;
+}
+
+bool Config::simulate(unsigned int simulation) {
+  if (simulation >= get_simulation_count())
+    return false;
+
+  auto sim = simulations[simulation];
+
+  std::cout << std::get<0>(sim) << std::endl;
+  std::cout << "\033[1m";
+  std::cout << "    time          actor  clip health       target      type  health(R) fire type  health(R)" << std::endl;
+  std::cout << "===========================================================================================" << std::endl;
+  std::cout << "\033[0m";
+
+  Options* opt;
+  if (std::get<2>(sim))
+    opt = std::get<2>(sim);
+  else
+    opt = &options;
+
+  long int event_count = 0;
+  auto timeobj = std::get<1>(sim);
+  while (timeobj->next_event()) {
+    if (opt->max_events != -1 && ++event_count > opt->max_events) {
+      std::cout << "Events limit reached: " << opt->max_events << std::endl;
+      return false;
+    }
+    if (opt->max_time != -1 && timeobj->get_time() > opt->max_time) {
+      std::cout << "Time limit reached: " << opt->max_time << std::endl;
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool Config::simulate_all() {
+  auto ret = true;
+  for (unsigned int i = 0; i < get_simulation_count(); ++i)
+    if (!simulate(i))
+      ret = false;
+  return ret;
 }
 
 int Config::write() {
