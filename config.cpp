@@ -20,7 +20,12 @@
 
 #include "./config.h"
 
+#include <stdint.h>
+
 #include <libconfig.h++>
+#include <set>
+#include <tuple>
+#include <unordered_map>
 #include <string>
 #include <iostream>
 #include <iomanip>
@@ -532,7 +537,7 @@ bool Config::simulate(unsigned int simulation) {
   else
     opt = &options;
 
-  long int event_count = 0;
+  int64_t event_count = 0;
   auto timeobj = std::get<1>(sim);
   while (timeobj->next_event()) {
     if (opt->max_events != -1 && ++event_count > opt->max_events) {

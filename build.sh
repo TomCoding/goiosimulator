@@ -36,6 +36,7 @@ Options:
   --cppcheckopen      Same as --cppcheck, additionally open report in browser.
   --api-sanity-checks Run API sanity checks.
   --cpplint           Run cpplint.
+  --doc               Create documentation.
   -r, --run           Run program after compilation.
   -v, --valgrind      Run program after compilation with valgrind.
   -w, --wait          Wait for input before running program.
@@ -59,6 +60,7 @@ RUN=0
 VALGRIND=0
 API_SANITY_CHECKS=0
 CPPLINT=0
+DOC=0
 WAIT=0
 for i in "$@"; do
   case "$i" in
@@ -88,6 +90,10 @@ for i in "$@"; do
     "--cppcheckopen")
       CPPCHECK=1
       CPPCHECK_OPEN=1
+      shift
+      ;;
+    "--doc")
+      DOC=1
       shift
       ;;
     "-r"|"--run")
@@ -193,7 +199,7 @@ fi
 if [ "$API_SANITY_CHECKS" == 1 ]; then
   cd "$BUILD_DIR"
   echo
-  api-sanity-checker -l "$BIN_NAME" -d "$SOURCE_DIR/testing.xml" \
+  api-sanity-checker -l "$BIN_NAME" -d "$SOURCE_DIR/api-sanity-checks.xml" \
                      -relpath "$SOURCE_DIR" -gen -build -run
   cd ..
 fi
@@ -201,6 +207,13 @@ fi
 if [ "$CPPLINT" == 1 ]; then
   echo
   cpplint.py --linelength=84 *.h *.cpp
+fi
+
+if [ "$DOC" == 1 ]; then
+  echo
+  cd "$BUILD_DIR"
+  make doc
+  cd ..
 fi
 
 if [ "$SUCCESS" == 1 ]; then

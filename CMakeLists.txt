@@ -60,11 +60,20 @@ set(MEMORYCHECK_COMMAND_OPTIONS "--trace-children=yes \
                                  --show-reachable=yes"
 )
 
+find_package(Doxygen)
+if(DOXYGEN_FOUND)
+  add_custom_target(doc
+    ${DOXYGEN_EXECUTABLE} "${PROJECT_SOURCE_DIR}/Doxyfile"
+    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+    COMMENT "Generating API documentation with Doxygen." VERBATIM
+  )
+endif()
+
 include(CTest)
 add_test(run goiovalues)
 # add_test(api_sanity_checker
 #   api-sanity-checker -l "${CMAKE_PROJECT_NAME}"
-#                      -d "${PROJECT_SOURCE_DIR}/testing.xml"
+#                      -d "${PROJECT_SOURCE_DIR}/api-sanity-checks.xml"
 #                      -relpath "${PROJECT_SOURCE_DIR}"
 #                      -gen -build -run
 # )

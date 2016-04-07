@@ -21,6 +21,8 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
+#include <stdint.h>
+
 #include <libconfig.h++>
 #include <set>
 #include <tuple>
@@ -39,7 +41,7 @@ class Config {
     static constexpr double MIN_COMP_CONFIG_VERSION = 1.0;
 
     struct Options {
-      long int max_events;
+      int64_t max_events;
       double max_time;
 
       Options() : max_events(-1), max_time(-1) {}
