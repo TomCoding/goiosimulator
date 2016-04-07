@@ -24,13 +24,170 @@
 #include <functional>
 #include <cmath>
 #include <string>
+#include <map>
 
 #include "./dmg_types.h"
+#include "./ai_behavior.h"
 
 
 namespace goio {
 
-class GoioObj {
+
+// Object registration from http://stackoverflow.com/a/6235500/770468
+struct Object {
+  virtual ~Object() {}
+};
+
+struct ObjectFactory {
+ private:
+    // full
+    typedef Object* CreatorFull_t(const std::string&, CmpType,
+                                  double, double, double);
+    typedef std::map<std::string, CreatorFull_t*> CreatorsFull_t;
+
+    static CreatorsFull_t& static_creators_full() {
+      static CreatorsFull_t s_creators_full;
+      return s_creators_full;
+    }
+
+    // fullrep
+    typedef Object* CreatorFullRep_t(const std::string&, bool,
+                                     RepairMode, ExtinguishMode);
+    typedef std::map<std::string, CreatorFullRep_t*> CreatorsFullRep_t;
+
+    static CreatorsFullRep_t& static_creators_fullrep() {
+      static CreatorsFullRep_t s_creators_fullrep;
+      return s_creators_fullrep;
+    }
+
+    // normal
+    typedef Object* Creator_t(const std::string&);
+    typedef std::map<std::string, Creator_t*> Creators_t;
+
+    static Creators_t& static_creators() {
+      static Creators_t s_creators;
+      return s_creators;
+    }
+
+    // short
+    typedef Object* CreatorShort_t();
+    typedef std::map<std::string, CreatorShort_t*> CreatorsShort_t;
+
+    static CreatorsShort_t& static_creators_short() {
+      static CreatorsShort_t s_creators_short;
+      return s_creators_short;
+    }
+
+    template<class T = int>
+    struct Register {
+      // full
+      static Object* create_full(const std::string& name,
+                                 CmpType cmp_type,
+                                 double part_type_multiplier,
+                                 double max_health,
+                                 double hull_max_health) {
+        return new T(name, cmp_type, part_type_multiplier, max_health,
+                     hull_max_health);
+      }
+      static CreatorFull_t* init_creator_full(const std::string& id) {
+        return static_creators_full()[id] = create_full;
+      }
+      static CreatorFull_t* creator_full;
+
+      // fullrep
+      static Object* create_fullrep(const std::string& name,
+                                    bool extinguisher,
+                                    RepairMode mode,
+                                    ExtinguishMode extmode) {
+        return new T(name, extinguisher, mode, extmode);
+      }
+      static CreatorFullRep_t* init_creator_fullrep(const std::string& id) {
+        return static_creators_fullrep()[id] = create_fullrep;
+      }
+      static CreatorFullRep_t* creator_fullrep;
+
+      // normal
+      static Object* create(const std::string& name) {
+        return new T(name);
+      }
+      static Creator_t* init_creator(const std::string& id) {
+        return static_creators()[id] = create;
+      }
+      static Creator_t* creator;
+
+      // short
+      static Object* create_short() {
+        return new T();
+      }
+      static CreatorShort_t* init_creator_short(const std::string& id) {
+        return static_creators_short()[id] = create_short;
+      }
+      static CreatorShort_t* creator_short;
+    };
+
+ public:
+    static Object* create(const std::string& id,
+                          const std::string& name,
+                          CmpType cmp_type,
+                          double part_type_multiplier,
+                          double max_health,
+                          double hull_max_health) {
+      const auto iter = static_creators_full().find(id);
+      if (iter == static_creators_full().end())
+        return nullptr;
+      else
+        return (*iter->second)(name, cmp_type, part_type_multiplier,
+                               max_health, hull_max_health);
+    }
+
+    static Object* create(const std::string& id,
+                          const std::string& name,
+                          bool extinguisher,
+                          RepairMode mode,
+                          ExtinguishMode extmode) {
+      const auto iter = static_creators_fullrep().find(id);
+      if (iter == static_creators_fullrep().end())
+        return nullptr;
+      else
+        return (*iter->second)(name, extinguisher, mode, extmode);
+    }
+
+    static Object* create(const std::string& id, const std::string& name) {
+      const auto iter = static_creators().find(id);
+      if (iter == static_creators().end())
+        return nullptr;
+      else
+        return (*iter->second)(name);
+    }
+
+    static Object* create(const std::string& id) {
+      const auto iter = static_creators_short().find(id);
+      if (iter == static_creators_short().end())
+        return nullptr;
+      else
+        return (*iter->second)();
+    }
+};
+
+#define REGISTER_TYPE_FULL(T, STR) \
+  template<> \
+  ObjectFactory::CreatorFull_t* ObjectFactory::Register<T>::creator_full = \
+                            ObjectFactory::Register<T>::init_creator_full(STR)
+#define REGISTER_TYPE_FULLREP(T, STR) \
+  template<> \
+  ObjectFactory::CreatorFullRep_t* ObjectFactory::Register<T>::creator_fullrep = \
+                            ObjectFactory::Register<T>::init_creator_fullrep(STR)
+#define REGISTER_TYPE(T, STR) \
+  template<> \
+  ObjectFactory::Creator_t* ObjectFactory::Register<T>::creator = \
+                            ObjectFactory::Register<T>::init_creator(STR)
+#define REGISTER_TYPE_SHORT(T, STR) \
+  template<> \
+  ObjectFactory::CreatorShort_t* ObjectFactory::Register<T>::creator_short = \
+                            ObjectFactory::Register<T>::init_creator_short(STR)
+
+
+class GoioObj : public Object {
  private:
     const std::string name;
     const CmpType cmp_type;

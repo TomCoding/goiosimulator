@@ -18,33 +18,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "./fire.h"
+#ifndef CONFIG_H_
+#define CONFIG_H_
 
-#include <iostream>
-
-#include "./dmg_types.h"
+#include <libconfig.h++>
+#include <set>
+#include <string>
 
 
 namespace goio {
 
-double Fire::get_fire_dmg(GoioObj* obj, double time) {
-  return dmg_types[DmgType::FIRE]
-                  [obj->get_cmp_type()] *
-         (2*obj->get_fire_stacks()+8) *
-         time;
-}
+static constexpr double MIN_COMP_CONFIG_VERSION = 1.0;
 
-bool Fire::burn(GoioObj* obj, double, bool&) {
-  if (obj->get_fire_stacks() < 1)
-    return false;
-  obj->add_health(-get_fire_dmg(obj, firetick));
-  return true;
-}
+bool find_unknown_setting(const std::set<std::string>& settings,
+                          const libconfig::Setting& settingsobj);
 
-TimeFunc Fire::get_time_func(const GoioObj* obj, double, bool&) {
-  if (obj->get_fire_stacks() > 0)
-    return &Fire::get_firetick;
-  return nullptr;
-}
+int load_config();
 
 }  // namespace goio
+
+#endif  // CONFIG_H_

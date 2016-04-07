@@ -232,7 +232,7 @@ class LightGun : public Gun {
 
 class Artemis : public LightGun {
  public:
-    explicit Artemis(const std::string& name = "") : LightGun(
+    explicit Artemis(const std::string& name) : LightGun(
                     name,
                     4,                   // magazine size
                     0.63,                // rof
@@ -251,7 +251,7 @@ class Artemis : public LightGun {
 
 class Banshee : public LightGun {
  public:
-    explicit Banshee(const std::string& name = "") : LightGun(
+    explicit Banshee(const std::string& name) : LightGun(
                     name,
                     8,                   // magazine size
                     2,                   // rof
@@ -270,7 +270,7 @@ class Banshee : public LightGun {
 
 class LightCaro : public LightGun {
  public:
-    explicit LightCaro(const std::string& name = "") : LightGun(
+    explicit LightCaro(const std::string& name) : LightGun(
                     name,
                     5,                   // magazine size
                     1,                   // rof
@@ -289,7 +289,7 @@ class LightCaro : public LightGun {
 
 class Flare : public LightGun {
  public:
-    explicit Flare(const std::string& name = "") : LightGun(
+    explicit Flare(const std::string& name) : LightGun(
                     name,
                     2,                   // magazine size
                     0.5,                 // rof
@@ -308,7 +308,7 @@ class Flare : public LightGun {
 
 class Flamethrower : public LightGun {
  public:
-    explicit Flamethrower(const std::string& name = "") : LightGun(
+    explicit Flamethrower(const std::string& name) : LightGun(
                     name,
                     250,                 // magazine size
                     16.67,               // rof
@@ -327,7 +327,7 @@ class Flamethrower : public LightGun {
 
 class Gatling : public LightGun {
  public:
-    explicit Gatling(const std::string& name = "") : LightGun(
+    explicit Gatling(const std::string& name) : LightGun(
                     name,
                     82,                  // magazine size
                     8.33,                // rof

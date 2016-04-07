@@ -1,0 +1,24 @@
+<version>
+	1.0
+</version>
+
+<headers>
+    {RELPATH}/
+</headers>
+
+<libs>
+    {RELPATH}/
+</libs>
+
+<skip_headers>
+</skip_headers>
+
+<skip_libs>
+</skip_libs>
+
+<include_order>
+</include_order>
+
+<gcc_options>
+	-std=c++11
+</gcc_options>

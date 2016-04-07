@@ -21,9 +21,12 @@
 #ifndef AMMUNITIONS_H_
 #define AMMUNITIONS_H_
 
+#include "./goioobj.h"
+
+
 namespace goio {
 
-class Ammunition {
+class Ammunition : public Object {
  protected:
     const double clipsize;
     const double damage;

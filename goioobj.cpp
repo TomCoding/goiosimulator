@@ -27,6 +27,8 @@
 
 namespace goio {
 
+REGISTER_TYPE_FULL(GoioObj, "GoioObj");
+
 GoioObj::~GoioObj() {
   delete hull;
 }

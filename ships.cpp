@@ -18,33 +18,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "./fire.h"
-
-#include <iostream>
-
-#include "./dmg_types.h"
+#include "./ships.h"
 
 
 namespace goio {
 
-double Fire::get_fire_dmg(GoioObj* obj, double time) {
-  return dmg_types[DmgType::FIRE]
-                  [obj->get_cmp_type()] *
-         (2*obj->get_fire_stacks()+8) *
-         time;
-}
-
-bool Fire::burn(GoioObj* obj, double, bool&) {
-  if (obj->get_fire_stacks() < 1)
-    return false;
-  obj->add_health(-get_fire_dmg(obj, firetick));
-  return true;
-}
-
-TimeFunc Fire::get_time_func(const GoioObj* obj, double, bool&) {
-  if (obj->get_fire_stacks() > 0)
-    return &Fire::get_firetick;
-  return nullptr;
-}
+REGISTER_TYPE(Pyramidion, "Pyramidion");
+REGISTER_TYPE(Goldfish, "Goldfish");
+REGISTER_TYPE(Junker, "Junker");
+REGISTER_TYPE(Galleon, "Galleon");
+REGISTER_TYPE(Squid, "Squid");
+REGISTER_TYPE(Spire, "Spire");
+REGISTER_TYPE(Mobula, "Mobula");
 
 }  // namespace goio

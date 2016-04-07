@@ -24,36 +24,11 @@
 #include <string>
 
 #include "./goioactor.h"
+#include "./ai_behavior.h"
 #include "./repairtools.h"
 
 
 namespace goio {
-
-enum RepairMode {
-  CONSTANT_DMG_NO_WAIT,  // best repair/cooldown relation for current damage
-  FASTEST_HEAL,          // get on full health as fast as possible
-  // CONSTANT_DMG_WAIT   // anticipate incoming damage and repair accordingly
-  // MIXED,              // fastest heal during damage pauses
-};
-
-// enum RebuildMode {
-//   FASTEST_REBUILD,  // rebuild as fast as possible
-//   PREREBUILD,       // only prerebuild
-//   PREREBUILD_WAIT,  // prerebuild and rebuild when no more incoming damage
-// };
-
-// enum FireImmunityMode {
-//   CONSTANT_IMMUNITY,  // keep component constantly immune to fire
-//   NO_IMMUNITY,        // extinguish when needed
-//   ANTICIPATE,         // anticipate incoming fire and maintain immunity if needed
-// };
-
-enum ExtinguishMode {
-  INSTANT,        // instantly extinguish new fires
-  THRESHOLD,      // only extinguish if fire damage higher than repair
-  // ANTICIPATE,  // anticipate incoming fire and extinguish if over threshold
-  // MIXED        // instant extinguish during damage pauses
-};
 
 class Engineer : public GoioActor {
  private:
@@ -151,6 +126,7 @@ class MainEngineer : public Engineer {
 class BuffEngineer : public Engineer {
  public:
     explicit BuffEngineer(const std::string& name, bool extinguisher = true,
+                          RepairMode mode = RepairMode::CONSTANT_DMG_NO_WAIT,
                           ExtinguishMode extmode = ExtinguishMode::THRESHOLD);
     ~BuffEngineer();
 };

@@ -29,9 +29,11 @@
 namespace goio {
 
 class Ship : public GoioObj {
- public:
+ protected:
     Ship(const std::string& name, double max_health, double hull_max_health) :
               GoioObj(name, CmpType::ARMOR, 1, max_health, hull_max_health) {}
+
+ public:
     virtual ~Ship() {}
 };
 

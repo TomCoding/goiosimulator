@@ -23,6 +23,7 @@ BIN_NAME="goiovalues"
 CPPCHECK_DIR="cppcheck"
 CLANGCHECK_DIR="clangcheck"
 BUILD_DIR="build"
+SOURCE_DIR="$(pwd)"
 
 function help() {
   echo "Usage: $0 [options]
@@ -33,6 +34,8 @@ Options:
   --clangcheckopen,   Same as --clangcheck, additionally open report in browser.
   --cppcheck          Execute cppcheck and generate report after build.
   --cppcheckopen      Same as --cppcheck, additionally open report in browser.
+  --api-sanity-checks Run API sanity checks.
+  --cpplint           Run cpplint.
   -r, --run           Run program after compilation.
   -v, --valgrind      Run program after compilation with valgrind.
   -w, --wait          Wait for input before running program.
@@ -54,6 +57,8 @@ CLANGCHECK=0
 CLANGCHECK_OPEN=0
 RUN=0
 VALGRIND=0
+API_SANITY_CHECKS=0
+CPPLINT=0
 WAIT=0
 for i in "$@"; do
   case "$i" in
@@ -94,6 +99,14 @@ for i in "$@"; do
       VALGRIND=1
       shift
       ;;
+    "--api-sanity-checks")
+      API_SANITY_CHECKS=1
+      shift
+      ;;
+    "--cpplint")
+      CPPLINT=1
+      shift
+      ;;
     "-w"|"--wait")
       WAIT=1
       if [ "$VALGRIND" == 0 ]; then
@@ -125,9 +138,12 @@ if [ "$CLANGCHECK" == 1 ]; then
   analyzer_dir="$(dirname $(readlink -f $(which scan-build)))"
   CXX_COMPILER="$analyzer_dir/c++-analyzer"
   C_COMPILER="$analyzer_dir/ccc-analyzer"
-  scan-build -o "../$CLANGCHECK_DIR" cmake -DCMAKE_CXX_COMPILER="$CXX_COMPILER" -DCMAKE_C_COMPILER="$C_COMPILER" ..
+  scan-build -o "../$CLANGCHECK_DIR" cmake -DCMAKE_CXX_COMPILER="$CXX_COMPILER" \
+                                           -DCMAKE_C_COMPILER="$C_COMPILER" ..
 elif [ "$CXX_COMPILER" != "" ]; then
   cmake -DCMAKE_CXX_COMPILER="$CXX_COMPILER" -DCMAKE_C_COMPILER="$C_COMPILER" ..
+elif [ ! -f Makefile ]; then
+  cmake ..
 fi
 
 SUCCESS="$?"
@@ -153,7 +169,8 @@ fi
 if [ "$?" == 0 ]; then
   SUCCESS=1
   echo
-  ctest -R run -D ExperimentalMemCheck
+  ctest --output-on-failure -R run -D ExperimentalMemCheck
+  # ctest -V -R api_sanity_checker
 fi
 cd ..
 
@@ -164,11 +181,26 @@ if [ "$CPPCHECK" == 1 ]; then
     rm "$CPPCHECK_DIR"/*.html 2>/dev/null
   fi
   echo
-  cppcheck -i "$BUILD_DIR" --enable=all --suppress=missingIncludeSystem --xml . 2>"$CPPCHECK_DIR/report.xml" &&
-  cppcheck-htmlreport --title="$BIN_NAME" --file "$CPPCHECK_DIR/report.xml" --report-dir "$CPPCHECK_DIR" --source-dir . &&
+  cppcheck -i "$BUILD_DIR" --enable=all --suppress=missingIncludeSystem --xml . \
+                                               2>"$CPPCHECK_DIR/report.xml" &&
+  cppcheck-htmlreport --title="$BIN_NAME" --file "$CPPCHECK_DIR/report.xml" \
+                      --report-dir "$CPPCHECK_DIR" --source-dir . &&
   if [ "$CPPCHECK_OPEN" == 1 ]; then
     xdg-open "$CPPCHECK_DIR/index.html"
   fi
+fi
+
+if [ "$API_SANITY_CHECKS" == 1 ]; then
+  cd "$BUILD_DIR"
+  echo
+  api-sanity-checker -l "$BIN_NAME" -d "$SOURCE_DIR/testing.xml" \
+                     -relpath "$SOURCE_DIR" -gen -build -run
+  cd ..
+fi
+
+if [ "$CPPLINT" == 1 ]; then
+  echo
+  cpplint.py --linelength=84 *.h *.cpp
 fi
 
 if [ "$SUCCESS" == 1 ]; then

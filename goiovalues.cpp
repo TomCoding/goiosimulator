@@ -23,12 +23,25 @@
 #include <iostream>
 #include <iomanip>
 
+#include "./config.h"
+
 
 using std::cout;
 using std::endl;
 
 int main() {
   goio::init();
+  delete goio::ObjectFactory::create("GoioObj", "test", goio::CmpType::ARMOR, -1, 0, -1);
+  delete goio::ObjectFactory::create("Pyramidion", "test2");
+  delete goio::ObjectFactory::create("Lochnagar");
+  delete goio::ObjectFactory::create("Mallet", "test3");
+  delete goio::ObjectFactory::create("Artemis", "test4");
+  delete goio::ObjectFactory::create("BuffEngineer", "test5", true, goio::RepairMode::CONSTANT_DMG_NO_WAIT, goio::ExtinguishMode::THRESHOLD);
+
+  goio::load_config();
+
+  if (1 == 2-1)
+    return 0;
 
   auto mon = new goio::Monitor(1);
 

@@ -28,9 +28,15 @@ project(goiovalues)
 #   "${PROJECT_BINARY_DIR}/config.h"
 # )
 
+include(FindPkgConfig)
+pkg_check_modules(libconfig REQUIRED "libconfig++")
+
 file(GLOB sources "${PROJECT_SOURCE_DIR}/*.cpp")
 include_directories("${PROJECT_SOURCE_DIR}")
+
 add_executable(goiovalues "${sources}")
+target_link_libraries(goiovalues ${libconfig_LIBRARIES})
+
 target_compile_options(goiovalues PUBLIC
     -fdiagnostics-color=always
     -std=c++11 -O3 -ffast-math -g -pedantic -Wall -Wextra -Wcast-align
@@ -49,7 +55,16 @@ target_compile_options(goiovalues PUBLIC
 endif()
 
 find_program(MEMORYCHECK_COMMAND valgrind)
-set(MEMORYCHECK_COMMAND_OPTIONS "--trace-children=yes --leak-check=full --show-reachable=yes")
+set(MEMORYCHECK_COMMAND_OPTIONS "--trace-children=yes \
+                                 --leak-check=full \
+                                 --show-reachable=yes"
+)
 
 include(CTest)
 add_test(run goiovalues)
+# add_test(api_sanity_checker
+#   api-sanity-checker -l "${CMAKE_PROJECT_NAME}"
+#                      -d "${PROJECT_SOURCE_DIR}/testing.xml"
+#                      -relpath "${PROJECT_SOURCE_DIR}"
+#                      -gen -build -run
+# )

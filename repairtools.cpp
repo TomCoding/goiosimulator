@@ -30,6 +30,13 @@
 
 namespace goio {
 
+REGISTER_TYPE(Spanner, "Spanner");
+REGISTER_TYPE(Mallet, "Mallet");
+REGISTER_TYPE(PipeWrench, "PipeWrench");
+REGISTER_TYPE(FireExtinguisher, "FireExtinguisher");
+REGISTER_TYPE(ChemicalSpray, "ChemicalSpray");
+REGISTER_TYPE(BuffHammer, "BuffHammer");
+
 void RepairTool::set_cur_swing(double swing) {
   if (swing > get_swing())
     cur_swing = get_swing();

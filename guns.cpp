@@ -32,6 +32,13 @@
 
 namespace goio {
 
+REGISTER_TYPE(Artemis, "Artemis");
+REGISTER_TYPE(Banshee, "Banshee");
+REGISTER_TYPE(LightCaro, "LightCaro");
+REGISTER_TYPE(Flare, "Flare");
+REGISTER_TYPE(Flamethrower, "Flamethrower");
+REGISTER_TYPE(Gatling, "Gatling");
+
 void Gun::set_clipsize(double clipsize) {
   if (clipsize < 0)
     cur_clipsize = 0;

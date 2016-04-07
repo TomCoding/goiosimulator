@@ -31,6 +31,9 @@
 
 namespace goio {
 
+REGISTER_TYPE_FULLREP(MainEngineer, "MainEngineer");
+REGISTER_TYPE_FULLREP(BuffEngineer, "BuffEngineer");
+
 Engineer::Engineer(const std::string& name, RepairTool* tool1,
                    RepairTool* tool2, RepairTool* tool3,
                    RepairMode mode, ExtinguishMode extmode) :
@@ -254,10 +257,8 @@ MainEngineer::~MainEngineer() {
 }
 
 BuffEngineer::BuffEngineer(const std::string& name, bool extinguisher,
-                           ExtinguishMode extmode) :
-                           Engineer(name,
-                                    RepairMode::CONSTANT_DMG_NO_WAIT,
-                                    extmode) {
+                           RepairMode mode, ExtinguishMode extmode) :
+                           Engineer(name, mode, extmode) {
   RepairTool* firetool;
   if (extinguisher)
     firetool = new FireExtinguisher(name + " Ext");
