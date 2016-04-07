@@ -28,6 +28,7 @@
 #include "./goioactor.h"
 #include "./guns.h"
 #include "./ammunitions.h"
+#include "./repairtools.h"
 
 
 namespace goio {
@@ -194,6 +195,58 @@ int Config::load_config() {
           obj_new.add(cur_setting, Setting::TypeFloat) = obj_fire_immunity;
         }
 
+        cur_setting = "cmp_t";
+        object_settings.insert(cur_setting);
+        std::string obj_cmp_t = "armor";
+        if (object.exists(cur_setting)) {
+          obj_cmp_t = static_cast<const char*>(object[cur_setting]);
+          obj_new.add(cur_setting, Setting::TypeString) = obj_cmp_t;
+        }
+
+        cur_setting = "part_t_mtp";
+        object_settings.insert(cur_setting);
+        double obj_part_t_mtp = -1;
+        if (object.exists(cur_setting)) {
+          obj_part_t_mtp = object[cur_setting];
+          obj_new.add(cur_setting, Setting::TypeFloat) = obj_part_t_mtp;
+        }
+
+        cur_setting = "extinguisher";
+        object_settings.insert(cur_setting);
+        bool obj_extinguisher = true;
+        if (object.exists(cur_setting)) {
+          obj_extinguisher = object[cur_setting];
+          obj_new.add(cur_setting, Setting::TypeBoolean) = obj_extinguisher;
+        }
+
+        cur_setting = "chemspray";
+        object_settings.insert(cur_setting);
+        if (object.exists(cur_setting)) {
+          if (object.exists("extinguisher")) {
+            std::cerr << "Use either 'extinguisher' or 'chemspray' as option."
+                      << std::endl;
+            return 1;
+          }
+          obj_extinguisher = !object[cur_setting];
+          obj_new.add(cur_setting, Setting::TypeBoolean) = !obj_extinguisher;
+        }
+
+        cur_setting = "repair_mode";
+        object_settings.insert(cur_setting);
+        std::string obj_repair_mode = RepairModeString[0];
+        if (object.exists(cur_setting)) {
+          obj_repair_mode = static_cast<const char*>(object[cur_setting]);
+          obj_new.add(cur_setting, Setting::TypeString) = obj_repair_mode;
+        }
+
+        cur_setting = "ext_mode";
+        object_settings.insert(cur_setting);
+        std::string obj_ext_mode = ExtinguishModeString[0];
+        if (object.exists(cur_setting)) {
+          obj_ext_mode = static_cast<const char*>(object[cur_setting]);
+          obj_new.add(cur_setting, Setting::TypeString) = obj_ext_mode;
+        }
+
         if (find_unknown_setting(object_settings, object))
           return 1;
 
@@ -202,52 +255,89 @@ int Config::load_config() {
                     << obj_name << std::endl;
           return 1;
         }
-        auto obj = ObjectFactory::create(obj_type, obj_name);
+
+        Object* obj;
+        bool processed = false;
+        if (obj_type == "GoioObj") {
+          CmpType cmp_type;
+          if (!get_cmp_type(obj_cmp_t, cmp_type)) {
+            std::cerr << "Invalid component type: " << obj_cmp_t << std::endl;
+            return 1;
+          }
+          obj = ObjectFactory::create(obj_type, obj_name,
+                                      cmp_type,
+                                      obj_part_t_mtp,
+                                      obj_health,
+                                      obj_hull_health);
+          processed = true;
+        } else if (obj_type.substr(0, 9) == "Engineer_") {
+          RepairMode mode;
+          if (!get_repair_mode(obj_repair_mode, mode)) {
+            std::cerr << "Invalid repair mode: "
+                      << obj_repair_mode << std::endl;
+            return 1;
+          }
+          ExtinguishMode extmode;
+          if (!get_extinguish_mode(obj_ext_mode, extmode)) {
+            std::cerr << "Invalid extinguish mode: "
+                      << obj_ext_mode << std::endl;
+            return 1;
+          }
+          obj = ObjectFactory::create(obj_type, obj_name,
+                                      obj_extinguisher,
+                                      mode,
+                                      extmode);
+          processed = true;
+        } else {
+          obj = ObjectFactory::create(obj_type, obj_name);
+        }
         if (obj == nullptr) {
           std::cerr << "Unknown type: " << obj_type << std::endl;
           return 1;
         }
 
         factory_objects[obj_name] = obj;
-        if (auto goioobj = dynamic_cast<GoioObj*>(obj)) {
-          if (obj_health >= 0)
-            goioobj->set_health(obj_health);
-          if (obj_hull_health >= 0)
-            goioobj->set_health(obj_hull_health);
-          if (obj_fire > 0)
-            goioobj->set_fire(obj_fire);
-          if (obj_cooldown >= 0)
-            goioobj->add_health(0, obj_cooldown);
-          if (obj_fire_immunity >= 0)
-            goioobj->add_fire(0, obj_fire_immunity);
+        if (!processed) {
+          if (auto goioobj = dynamic_cast<GoioObj*>(obj)) {
+            if (obj_health >= 0)
+              goioobj->set_health(obj_health);
+            if (obj_hull_health >= 0)
+              goioobj->set_health(obj_hull_health);
+            if (obj_fire > 0)
+              goioobj->set_fire(obj_fire);
+            if (obj_cooldown >= 0)
+              goioobj->add_health(0, obj_cooldown);
+            if (obj_fire_immunity >= 0)
+              goioobj->add_fire(0, obj_fire_immunity);
 
-          if (obj_ammo != "") {
-            if (auto gun = dynamic_cast<Gun*>(obj)) {
-              auto it = factory_objects.find(obj_ammo);
-              Object* ammo_obj;
-              if (it == factory_objects.end()) {
-                ammo_obj = ObjectFactory::create(obj_ammo);
-                factory_objects[obj_ammo] = ammo_obj;
-                if (!dynamic_cast<Ammunition*>(ammo_obj)) {
-                  std::cerr << "dynamic_cast to Ammunition failed: "
-                            << obj_ammo << std::endl;
-                  return 1;
+            if (obj_ammo != "") {
+              if (auto gun = dynamic_cast<Gun*>(obj)) {
+                auto it = factory_objects.find(obj_ammo);
+                Object* ammo_obj;
+                if (it == factory_objects.end()) {
+                  ammo_obj = ObjectFactory::create(obj_ammo);
+                  factory_objects[obj_ammo] = ammo_obj;
+                  if (!dynamic_cast<Ammunition*>(ammo_obj)) {
+                    std::cerr << "dynamic_cast to Ammunition failed: "
+                              << obj_ammo << std::endl;
+                    return 1;
+                  }
+                } else {
+                  ammo_obj = it->second;
                 }
+                gun->apply_ammunition(static_cast<Ammunition*>(ammo_obj));
               } else {
-                ammo_obj = it->second;
+                std::cerr << "'" << obj_name
+                          << "' not a Gun, ammunitions can only be used on guns."
+                          << std::endl;
+                return 1;
               }
-              gun->apply_ammunition(static_cast<Ammunition*>(ammo_obj));
-            } else {
-              std::cerr << "'" << obj_name
-                        << "' not a Gun, ammunitions can only be used on guns."
-                        << std::endl;
-              return 1;
             }
+          } else {
+            std::cerr << "dynamic_cast to GoioObj failed: "
+                      << obj_type << std::endl;
+            return 1;
           }
-        } else {
-          std::cerr << "dynamic_cast to GoioObj failed: "
-                    << obj_type << std::endl;
-          return 1;
         }
       }
 
@@ -320,18 +410,27 @@ int Config::load_config() {
         }
 
         auto timeobj = std::get<1>(this->simulations.back());
+
+        double reg_start = 0;
+        if (act_start > 0)
+          reg_start = act_start;
+
         if (act_action == "shoot") {
-          if (auto gun = dynamic_cast<Gun*>(actor_obj)) {
-            double reg_start = 0;
-            if (act_start > 0)
-              reg_start = act_start;
-            timeobj->register_shoot_event(gun, recipient_obj, reg_start);
+          if (auto shoot_actor = dynamic_cast<ShootActor*>(actor_obj)) {
+            timeobj->register_shoot_event(shoot_actor, recipient_obj, reg_start);
           } else {
-            std::cerr << "dynamic_cast for actor to Gun failed: "
+            std::cerr << "dynamic_cast for actor to ShootActor failed: "
                       << act_name << std::endl;
             return 1;
           }
-        // } else if (act_action == "repair") {
+        } else if (act_action == "repair") {
+          if (auto repair_actor = dynamic_cast<RepairActor*>(actor_obj)) {
+            timeobj->register_repair_event(repair_actor, recipient_obj, reg_start);
+          } else {
+            std::cerr << "dynamic_cast for actor to RepairActor failed: "
+                      << act_name << std::endl;
+            return 1;
+          }
         } else {
           std::cerr << "Unknown action: " << act_action << std::endl;
           return 1;

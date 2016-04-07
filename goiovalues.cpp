@@ -29,12 +29,17 @@ using std::endl;
 
 int main() {
   goio::init();
-  delete goio::ObjectFactory::create("GoioObj", "test", goio::CmpType::ARMOR, -1, 0, -1);
+  delete goio::ObjectFactory::create("GoioObj", "test",
+                                     goio::CmpType::ARMOR,
+                                     -1, 0, -1);
   delete goio::ObjectFactory::create("Pyramidion", "test2");
   delete goio::ObjectFactory::create("Lochnagar");
   delete goio::ObjectFactory::create("Mallet", "test3");
   delete goio::ObjectFactory::create("Artemis", "test4");
-  delete goio::ObjectFactory::create("BuffEngineer", "test5", true, goio::RepairMode::CONSTANT_DMG_NO_WAIT, goio::ExtinguishMode::THRESHOLD);
+  delete goio::ObjectFactory::create("Engineer_Buff", "test5",
+                                     true,
+                                     goio::RepairMode::CONSTANT_DMG_NO_WAIT,
+                                     goio::ExtinguishMode::THRESHOLD);
 
   goio::Config c;
   c.load_config();

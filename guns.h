@@ -87,7 +87,7 @@ class GunInfo {
     inline int     get_orig_aoe_ign_stacks() const { return aoe_ign_stacks; }
 };
 
-class Gun : public GunInfo, public GoioActor {
+class Gun : public GunInfo, public ShootActor {
  private:
     int     cur_clipsize;
     double  cur_rof;
@@ -133,7 +133,7 @@ class Gun : public GunInfo, public GoioActor {
                 GunInfo(clipsize, rof, reload, direct_dmg, direct_dmg_type,
                         aoe_dmg, aoe_dmg_type, aoe_radius, direct_ign_chance,
                         direct_ign_stacks, aoe_ign_chance, aoe_ign_stacks),
-                GoioActor(name, CmpType::COMPONENTS, 2.33, max_health),
+                ShootActor(name, CmpType::COMPONENTS, 2.33, max_health),
                 cur_clipsize(clipsize),
                 cur_rof(rof),
                 cur_reload(reload),
@@ -172,10 +172,8 @@ class Gun : public GunInfo, public GoioActor {
     double get_time_per_shot() const;
     double get_reload_changed() const;
 
-    bool shoot(GoioObj* obj, double, bool& changed, bool aoe, double aoe_range);
-    inline bool shoot(GoioObj* obj, double time, bool& changed) {
-      return shoot(obj, time, changed, true, 0);
-    }
+    bool shoot(GoioObj* obj, double, bool& changed,
+               bool aoe, double aoe_range) override;
 
     TimeFunc get_time_func(const GoioObj*, double, bool&) override;
 };

@@ -61,7 +61,7 @@ class RepairInfo {
     inline double get_cooldown() const { return cooldown; }
 };
 
-class RepairTool : public RepairInfo, public GoioActor {
+class RepairTool : public RepairInfo, public RepairActor {
  private:
     int done;  // 0 = normal, 1 = rebuild swings, 2 = done
     double cur_swing;
@@ -73,7 +73,7 @@ class RepairTool : public RepairInfo, public GoioActor {
                double cooldown) :
                     RepairInfo(swing, heal, rebuild_power, extinguish,
                                fire_immune, cooldown),
-                    GoioActor(name, CmpType::COMPONENTS),
+                    RepairActor(name, CmpType::COMPONENTS),
                     done(0), cur_swing(swing), repair_wait(0) {}
 
  public:
@@ -85,7 +85,7 @@ class RepairTool : public RepairInfo, public GoioActor {
     inline double get_cur_swing() const { return cur_swing; }
     inline double wait_cooldown() const { return repair_wait; }
 
-    bool repair(GoioObj* obj, double time, bool&);
+    bool repair(GoioObj* obj, double time, bool&) override;
 
     void reset(bool = true) override;
 

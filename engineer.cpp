@@ -31,13 +31,13 @@
 
 namespace goio {
 
-REGISTER_TYPE_FULLREP(MainEngineer, "MainEngineer");
-REGISTER_TYPE_FULLREP(BuffEngineer, "BuffEngineer");
+REGISTER_TYPE_FULLREP(MainEngineer, "Engineer_Main");
+REGISTER_TYPE_FULLREP(BuffEngineer, "Engineer_Buff");
 
 Engineer::Engineer(const std::string& name, RepairTool* tool1,
                    RepairTool* tool2, RepairTool* tool3,
                    RepairMode mode, ExtinguishMode extmode) :
-                   GoioActor::GoioActor(name, CmpType::HULL),
+                   RepairActor(name, CmpType::HULL),
                    mode(mode), extmode(extmode), tools(), repair_thresholds(),
                    max_rep_tools(), rebuild_tools(), rebuild_thresholds(),
                    cur_tool(nullptr), delay(false) {

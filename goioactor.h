@@ -41,6 +41,38 @@ class GoioActor : public GoioObj {
     virtual TimeFunc get_time_func(const GoioObj*, double, bool&) = 0;
 };
 
+class RepairActor : public GoioActor {
+ protected:
+    RepairActor(const std::string& name, CmpType cmp_type,
+                double part_type_multiplier = -1,
+                double max_health = 0, double hull_max_health = 0) :
+                GoioActor(name, cmp_type, part_type_multiplier,
+                          max_health, hull_max_health) {}
+
+ public:
+    virtual ~RepairActor() {}
+
+    virtual bool repair(GoioObj* obj, double time, bool&) = 0;
+};
+
+class ShootActor : public GoioActor {
+ protected:
+    ShootActor(const std::string& name, CmpType cmp_type,
+               double part_type_multiplier = -1,
+               double max_health = 0, double hull_max_health = 0) :
+               GoioActor(name, cmp_type, part_type_multiplier,
+                         max_health, hull_max_health) {}
+
+ public:
+    virtual ~ShootActor() {}
+
+    virtual bool shoot(GoioObj* obj, double, bool& changed,
+                       bool aoe, double aoe_range) = 0;
+    inline bool shoot(GoioObj* obj, double time, bool& changed) {
+      return shoot(obj, time, changed, true, 0);
+    }
+};
+
 }  // namespace goio
 
 #endif  // GOIOACTOR_H_

@@ -30,7 +30,7 @@
 
 namespace goio {
 
-class Engineer : public GoioActor {
+class Engineer : public RepairActor {
  private:
     RepairMode mode;
     ExtinguishMode extmode;
@@ -55,7 +55,7 @@ class Engineer : public GoioActor {
 
  protected:
     Engineer(const std::string& name, RepairMode mode, ExtinguishMode extmode) :
-                            GoioActor(name, CmpType::HULL),
+                            RepairActor(name, CmpType::HULL),
                             mode(mode),
                             extmode(extmode),
                             tools(),
@@ -81,7 +81,7 @@ class Engineer : public GoioActor {
     inline void set_mode(RepairMode mode) { this->mode = mode; }
     inline void set_extmode(ExtinguishMode extmode) { this->extmode = extmode; }
 
-    bool repair(GoioObj* obj, double time, bool&);
+    bool repair(GoioObj* obj, double time, bool&) override;
 
     TimeFunc get_time_func(const GoioObj*, double, bool&) override;
 };
