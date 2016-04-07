@@ -28,12 +28,29 @@
 
 namespace goio {
 
-static constexpr double MIN_COMP_CONFIG_VERSION = 1.0;
+class Config {
+ private:
+    static constexpr double MIN_COMP_CONFIG_VERSION = 1.0;
 
-bool find_unknown_setting(const std::set<std::string>& settings,
-                          const libconfig::Setting& settingsobj);
+    std::string filename;
+    libconfig::Config* cfg_new;
 
-int load_config();
+    bool find_unknown_setting(const std::set<std::string>& settings,
+                              const libconfig::Setting& settingsobj);
+
+    Config(const Config& obj);
+    Config& operator=(const Config& obj);
+
+ public:
+    explicit Config(const std::string& filename = "goiovalues.cfg") :
+                    filename(filename), cfg_new(new libconfig::Config()) {}
+    ~Config() { delete cfg_new; }
+
+    inline const std::string& get_filename() const { return filename; }
+
+    int load_config();
+    int write();
+};
 
 }  // namespace goio
 

@@ -48,37 +48,8 @@ class Engineer : public GoioActor {
     RepairTool* cur_tool;
     bool delay;
 
-    Engineer(const Engineer& obj) : GoioActor(obj.get_name(), CmpType::HULL),
-                            mode(obj.mode),
-                            extmode(obj.extmode),
-                            tools(),
-                            repair_thresholds(),
-                            max_rep_tools(),
-                            rebuild_tools(),
-                            rebuild_thresholds(),
-                            ext_tools(),
-                            cur_tool(nullptr), delay(false) {}
-    Engineer& operator=(const Engineer& obj) {
-      if (&obj != this) {
-        mode = obj.mode;
-        extmode = obj.extmode;
-        for (int i = 0; i < 3; ++i)
-          tools[i] = obj.tools[i];
-        for (int i = 0; i < 2; ++i)
-          repair_thresholds[i] = obj.repair_thresholds[i];
-        for (int i = 0; i < 3; ++i)
-          max_rep_tools[i] = obj.max_rep_tools[i];
-        for (int i = 0; i < 3; ++i)
-          rebuild_tools[i] = obj.rebuild_tools[i];
-        for (int i = 0; i < 2; ++i)
-          rebuild_thresholds[i] = obj.rebuild_thresholds[i];
-        for (int i = 0; i < 3; ++i)
-          ext_tools[i] = obj.ext_tools[i];
-        cur_tool = obj.cur_tool;
-        delay = obj.delay;
-      }
-      return *this;
-    }
+    Engineer(const Engineer& obj);
+    Engineer& operator=(const Engineer& obj);
 
     void select_tool(RepairTool* tool);
 

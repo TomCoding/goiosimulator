@@ -104,43 +104,8 @@ class Gun : public GunInfo, public GoioActor {
 
     bool during_reload;
 
-    Gun(const Gun& obj) : GunInfo(obj.get_orig_clipsize(), obj.get_orig_rof(),
-            obj.get_orig_reload(), obj.get_orig_direct_dmg(),
-            obj.get_orig_direct_dmg_type(), obj.get_orig_aoe_dmg(),
-            obj.get_orig_aoe_dmg_type(), obj.get_orig_aoe_radius(),
-            obj.get_orig_direct_ign_chance(),
-            obj.get_orig_direct_ign_stacks(),
-            obj.get_orig_aoe_ign_chance(), obj.get_orig_aoe_ign_stacks()),
-            GoioActor(obj.get_name(), CmpType::COMPONENTS, 2.33,
-                      obj.get_max_health()),
-            cur_clipsize(obj.cur_clipsize),
-            cur_rof(obj.cur_rof),
-            cur_reload(obj.cur_reload),
-            cur_direct_dmg(obj.cur_direct_dmg),
-            cur_direct_dmg_type(obj.cur_direct_dmg_type),
-            cur_aoe_dmg(obj.cur_aoe_dmg),
-            cur_aoe_dmg_type(obj.cur_aoe_dmg_type),
-            cur_aoe_radius(obj.cur_aoe_radius),
-            cur_direct_ign_chance(obj.cur_direct_ign_chance),
-            cur_aoe_ign_chance(obj.cur_aoe_ign_chance),
-            cur_ammo(obj.cur_ammo), during_reload(false) {}
-    Gun& operator=(const Gun& obj) {
-      if (&obj != this) {
-        cur_clipsize = obj.cur_clipsize;
-        cur_rof = obj.cur_rof;
-        cur_reload = obj.cur_reload;
-        cur_direct_dmg = obj.cur_direct_dmg;
-        cur_direct_dmg_type = obj.cur_direct_dmg_type;
-        cur_aoe_dmg = obj.cur_aoe_dmg;
-        cur_aoe_dmg_type = obj.cur_aoe_dmg_type;
-        cur_aoe_radius = obj.cur_aoe_radius;
-        cur_direct_ign_chance = obj.cur_direct_ign_chance;
-        cur_aoe_ign_chance = obj.cur_aoe_ign_chance;
-        cur_ammo = obj.cur_ammo;
-        during_reload = obj.during_reload;
-      }
-      return *this;
-    }
+    Gun(const Gun& obj);
+    Gun& operator=(const Gun& obj);
 
     void set_clipsize(double clipsize);
     void set_rof(double rof);

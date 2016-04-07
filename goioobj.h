@@ -208,28 +208,8 @@ class GoioObj : public Object {
                 fire_stacks(-1), rebuild_state(-1),
                 part_type_multiplier(-1),
                 hull(nullptr), cooldown_end(0), immunity_end(0) {}
-    GoioObj(const GoioObj& obj) : name(obj.name), cmp_type(obj.cmp_type),
-                max_health(obj.max_health), health(obj.max_health),
-                fire_stacks(obj.fire_stacks), rebuild_state(obj.rebuild_state),
-                part_type_multiplier(obj.part_type_multiplier),
-                hull(nullptr), cooldown_end(obj.cooldown_end),
-                immunity_end(obj.immunity_end) {
-      hull = new GoioObj(obj.hull->max_health);
-      hull->health = obj.hull->health;
-      hull->rebuild_state = obj.hull->rebuild_state;
-    }
-    GoioObj& operator=(const GoioObj& obj) {
-      if (&obj != this) {
-        max_health = obj.max_health;
-        health = obj.health;
-        fire_stacks = obj.fire_stacks;
-        rebuild_state = obj.rebuild_state;
-        hull = obj.hull;
-        cooldown_end = obj.cooldown_end;
-        immunity_end = obj.immunity_end;
-      }
-      return *this;
-    }
+    GoioObj(const GoioObj& obj);
+    GoioObj& operator=(const GoioObj& obj);
 
     bool set_health_int(double health, GoioObj* obj);
 

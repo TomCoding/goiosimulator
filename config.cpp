@@ -30,8 +30,8 @@
 namespace goio {
 
 
-bool find_unknown_setting(const std::set<std::string>& settings,
-                          const libconfig::Setting& settingsobj) {
+bool Config::find_unknown_setting(const std::set<std::string>& settings,
+                                  const libconfig::Setting& settingsobj) {
   bool unknown = false;
   for (auto i = 0; i < settingsobj.getLength(); ++i) {
     if (settings.find(settingsobj[i].getName()) == settings.end()) {
@@ -43,7 +43,7 @@ bool find_unknown_setting(const std::set<std::string>& settings,
   return unknown;
 }
 
-int load_config() {
+int Config::load_config() {
   using libconfig::Config;
   using libconfig::FileIOException;
   using libconfig::ParseException;
@@ -52,12 +52,10 @@ int load_config() {
   using libconfig::Setting;
 
   Config cfg;
-  Config cfg_new;
-
-  auto filename = "goiovalues.cfg";
+  // Config cfg_new;
 
   try {
-    cfg.readFile(filename);
+    cfg.readFile(filename.c_str());
   } catch (const FileIOException& fioex) {
     std::cerr << "I/O error while reading file." << std::endl;
     return 1;
@@ -69,7 +67,7 @@ int load_config() {
   }
 
   const Setting& root = cfg.getRoot();
-  Setting& root_new = cfg_new.getRoot();
+  Setting& root_new = cfg_new->getRoot();
 
   std::set<std::string> toplevel_settings;
 
@@ -276,21 +274,24 @@ int load_config() {
     if (find_unknown_setting(toplevel_settings, root))
       return 1;
   } catch (const SettingNotFoundException& nfex) {
-    std::cerr << "No '" << cur_setting << "' setting in configuration file."
+    std::cerr << "No '" << nfex.getPath() << "' setting in configuration file."
               << std::endl;
   } catch (const SettingTypeException& ste) {
-    std::cerr << "'" << cur_setting << "' setting has wrong type." << std::endl;
+    std::cerr << "'" << ste.getPath() << "' setting has wrong type." << std::endl;
   }
 
+  return 0;
+}
+
+int Config::write() {
   try {
-    cfg_new.writeFile("goiovalues_new.cfg");  // FIXME: change to filename
+    cfg_new->writeFile(filename.c_str());
     std::cerr << "New configuration successfully written to: " << filename
               << std::endl;
-  } catch(const FileIOException& fioex) {
+  } catch(const libconfig::FileIOException& fioex) {
     std::cerr << "I/O error while writing file: " << filename << std::endl;
     return 1;
   }
-
   return 0;
 }
 

@@ -38,7 +38,8 @@ int main() {
   delete goio::ObjectFactory::create("Artemis", "test4");
   delete goio::ObjectFactory::create("BuffEngineer", "test5", true, goio::RepairMode::CONSTANT_DMG_NO_WAIT, goio::ExtinguishMode::THRESHOLD);
 
-  goio::load_config();
+  goio::Config c;
+  c.load_config();
 
   if (1 == 2-1)
     return 0;

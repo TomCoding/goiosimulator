@@ -11,6 +11,7 @@
 </libs>
 
 <skip_headers>
+    config.h
 </skip_headers>
 
 <skip_libs>
