@@ -36,9 +36,14 @@ Options:
   --cppcheckopen      Same as --cppcheck, additionally open report in browser.
   --api-sanity-checks Run API sanity checks.
   --cpplint           Run cpplint.
+  --lcov              Run lcov.
+  --lcovopen          Same as --lcov, additionally open report in browser.
+  -n, --no-debug      Compile without debug flags.
   --doc               Create documentation.
+  --no-tests          Don't run tests.
   -r, --run           Run program after compilation.
   -v, --valgrind      Run program after compilation with valgrind.
+  -c, --clean         Use clean build environment.
   -w, --wait          Wait for input before running program.
   -h, --help          Print this message and exit.
 "
@@ -58,10 +63,15 @@ CLANGCHECK=0
 CLANGCHECK_OPEN=0
 RUN=0
 VALGRIND=0
+NO_TESTS=0
 API_SANITY_CHECKS=0
 CPPLINT=0
+LCOV=0
+LCOV_OPEN=0
+NO_DEBUG=0
 DOC=0
 WAIT=0
+CLEAN=0
 for i in "$@"; do
   case "$i" in
     "--gcc"|"--g++")
@@ -105,6 +115,10 @@ for i in "$@"; do
       VALGRIND=1
       shift
       ;;
+    "--no-tests")
+      NO_TESTS=1
+      shift
+      ;;
     "--api-sanity-checks")
       API_SANITY_CHECKS=1
       shift
@@ -113,11 +127,38 @@ for i in "$@"; do
       CPPLINT=1
       shift
       ;;
+    "--lcov")
+      LCOV=1
+      shift
+      ;;
+    "--lcovopen")
+      if [ "$NO_DEBUG" == 1 ]; then
+        echo "Can't use lcov without debug mode."
+        help
+        exit 1
+      fi
+      LCOV=1
+      LCOV_OPEN=1
+      shift
+      ;;
+    "--no-debug"|"-n")
+      if [ "$LCOV" == 1 ]; then
+        echo "Can't use lcov without debug mode."
+        help
+        exit 1
+      fi
+      NO_DEBUG=1
+      shift
+      ;;
     "-w"|"--wait")
       WAIT=1
       if [ "$VALGRIND" == 0 ]; then
         RUN=1
       fi
+      shift
+      ;;
+    "-c"|"--clean")
+      CLEAN=1
       shift
       ;;
     "-h"|"--help")
@@ -136,6 +177,20 @@ if [ "$HELP" == 1 ]; then
   exit 0;
 fi
 
+CMAKE_OPTIONS=
+if [ "$NO_DEBUG" == 0 ]; then
+  CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Debug"
+fi
+if [ "$LCOV" == 1 ]; then
+  CMAKE_OPTIONS="$CMAKE_OPTIONS -DCOVERAGE=ON"
+fi
+
+if [ "$CLEAN" == 1 ]; then
+  if [ -d "$BUILD_DIR" ]; then
+    rm -rf "$BUILD_DIR"
+  fi
+fi
+
 if [ ! -d "$BUILD_DIR" ]; then
   mkdir "$BUILD_DIR"
 fi
@@ -144,12 +199,26 @@ if [ "$CLANGCHECK" == 1 ]; then
   analyzer_dir="$(dirname $(readlink -f $(which scan-build)))"
   CXX_COMPILER="$analyzer_dir/c++-analyzer"
   C_COMPILER="$analyzer_dir/ccc-analyzer"
-  scan-build -o "../$CLANGCHECK_DIR" cmake -DCMAKE_CXX_COMPILER="$CXX_COMPILER" \
-                                           -DCMAKE_C_COMPILER="$C_COMPILER" ..
+  scan-build -o "../$CLANGCHECK_DIR" cmake $CMAKE_OPTIONS \
+                     -DCMAKE_CXX_COMPILER="$CXX_COMPILER" \
+                     -DCMAKE_C_COMPILER="$C_COMPILER" ..
 elif [ "$CXX_COMPILER" != "" ]; then
-  cmake -DCMAKE_CXX_COMPILER="$CXX_COMPILER" -DCMAKE_C_COMPILER="$C_COMPILER" ..
+  cmake -DCMAKE_CXX_COMPILER="$CXX_COMPILER" $CMAKE_OPTIONS \
+                     -DCMAKE_C_COMPILER="$C_COMPILER" ..
 elif [ ! -f Makefile ]; then
-  cmake ..
+  cmake $CMAKE_OPTIONS ..
+else
+  make -n goiovalues_coverage &>/dev/null
+  LCOV_RET=$?
+  if [ "$LCOV" == 1 ]; then
+    if [ "$LCOV_RET" != 0 ]; then
+      cmake $CMAKE_OPTIONS ..
+    fi
+  else
+    if [ "$LCOV_RET" == 0 ]; then
+      cmake -DCOVERAGE=OFF $CMAKE_OPTIONS ..
+    fi
+  fi
 fi
 
 SUCCESS="$?"
@@ -174,9 +243,11 @@ fi
 
 if [ "$?" == 0 ]; then
   SUCCESS=1
-  echo
-  ctest --output-on-failure -R run -D ExperimentalMemCheck
-  # ctest -V -R api_sanity_checker
+  if [ "$NO_TESTS" == 0 ]; then
+    echo
+    ctest --output-on-failure -R run -D ExperimentalMemCheck
+    # ctest -V -R api_sanity_checker
+  fi
 fi
 cd ..
 
@@ -207,6 +278,16 @@ fi
 if [ "$CPPLINT" == 1 ]; then
   echo
   cpplint.py --linelength=84 *.h *.cpp
+fi
+
+if [ "$LCOV" == 1 ]; then
+  echo
+  cd "$BUILD_DIR"
+  make "${BIN_NAME}_coverage"
+  if [ "$?" == 0 -a "$LCOV_OPEN" == 1 ]; then
+    xdg-open "coverage/index.html"
+  fi
+  cd ..
 fi
 
 if [ "$DOC" == 1 ]; then

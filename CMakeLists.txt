@@ -23,10 +23,12 @@ project(goiovalues)
 # set(goiovalues_VERSION_MAJOR 0)
 # set(goiovalues_VERSION_MINOR 1)
 
-# configure_file(
-#   "${PROJECT_SOURCE_DIR}/config.h.in"
-#   "${PROJECT_BINARY_DIR}/config.h"
-# )
+configure_file(
+  "${PROJECT_SOURCE_DIR}/goiovalues.cfg"
+  "${PROJECT_BINARY_DIR}/goiovalues.cfg"
+)
+
+option(Coverage "Enable gcov support." OFF)
 
 include(FindPkgConfig)
 pkg_check_modules(libconfig REQUIRED "libconfig++")
@@ -38,20 +40,46 @@ add_executable(goiovalues "${sources}")
 target_link_libraries(goiovalues ${libconfig_LIBRARIES})
 
 target_compile_options(goiovalues PUBLIC
+    -g
     -fdiagnostics-color=always
-    -std=c++11 -O3 -ffast-math -g -pedantic -Wall -Wextra -Wcast-align
+    -std=c++11 -O3 -ffast-math -pedantic -Wall -Wextra -Wcast-align
     -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2
     -Winit-self -Wmissing-declarations -Wmissing-include-dirs
     -Wold-style-cast -Woverloaded-virtual -Wredundant-decls
     -Wsign-conversion -Wsign-promo -Wswitch-default
     -Wundef -Weffc++
 )
-if("${CMAKE_CXX_COMPILER}" MATCHES ".*/g\\+\\+.*")
-target_compile_options(goiovalues PUBLIC
-    -Wlogical-op
-    -Wnoexcept
-    -Wstrict-null-sentinel
-)
+if(CMAKE_COMPILER_IS_GNUCC)
+  target_compile_options(goiovalues PUBLIC
+      -Wlogical-op
+      -Wnoexcept
+      -Wstrict-null-sentinel
+  )
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR COVERAGE)
+    target_compile_options(goiovalues PUBLIC
+        -g
+    )
+    if(COVERAGE)
+      list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+      include(CodeCoverage)
+      target_compile_options(goiovalues PUBLIC
+        -O0 -fprofile-arcs -ftest-coverage
+      )
+      target_link_libraries(goiovalues gcov)
+      setup_target_for_coverage(goiovalues_coverage goiovalues
+                                "${PROJECT_BINARY_DIR}/coverage")
+    endif()
+  endif()
+
+  if("${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER 5)
+    target_compile_options(goiovalues PUBLIC
+        -Wswitch-bool
+        -Wlogical-not-parentheses
+        -Wsizeof-array-argument
+        -Wbool-compare
+    )
+  endif()
 endif()
 
 find_program(MEMORYCHECK_COMMAND valgrind)
