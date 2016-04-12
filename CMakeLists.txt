@@ -26,6 +26,7 @@ project(goiovalues)
 configure_file(
   "${PROJECT_SOURCE_DIR}/goiovalues.cfg"
   "${PROJECT_BINARY_DIR}/goiovalues.cfg"
+  COPYONLY
 )
 
 option(Coverage "Enable gcov support." OFF)
@@ -65,6 +66,8 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR COVERAGE)
       include(CodeCoverage)
       target_compile_options(goiovalues PUBLIC
         -O0 -fprofile-arcs -ftest-coverage
+        --coverage
+        -fno-inline -fno-inline-small-functions -fno-default-inline
       )
       target_link_libraries(goiovalues gcov)
       setup_target_for_coverage(goiovalues_coverage goiovalues

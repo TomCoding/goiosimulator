@@ -38,7 +38,7 @@ class TimeObj {
     double time;
     struct FuncData {
       int id;
-      GoioObj* registrar;  // key in registrars
+      GoioActor* registrar;  // key in registrars
       TimeDmgFunc timedmgfunc;
       GoioObj* obj;
       double time_prev;
@@ -46,6 +46,7 @@ class TimeObj {
       double time_cur;     // if set, not in events (on hold)
       TimeCheckFunc timecheckfunc;
       bool fire;
+      bool end;
     };
 
     std::multimap<double, FuncData*> events;
@@ -57,6 +58,26 @@ class TimeObj {
     bool recalc_next_event(FuncData* funcdata);
 
     static int max_id;
+
+    class EndEvent : public GoioActor {
+     private:
+        TimeObj* timeobj;
+
+        EndEvent(const EndEvent& obj);
+        EndEvent& operator=(const EndEvent& obj);
+
+     public:
+        explicit EndEvent(TimeObj* timeobj) : GoioActor("", CmpType::HULL),
+                                              timeobj(timeobj) {}
+
+        inline bool noop(GoioObj*, double, bool&) {
+          return false;
+        }
+
+        inline TimeFunc get_time_func(const GoioObj*, double, bool&) override {
+          return nullptr;
+        }
+    };
 
  public:
     TimeObj() : time(0), events(), registrars(), recipients() {}
@@ -72,7 +93,7 @@ class TimeObj {
     inline int register_repair_event(Actor_t* registrar, GoioObj* obj,
                               double time = 0, bool rel = true) {
       return register_event(registrar,
-                            std::bind(&Actor_t::repair, registrar, _1, _2, _3),
+                            std::bind(&RepairActor::repair, registrar, _1, _2, _3),
                             obj,
                             std::bind(&Actor_t::get_time_func, registrar, _1,
                                                                           _2,
@@ -86,7 +107,7 @@ class TimeObj {
       return register_event(registrar,
                             std::bind(static_cast<bool (Actor_t::*)
                                                   (GoioObj*, double, bool&)>
-                                      (&Actor_t::shoot), registrar, _1, _2, _3),
+                                      (&ShootActor::shoot), registrar, _1, _2, _3),
                             obj,
                             std::bind(&Actor_t::get_time_func, registrar, _1,
                                                                           _2,
@@ -108,6 +129,8 @@ class TimeObj {
     }
 
     bool unregister_event(int id);
+    bool unregister_actor(GoioActor* obj);
+    void unregister_actor(GoioActor* obj, double time);
 
     void reset();
 };

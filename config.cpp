@@ -40,12 +40,10 @@ namespace goio {
 
 Config::~Config() {
   for (auto it = simulations.begin(); it != simulations.end(); ++it) {
-    std::cout << "delete: " << std::get<0>(*it) << std::endl;
     delete std::get<1>(*it);
     delete std::get<2>(*it);
     for (auto it2 = std::get<3>(*it).begin();
                                     it2 != std::get<3>(*it).end(); ++it2) {
-      std::cout << "delete: " << it2->first << std::endl;
       delete it2->second;
     }
   }
@@ -440,6 +438,9 @@ int Config::load_config() {
           std::cerr << "Unknown action: " << act_action << std::endl;
           return 1;
         }
+
+        if (act_end > 0)
+          timeobj->unregister_actor(actor_obj, act_end);
       }
 
       cur_setting = "options";

@@ -94,6 +94,8 @@ int main() {
   // auto chem_id = time->register_repair_event(chem, armor, 1);
   // auto banshee_id = time->register_shoot_event(banshee, armor);
 
+  // time->unregister_actor(gat, 7);
+
   // std::cout << "\033[1m";
   // std::cout << "    time          actor  clip health       target      type  health(R) fire type  health(R)" << endl;
   // std::cout << "===========================================================================================" << endl;
