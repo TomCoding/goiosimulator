@@ -64,13 +64,13 @@ inline bool get_repair_mode(const std::string& val, RepairMode& mode) {
 // };
 
 enum ExtinguishMode {
-  INSTANT,        // instantly extinguish new fires
   THRESHOLD,      // only extinguish if fire damage higher than repair
+  INSTANT,        // instantly extinguish new fires
   // ANTICIPATE,  // anticipate incoming fire and extinguish if over threshold
   // MIXED        // instant extinguish during damage pauses
 };
-static const std::string ExtinguishModeString[] {"instant",
-                                                 "threshold"};
+static const std::string ExtinguishModeString[] {"threshold",
+                                                 "instant"};
 inline const std::string get_extinguish_mode_string(ExtinguishMode val) {
   return ExtinguishModeString[val];
 }

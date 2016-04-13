@@ -34,7 +34,7 @@ GoioObj::~GoioObj() {
 }
 
 bool GoioObj::add_health(double health, double cooldown_end) {
-  if ((health > 0 && cmp_type == CmpType::HULL) || health == 0)
+  if ((health > 0 && cmp_type == CmpType::HULL))
     return false;
   if (cooldown_end >= 0) {
     this->cooldown_end = cooldown_end;
@@ -42,6 +42,8 @@ bool GoioObj::add_health(double health, double cooldown_end) {
     //           << cooldown_end << std::endl
     //           << "                                    ";
   }
+  if (health == 0)
+    return true;
   return set_health_int(this->health + health, this);
 }
 

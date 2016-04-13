@@ -72,9 +72,21 @@ void Engineer::update_tools(RepairTool* tool1, RepairTool* tool2,
         ptr_tools = rebuild_tools;
         break;
       case 3:
-        ps1 = tool1->get_extinguish()/tool1->get_cooldown();
-        ps2 = tool2->get_extinguish()/tool2->get_cooldown();
-        ps3 = tool3->get_extinguish()/tool3->get_cooldown();
+        if (tool1->get_extinguish() > max_fire_stacks)
+          ps1 = max_fire_stacks/tool1->get_cooldown();
+        else
+          ps1 = tool1->get_extinguish()/tool1->get_cooldown();
+
+        if (tool2->get_extinguish() > max_fire_stacks)
+          ps2 = max_fire_stacks/tool2->get_cooldown();
+        else
+          ps2 = tool2->get_extinguish()/tool2->get_cooldown();
+
+        if (tool3->get_extinguish() > max_fire_stacks)
+          ps3 = max_fire_stacks/tool3->get_cooldown();
+        else
+          ps3 = tool3->get_extinguish()/tool3->get_cooldown();
+
         ptr_tools = ext_tools;
         break;
       default:
@@ -172,16 +184,16 @@ bool Engineer::repair(GoioObj* obj, double time, bool& changed) {
   } else {
     if (obj->get_fire_stacks() > 0 && ext_tools[0]->get_extinguish() > 0) {
       switch (extmode) {
-        case ExtinguishMode::INSTANT:
-          select_tool(ext_tools[0]);
-          return cur_tool->repair(obj, time, changed);
         case ExtinguishMode::THRESHOLD:
-          if (tools[0]->get_heal()/tools[0]->get_cooldown() <
-              Fire::get_fire_dmg(obj, tools[0]->get_cooldown())) {
+          if (tools[0]->get_heal() <
+                          Fire::get_fire_dmg(obj, tools[0]->get_cooldown())) {
             select_tool(ext_tools[0]);
             return cur_tool->repair(obj, time, changed);
           }
           break;
+        case ExtinguishMode::INSTANT:
+          select_tool(ext_tools[0]);
+          return cur_tool->repair(obj, time, changed);
         default:
           assert(false);
       }

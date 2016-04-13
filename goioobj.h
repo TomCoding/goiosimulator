@@ -200,9 +200,6 @@ class GoioObj : public Object {
     double cooldown_end;
     double immunity_end;
 
-    static const int max_fire_stacks = 20;
-    static const int fire_stacks_unusable = 8;
-
     explicit GoioObj(double max_health) : name(""), cmp_type(CmpType::HULL),
                 max_health(max_health), health(max_health),
                 fire_stacks(-1), rebuild_state(-1),
@@ -224,9 +221,12 @@ class GoioObj : public Object {
             cooldown_end(0), immunity_end(0) {}
     virtual ~GoioObj();
 
-    static const     int    rebuild_base_hits         = 9;
-    static constexpr double rebuild_health_multiplier = 0.05;
-    static constexpr double health_after_rebuild      = 0.333333333333;
+    static const     int    max_fire_stacks           = 20;
+    static const     int    fire_stacks_unusable      =  8;
+
+    static const     int    rebuild_base_hits         =  9;
+    static constexpr double rebuild_health_multiplier =  0.05;
+    static constexpr double health_after_rebuild      =  0.333333333333;
 
     inline int get_rebuild_value() const {
       return std::round((rebuild_base_hits+max_health *
