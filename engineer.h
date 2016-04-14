@@ -52,6 +52,7 @@ class Engineer : public RepairActor {
     Engineer& operator=(const Engineer& obj);
 
     void select_tool(RepairTool* tool);
+    RepairTool* get_repair_tool(GoioObj* obj);
 
  protected:
     Engineer(const std::string& name, RepairMode mode, ExtinguishMode extmode) :

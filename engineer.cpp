@@ -172,6 +172,30 @@ void Engineer::select_tool(RepairTool* tool) {
   //           << cur_tool->get_cur_swing() << std::endl << "        ";
 }
 
+RepairTool* Engineer::get_repair_tool(GoioObj* obj) {
+  auto healthdiff = obj->get_max_health() - obj->get_health();
+  switch (mode) {
+    case RepairMode::CONSTANT_DMG_NO_WAIT:
+      if (healthdiff > repair_thresholds[0])
+        return tools[0];
+      else if (healthdiff > repair_thresholds[1])
+        return tools[1];
+      else
+        return tools[2];
+    case RepairMode::FASTEST_HEAL:
+      if (healthdiff > tools[2]->get_heal()) {
+        if (healthdiff > tools[1]->get_heal())
+          return tools[0];
+        else
+          return tools[1];
+      } else {
+        return tools[2];
+      }
+    default:
+      assert(false);
+  }
+}
+
 bool Engineer::repair(GoioObj* obj, double time, bool& changed) {
   if (obj->get_health() == 0) {
     auto rebuilddiff = obj->get_rebuild_value() - obj->get_rebuild_state();
@@ -185,12 +209,16 @@ bool Engineer::repair(GoioObj* obj, double time, bool& changed) {
     if (obj->get_fire_stacks() > 0 && ext_tools[0]->get_extinguish() > 0) {
       switch (extmode) {
         case ExtinguishMode::THRESHOLD:
-          if (tools[0]->get_heal() <
-                          Fire::get_fire_dmg(obj, tools[0]->get_cooldown())) {
+          {
+          auto repair_tool = get_repair_tool(obj);
+          if (repair_tool->get_heal() <
+                          Fire::get_fire_dmg(obj, repair_tool->get_cooldown())) {
             select_tool(ext_tools[0]);
-            return cur_tool->repair(obj, time, changed);
+          } else {
+            select_tool(repair_tool);
           }
-          break;
+          }
+          return cur_tool->repair(obj, time, changed);
         case ExtinguishMode::INSTANT:
           select_tool(ext_tools[0]);
           return cur_tool->repair(obj, time, changed);
@@ -199,29 +227,7 @@ bool Engineer::repair(GoioObj* obj, double time, bool& changed) {
       }
     }
 
-    auto healthdiff = obj->get_max_health() - obj->get_health();
-    switch (mode) {
-      case RepairMode::CONSTANT_DMG_NO_WAIT:
-        if (healthdiff > repair_thresholds[0])
-          select_tool(tools[0]);
-        else if (healthdiff > repair_thresholds[1])
-          select_tool(tools[1]);
-        else
-          select_tool(tools[2]);
-        break;
-      case RepairMode::FASTEST_HEAL:
-        if (healthdiff > tools[2]->get_heal()) {
-          if (healthdiff > tools[1]->get_heal())
-            select_tool(tools[0]);
-          else
-            select_tool(tools[1]);
-        } else {
-          select_tool(tools[2]);
-        }
-        break;
-      default:
-        assert(false);
-    }
+    select_tool(get_repair_tool(obj));
   }
 
   return cur_tool->repair(obj, time, changed);
