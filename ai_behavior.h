@@ -27,7 +27,7 @@
 
 namespace goio {
 
-enum RepairMode {
+enum class RepairMode {
   CONSTANT_DMG_NO_WAIT,  // best repair/cooldown relation for current damage
   FASTEST_HEAL,          // get on full health as fast as possible
   // CONSTANT_DMG_WAIT   // anticipate incoming damage and repair accordingly
@@ -36,7 +36,7 @@ enum RepairMode {
 static const std::string RepairModeString[] {"constant_dmg_no_wait",
                                              "fastest_heal"};
 inline const std::string get_repair_mode_string(RepairMode val) {
-  return RepairModeString[val];
+  return RepairModeString[static_cast<int>(val)];
 }
 
 inline bool get_repair_mode(const std::string& val, RepairMode& mode) {
@@ -51,19 +51,19 @@ inline bool get_repair_mode(const std::string& val, RepairMode& mode) {
   }
 }
 
-// enum RebuildMode {
+// enum class RebuildMode {
 //   FASTEST_REBUILD,  // rebuild as fast as possible
 //   PREREBUILD,       // only prerebuild
 //   PREREBUILD_WAIT   // prerebuild and rebuild when no more incoming damage
 // };
 
-// enum FireImmunityMode {
+// enum class FireImmunityMode {
 //   CONSTANT_IMMUNITY,  // keep component constantly immune to fire
 //   NO_IMMUNITY,        // extinguish when needed
 //   ANTICIPATE          // anticipate incoming fire and maintain immunity if needed
 // };
 
-enum ExtinguishMode {
+enum class ExtinguishMode {
   THRESHOLD,      // only extinguish if fire damage higher than repair
   INSTANT,        // instantly extinguish new fires
   // ANTICIPATE,  // anticipate incoming fire and extinguish if over threshold
@@ -72,7 +72,7 @@ enum ExtinguishMode {
 static const std::string ExtinguishModeString[] {"threshold",
                                                  "instant"};
 inline const std::string get_extinguish_mode_string(ExtinguishMode val) {
-  return ExtinguishModeString[val];
+  return ExtinguishModeString[static_cast<int>(val)];
 }
 
 inline bool get_extinguish_mode(const std::string& val, ExtinguishMode& extmode) {

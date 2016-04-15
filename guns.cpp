@@ -156,8 +156,7 @@ inline double Gun::get_reload_changed() const {
   return get_max_health()/get_health()*get_reload();
 }
 
-bool Gun::shoot(GoioObj* obj, double time, bool& changed, bool aoe,
-                                                          double aoe_range) {
+DmgState::State Gun::shoot(GoioObj* obj, double time, bool aoe, double aoe_range) {
   if (during_reload) {
     reload();
     during_reload = false;
@@ -165,7 +164,7 @@ bool Gun::shoot(GoioObj* obj, double time, bool& changed, bool aoe,
   if (get_health() == 0 || get_clipsize() == 0 ||
           get_fire_stacks() >= GoioObj::get_fire_stacks_unusable()) {
     std::cout << "                            ";
-    return false;
+    return DmgState::NONE;
   }
 
   GoioObj* tmpobj;
@@ -175,25 +174,29 @@ bool Gun::shoot(GoioObj* obj, double time, bool& changed, bool aoe,
     tmpobj = obj->get_hull();
     if (tmpobj->get_health() == 0) {
       std::cout << "                            ";
-      return false;
+      return DmgState::NONE;
     }
   }
 
   dec_clipsize();
   tmpobj->add_health(-get_direct_dmg() *
-                      dmg_types[get_direct_dmg_type()]
-                               [tmpobj->get_cmp_type()]);
+                      get_dmg_modifier(get_direct_dmg_type(),
+                                       tmpobj->get_cmp_type()));
+  auto ret = DmgState::TARGET;
   if (tmpobj->get_immunity_end() <= time) {
     if (get_direct_ign_chance() > 0 &&
                           random_percentage() < get_direct_ign_chance()*100) {
       tmpobj->add_fire(get_orig_direct_ign_stacks());
+      ret |= DmgState::FIRE;
     } else if (get_direct_dmg_type() == DmgType::EXPLOSIVE) {
       auto ign_chance = get_direct_dmg() *
-                        dmg_types[DmgType::EXPLOSIVE]
-                                 [tmpobj->get_cmp_type()] *
+                        get_dmg_modifier(DmgType::EXPLOSIVE,
+                                         tmpobj->get_cmp_type()) *
                         explosive_ign_chance;
-      if (random_percentage() < ign_chance*100)
+      if (random_percentage() < ign_chance*100) {
         tmpobj->add_fire(explosive_stacks);
+        ret |= DmgState::FIRE;
+      }
     }
   }
 
@@ -209,26 +212,29 @@ bool Gun::shoot(GoioObj* obj, double time, bool& changed, bool aoe,
                (get_aoe_radius()-aoe_range) /
                (get_aoe_radius()/aoe_radius_dmg_falloff);
     tmpobj->add_health(-falloff*get_aoe_dmg() *
-                        dmg_types[get_aoe_dmg_type()]
-                                 [tmpobj->get_cmp_type()]);
+                        get_dmg_modifier(get_aoe_dmg_type(),
+                                         tmpobj->get_cmp_type()));
     if (tmpobj->get_immunity_end() <= time) {
       if (get_aoe_ign_chance() > 0 &&
                              random_percentage() < get_aoe_ign_chance()*100) {
         tmpobj->add_fire(get_orig_aoe_ign_stacks());
+        ret |= DmgState::FIRE;
       } else if (get_aoe_dmg_type() == DmgType::EXPLOSIVE) {
         auto ign_chance = get_aoe_dmg() *
-                          dmg_types[DmgType::EXPLOSIVE]
-                                   [tmpobj->get_cmp_type()] *
+                          get_dmg_modifier(DmgType::EXPLOSIVE,
+                                           tmpobj->get_cmp_type()) *
                           explosive_ign_chance;
-        if (random_percentage() < ign_chance*100)
+        if (random_percentage() < ign_chance*100) {
           tmpobj->add_fire(explosive_stacks);
+          ret |= DmgState::FIRE;
+        }
       }
     }
   }
 
   if (get_ammo() != nullptr && get_ammo()->get_proportional_self_damage()) {
     add_health(-get_max_health()/get_max_clipsize());
-    changed = true;
+    ret |= DmgState::SELF;
   }
 
   using std::cout;
@@ -242,7 +248,7 @@ bool Gun::shoot(GoioObj* obj, double time, bool& changed, bool aoe,
   cout << setw(5) << get_clipsize();
   cout << setw(8) << get_health();
 
-  return true;
+  return ret;
 }
 
 TimeFunc Gun::get_time_func(const GoioObj* obj, double, bool&) {

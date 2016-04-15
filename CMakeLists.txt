@@ -43,7 +43,7 @@ target_link_libraries(goiovalues ${libconfig_LIBRARIES})
 target_compile_options(goiovalues PUBLIC
     -g
     -fdiagnostics-color=always
-    -std=c++11 -O3 -ffast-math -pedantic -Wall -Wextra -Wcast-align
+    -std=c++14 -O3 -ffast-math -pedantic -Wall -Wextra -Wcast-align
     -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2
     -Winit-self -Wmissing-declarations -Wmissing-include-dirs
     -Wold-style-cast -Woverloaded-virtual -Wredundant-decls

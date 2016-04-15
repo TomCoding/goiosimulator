@@ -27,7 +27,7 @@
 
 namespace goio {
 
-enum DmgType {
+enum class DmgType {
   FIRE,
   FLECHETTE,
   SHATTER,
@@ -42,7 +42,7 @@ static const std::string DmgTypeString[] {"fire",
                                           "explosive",
                                           "impact"};
 inline const std::string get_dmg_type_string(DmgType val) {
-  return DmgTypeString[val];
+  return DmgTypeString[static_cast<int>(val)];
 }
 
 inline bool get_dmg_type(const std::string& val, DmgType& dmg_type) {
@@ -57,7 +57,7 @@ inline bool get_dmg_type(const std::string& val, DmgType& dmg_type) {
   }
 }
 
-enum CmpType {
+enum class CmpType {
   BALLOON,
   HULL,
   ARMOR,
@@ -68,7 +68,7 @@ static const std::string CmpTypeString[] {"balloon",
                                           "armor",
                                           "component"};
 inline const std::string get_cmp_type_string(CmpType val) {
-  return CmpTypeString[val];
+  return CmpTypeString[static_cast<int>(val)];
 }
 
 inline bool get_cmp_type(const std::string& val, CmpType& cmp_type) {
@@ -92,6 +92,10 @@ static const double dmg_types[6][4] = {
     {  0.25,  1.4,   0.3,  0.3   },  // explosive
     {  1.8,   1.5,   0.8,  0.6   },  // impact
 };
+
+inline double get_dmg_modifier(DmgType dmg_type, CmpType cmp_type) {
+  return dmg_types[static_cast<int>(dmg_type)][static_cast<int>(cmp_type)];
+}
 
 /*
  * Radius where aoe damage starts to decrease.

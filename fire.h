@@ -34,7 +34,7 @@ class Fire : public GoioActor {
     Fire() : GoioActor("", CmpType::HULL) {}
 
     static double get_fire_dmg(GoioObj* obj, double time);
-    bool burn(GoioObj* obj, double, bool&);
+    DmgState::State burn(GoioObj* obj, double);
     static inline double get_firetick() { return firetick; }
 
     TimeFunc get_time_func(const GoioObj* obj, double, bool&) override;

@@ -60,8 +60,7 @@ bool TimeObj::next_event() {
     cout << setw(8) << right << get_time();
   }
 
-  bool changed = false;
-  /*auto ret =*/ funcdata->timedmgfunc(funcdata->obj, get_time(), changed);
+  auto dmgstate = funcdata->timedmgfunc(funcdata->obj, get_time());
 
   if (funcdata->end) {
     std::cout << "                            ";
@@ -91,7 +90,7 @@ bool TimeObj::next_event() {
       register_burn_event(funcdata->obj);
 
     // update to actor associated actors
-    if (changed) {
+    if (dmgstate & DmgState::SELF) {
       auto iterpair3 = recipients.equal_range(funcdata->registrar);
       for (auto it = iterpair3.first; it != iterpair3.second; ++it) {
         if (it->second != funcdata)
@@ -244,7 +243,7 @@ void TimeObj::register_burn_event(GoioObj* obj) {
   using std::placeholders::_2;
   using std::placeholders::_3;
   auto funcdata = new FuncData {++max_id, fire,
-                            std::bind(&Fire::burn, fire, _1, _2, _3),
+                            std::bind(&Fire::burn, fire, _1, _2),
                             obj, -1, comp_time, -1,
                             std::bind(&Fire::get_time_func, fire, _1, _2, _3),
                             true, false};
@@ -348,7 +347,7 @@ void TimeObj::unregister_actor(GoioActor* actor, double time) {
   using std::placeholders::_2;
   using std::placeholders::_3;
   auto funcdata = new FuncData {++max_id, endevent,
-                                std::bind(&EndEvent::noop, endevent, _1, _2, _3),
+                                std::bind(&EndEvent::noop, endevent, _1, _2),
                                 actor,
                                 -1,
                                 time, -1,

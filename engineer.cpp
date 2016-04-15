@@ -196,7 +196,7 @@ RepairTool* Engineer::get_repair_tool(GoioObj* obj) {
   }
 }
 
-bool Engineer::repair(GoioObj* obj, double time, bool& changed) {
+DmgState::State Engineer::repair(GoioObj* obj, double time) {
   if (obj->get_health() == 0) {
     auto rebuilddiff = obj->get_rebuild_value() - obj->get_rebuild_state();
     if (rebuilddiff > rebuild_thresholds[0])
@@ -218,10 +218,10 @@ bool Engineer::repair(GoioObj* obj, double time, bool& changed) {
             select_tool(repair_tool);
           }
           }
-          return cur_tool->repair(obj, time, changed);
+          return cur_tool->repair(obj, time);
         case ExtinguishMode::INSTANT:
           select_tool(ext_tools[0]);
-          return cur_tool->repair(obj, time, changed);
+          return cur_tool->repair(obj, time);
         default:
           assert(false);
       }
@@ -230,7 +230,7 @@ bool Engineer::repair(GoioObj* obj, double time, bool& changed) {
     select_tool(get_repair_tool(obj));
   }
 
-  return cur_tool->repair(obj, time, changed);
+  return cur_tool->repair(obj, time);
 }
 
 TimeFunc Engineer::get_time_func(const GoioObj* obj, double time, bool& force) {

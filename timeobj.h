@@ -70,8 +70,8 @@ class TimeObj {
         explicit EndEvent(TimeObj* timeobj) : GoioActor("", CmpType::HULL),
                                               timeobj(timeobj) {}
 
-        inline bool noop(GoioObj*, double, bool&) {
-          return false;
+        inline DmgState::State noop(GoioObj*, double) {
+          return DmgState::NONE;
         }
 
         inline TimeFunc get_time_func(const GoioObj*, double, bool&) override {
@@ -93,7 +93,7 @@ class TimeObj {
     inline int register_repair_event(Actor_t* registrar, GoioObj* obj,
                               double time = 0, bool rel = true) {
       return register_event(registrar,
-                            std::bind(&RepairActor::repair, registrar, _1, _2, _3),
+                            std::bind(&RepairActor::repair, registrar, _1, _2),
                             obj,
                             std::bind(&Actor_t::get_time_func, registrar, _1,
                                                                           _2,
@@ -105,9 +105,9 @@ class TimeObj {
     inline int register_shoot_event(Actor_t* registrar, GoioObj* obj,
                               double time = 0, bool rel = true) {
       return register_event(registrar,
-                            std::bind(static_cast<bool (Actor_t::*)
-                                                  (GoioObj*, double, bool&)>
-                                      (&ShootActor::shoot), registrar, _1, _2, _3),
+                            std::bind(static_cast<DmgState::State (Actor_t::*)
+                                                  (GoioObj*, double)>
+                                      (&ShootActor::shoot), registrar, _1, _2),
                             obj,
                             std::bind(&Actor_t::get_time_func, registrar, _1,
                                                                           _2,
@@ -119,7 +119,7 @@ class TimeObj {
     inline int register_monitor_event(Actor_t* registrar, GoioObj* obj,
                               double time = 0, bool rel = true) {
       return register_event(registrar,
-                            std::bind(&Actor_t::monitor, registrar, _1, _2, _3),
+                            std::bind(&Actor_t::monitor, registrar, _1, _2),
                             obj,
                             std::bind(&Actor_t::get_time_func, registrar, _1,
                                                                           _2,

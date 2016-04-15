@@ -33,7 +33,7 @@ class Monitor : public GoioActor {
  public:
     explicit Monitor(double tick) : GoioActor("", CmpType::HULL), tick(tick) {}
 
-    bool monitor(GoioObj* obj, double, bool&);
+    DmgState::State monitor(GoioObj*, double);
     inline double get_tick() const { return tick; }
 
     TimeFunc get_time_func(const GoioObj* obj, double, bool&) override;

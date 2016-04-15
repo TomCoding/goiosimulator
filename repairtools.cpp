@@ -46,13 +46,13 @@ void RepairTool::set_cur_swing(double swing) {
     cur_swing = swing;
 }
 
-bool RepairTool::repair(GoioObj* obj, double time, bool&) {
+DmgState::State RepairTool::repair(GoioObj* obj, double time) {
   cur_swing = get_swing();
 
   if (obj->get_health() == 0 && obj->get_hull()->get_health() == 0) {
     done = 2;
     std::cout << "                            ";
-    return false;
+    return DmgState::NONE;
   }
 
   auto valid = true;
@@ -62,7 +62,7 @@ bool RepairTool::repair(GoioObj* obj, double time, bool&) {
                     (get_extinguish() > 0 && obj->get_fire_stacks() <= 0))) {
     done = 2;
     std::cout << "                            ";
-    return false;
+    return DmgState::NONE;
   } else if (obj->get_cooldown_end() > time) {
     done = 0;
     repair_wait = obj->get_cooldown_end() - time;
@@ -71,7 +71,7 @@ bool RepairTool::repair(GoioObj* obj, double time, bool&) {
     //             << " repair_wait: " << repair_wait << std::endl
     //             << "        ";
     std::cout << "                            ";
-    return false;
+    return DmgState::NONE;
   }
   if (done == 2) {
     done = 1;  // start swing
@@ -79,7 +79,7 @@ bool RepairTool::repair(GoioObj* obj, double time, bool&) {
     // std::cout << "\ndone set to 1: " << get_name() << std::endl
     //           << "        ";
     std::cout << "                            ";
-    return false;
+    return DmgState::NONE;
   }
 
   using std::cout;
@@ -94,23 +94,32 @@ bool RepairTool::repair(GoioObj* obj, double time, bool&) {
   cout << setw(15) << right << get_name();
   cout << "             ";
 
+  auto ret = DmgState::NONE;
   if (obj->get_health() > 0) {
     done = 0;
     obj->add_health(get_heal(), time + get_cooldown());
+    if (get_heal() > 0)
+      ret |= DmgState::TARGET;
     double immunity_end;
-    if (time + get_fire_immune() > obj->get_immunity_end())
+    if (time + get_fire_immune() > obj->get_immunity_end()) {
       immunity_end = time + get_fire_immune();
-    else
+      ret |= DmgState::IMMUNITY;
+    } else {
       immunity_end = -1;
+    }
     obj->add_fire(-get_extinguish(), immunity_end);
+    if (get_extinguish() > 0)
+      ret |= DmgState::EXTINGUISH;
     repair_wait = get_cooldown();
   } else {
     done = 1;
     obj->add_rebuild(get_rebuild_power());
+    if (get_rebuild_power() > 0)
+      ret |= DmgState::TARGET & DmgState::REBUILD;
     repair_wait = 0;
   }
 
-  return true;
+  return ret;
 }
 
 void RepairTool::reset(bool) {

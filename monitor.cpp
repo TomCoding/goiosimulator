@@ -27,11 +27,9 @@
 
 namespace goio {
 
-bool Monitor::monitor(GoioObj* obj, double, bool&) {
+DmgState::State Monitor::monitor(GoioObj*, double) {
   std::cout << "                            ";
-  if (obj->get_health() == 0 && obj->get_hull()->get_health() == 0)
-    return false;
-  return true;
+  return DmgState::NONE;
 }
 
 TimeFunc Monitor::get_time_func(const GoioObj* obj, double, bool&) {

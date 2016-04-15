@@ -26,12 +26,10 @@
 #include <string>
 #include <map>
 
-#include "./dmg_types.h"
-#include "./ai_behavior.h"
+#include "./constants.h"
 
 
 namespace goio {
-
 
 // Object registration from http://stackoverflow.com/a/6235500/770468
 struct Object {
@@ -266,7 +264,7 @@ class GoioObj : public Object {
 typedef std::function<double ()> TimeFunc;
 typedef std::function<TimeFunc (const GoioObj*, double, bool&)> TimeCheckFunc;
 
-typedef std::function<bool (GoioObj*, double, bool&)> TimeDmgFunc;
+typedef std::function<DmgState::State (GoioObj*, double)> TimeDmgFunc;
 
 }  // namespace goio
 
