@@ -40,6 +40,7 @@ class TimeObj {
       int id;
       GoioActor* registrar;  // key in registrars
       TimeDmgFunc timedmgfunc;
+      DmgState::State dmg_flags;
       GoioObj* obj;
       double time_prev;
       double time_next;    // key in events
@@ -86,14 +87,18 @@ class TimeObj {
     inline double get_time() const { return time; }
     bool next_event();
     int register_event(GoioActor* registrar, TimeDmgFunc timedmgfunc,
-                        GoioObj* obj, TimeCheckFunc timecheckfunc,
-                        double time = 0, bool rel = true);
+                       DmgState::State dmg_flags,
+                       GoioObj* obj, TimeCheckFunc timecheckfunc,
+                       double time = 0, bool rel = true);
 
     template <typename Actor_t>
     inline int register_repair_event(Actor_t* registrar, GoioObj* obj,
                               double time = 0, bool rel = true) {
       return register_event(registrar,
                             std::bind(&RepairActor::repair, registrar, _1, _2),
+                            DmgState::TRANSITIONED |
+                                  DmgState::START_TARGET |
+                                  DmgState::START_FIRE,
                             obj,
                             std::bind(&Actor_t::get_time_func, registrar, _1,
                                                                           _2,
@@ -108,6 +113,7 @@ class TimeObj {
                             std::bind(static_cast<DmgState::State (Actor_t::*)
                                                   (GoioObj*, double)>
                                       (&ShootActor::shoot), registrar, _1, _2),
+                            DmgState::TRANSITIONED,
                             obj,
                             std::bind(&Actor_t::get_time_func, registrar, _1,
                                                                           _2,
@@ -120,6 +126,7 @@ class TimeObj {
                               double time = 0, bool rel = true) {
       return register_event(registrar,
                             std::bind(&Actor_t::monitor, registrar, _1, _2),
+                            DmgState::TRANSITIONED,
                             obj,
                             std::bind(&Actor_t::get_time_func, registrar, _1,
                                                                           _2,

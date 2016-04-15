@@ -60,7 +60,7 @@ bool TimeObj::next_event() {
     cout << setw(8) << right << get_time();
   }
 
-  auto dmgstate = funcdata->timedmgfunc(funcdata->obj, get_time());
+  auto dmg_state = funcdata->timedmgfunc(funcdata->obj, get_time());
 
   if (funcdata->end) {
     std::cout << "                            ";
@@ -74,14 +74,15 @@ bool TimeObj::next_event() {
     // update targeted actor
     auto iterpair = registrars.equal_range(funcdata->obj);
     for (auto it = iterpair.first; it != iterpair.second; ++it) {
-      recalc_next_event(it->second);
+      if (dmg_state & it->second->dmg_flags)
+        recalc_next_event(it->second);
     }
 
     // update to recipient associated actors
     auto iterpair2 = recipients.equal_range(funcdata->obj);
     for (auto it = iterpair2.first; it != iterpair2.second; ++it) {
       // don't update current actor itself
-      if (it->second != funcdata)
+      if (it->second != funcdata && dmg_state & it->second->dmg_flags)
         recalc_next_event(it->second);
       if (it->second->fire)
         fire = false;
@@ -90,10 +91,11 @@ bool TimeObj::next_event() {
       register_burn_event(funcdata->obj);
 
     // update to actor associated actors
-    if (dmgstate & DmgState::SELF) {
+    if (dmg_state & DmgState::SELF_ALL) {
       auto iterpair3 = recipients.equal_range(funcdata->registrar);
       for (auto it = iterpair3.first; it != iterpair3.second; ++it) {
-        if (it->second != funcdata)
+        if (it->second != funcdata &&
+            get_dmg_state_self_reversed(dmg_state) & it->second->dmg_flags)
           recalc_next_event(it->second);
       }
     }
@@ -244,6 +246,7 @@ void TimeObj::register_burn_event(GoioObj* obj) {
   using std::placeholders::_3;
   auto funcdata = new FuncData {++max_id, fire,
                             std::bind(&Fire::burn, fire, _1, _2),
+                            DmgState::TRANSITIONED,
                             obj, -1, comp_time, -1,
                             std::bind(&Fire::get_time_func, fire, _1, _2, _3),
                             true, false};
@@ -253,7 +256,8 @@ void TimeObj::register_burn_event(GoioObj* obj) {
 }
 
 int TimeObj::register_event(GoioActor* registrar, TimeDmgFunc timedmgfunc,
-                            GoioObj* obj, TimeCheckFunc timecheckfunc,
+                            DmgState::State dmg_flags, GoioObj* obj,
+                            TimeCheckFunc timecheckfunc,
                             double time, bool rel) {
   double comp_time;
   if (rel)
@@ -264,8 +268,9 @@ int TimeObj::register_event(GoioActor* registrar, TimeDmgFunc timedmgfunc,
   if (comp_time < time)
     return false;
 
-  auto funcdata = new FuncData {++max_id, registrar, timedmgfunc, obj, -1,
-                                comp_time, -1, timecheckfunc, false, false};
+  auto funcdata = new FuncData {++max_id, registrar, timedmgfunc, dmg_flags,
+                                obj, -1, comp_time, -1, timecheckfunc,
+                                false, false};
   events.insert(std::make_pair(comp_time, funcdata));
   registrars.insert(std::make_pair(registrar, funcdata));
   recipients.insert(std::make_pair(obj, funcdata));
@@ -348,6 +353,7 @@ void TimeObj::unregister_actor(GoioActor* actor, double time) {
   using std::placeholders::_3;
   auto funcdata = new FuncData {++max_id, endevent,
                                 std::bind(&EndEvent::noop, endevent, _1, _2),
+                                DmgState::TRANSITIONED,
                                 actor,
                                 -1,
                                 time, -1,

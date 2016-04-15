@@ -109,13 +109,14 @@ DmgState::State RepairTool::repair(GoioObj* obj, double time) {
     }
     obj->add_fire(-get_extinguish(), immunity_end);
     if (get_extinguish() > 0)
-      ret |= DmgState::EXTINGUISH;
+      ret |= DmgState::FIRE;
     repair_wait = get_cooldown();
   } else {
     done = 1;
-    obj->add_rebuild(get_rebuild_power());
-    if (get_rebuild_power() > 0)
-      ret |= DmgState::TARGET & DmgState::REBUILD;
+    if (obj->add_rebuild(get_rebuild_power()))
+      ret |= DmgState::TRANSITIONED;
+    else if (get_rebuild_power() > 0)
+      ret |= DmgState::REBUILD;
     repair_wait = 0;
   }
 
