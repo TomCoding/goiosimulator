@@ -35,7 +35,7 @@ int TimeObj::max_id = 0;
 
 TimeObj::~TimeObj() {
   for (auto it = registrars.begin(); it != registrars.end(); ++it) {
-    if (it->second->fire)
+    if (it->second->fire || it->second->end)
       delete it->second->registrar;
     delete it->second;
   }
@@ -148,10 +148,8 @@ bool TimeObj::next_event() {
         break;
       }
     }
-    // ret = false;
   }
   events.erase(it);
-  // return ret;
   return true;
 }
 
@@ -161,8 +159,6 @@ bool TimeObj::recalc_next_event(FuncData* funcdata) {
 
   bool res;
   auto old_time_next = funcdata->time_next;
-  // auto old_time_prev = funcdata->time_prev;
-  // auto old_time_cur = funcdata->time_cur;
 
   bool force = false;
   auto timefunc = funcdata->timecheckfunc(funcdata->obj,
@@ -187,38 +183,12 @@ bool TimeObj::recalc_next_event(FuncData* funcdata) {
       funcdata->time_prev = get_time();
     }
 
-    // auto name = funcdata->registrar->get_name();
-    // if (14.3 < get_time() && get_time() < 30 &&
-    //                       (name != "Gatling1" && name != "Wrench2")) {
-    //   std::cout << "\n" << name
-    //             << " recalc: " << get_time()
-    //             << " old_P:" << old_time_prev
-    //             << " old_N:" << old_time_next
-    //             << " P:" << funcdata->time_prev
-    //             << " N:" << funcdata->time_next
-    //             << " old_C:" << old_time_cur
-    //             << " C:" << funcdata->time_cur
-    //             << " comp_time:" << comp_time << std::endl;
-    //   std::cout << "                            ";
-    // }
-
     if (old_time_next != funcdata->time_next)
       register_event(funcdata, funcdata->time_next);
     res = true;
   } else {
-    if (funcdata->time_cur == 0) {
+    if (funcdata->time_cur == 0)
       funcdata->time_cur = get_time();
-      // if (get_time() > 81) {
-      //   std::cout << std::endl << funcdata->registrar->get_name()
-      //             << " cur_time:" << funcdata->time_cur << std::endl;
-      //   std::cout << "                            ";
-      // }
-    }
-    // else if (/*100 > get_time() &&*/ get_time() > 81) {
-    // std::cout << std::endl << funcdata->registrar->get_name()
-    //           << " cur_time still:" << funcdata->time_cur << std::endl;
-    // std::cout << "                            ";
-    // }
     res = false;
   }
 

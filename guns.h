@@ -172,7 +172,8 @@ class Gun : public GunInfo, public ShootActor {
     double get_time_per_shot() const;
     double get_reload_changed() const;
 
-    DmgState::State shoot(GoioObj* obj, double, bool aoe, double aoe_range) override;
+    DmgState::State shoot(GoioObj* obj, double,
+                          bool aoe, double aoe_range) override;
 
     TimeFunc get_time_func(const GoioObj*, double, bool&) override;
 };

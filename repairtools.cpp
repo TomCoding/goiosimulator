@@ -101,9 +101,13 @@ DmgState::State RepairTool::repair(GoioObj* obj, double time) {
     if (get_heal() > 0)
       ret |= DmgState::TARGET;
     double immunity_end;
+    auto start_immunity = obj->get_immunity_end() < time;
     if (time + get_fire_immune() > obj->get_immunity_end()) {
       immunity_end = time + get_fire_immune();
-      ret |= DmgState::IMMUNITY;
+      if (start_immunity)
+        ret |= DmgState::START_IMMUNITY;
+      else
+        ret |= DmgState::IMMUNITY;
     } else {
       immunity_end = -1;
     }
@@ -113,10 +117,15 @@ DmgState::State RepairTool::repair(GoioObj* obj, double time) {
     repair_wait = get_cooldown();
   } else {
     done = 1;
+    auto start_rebuild = obj->get_rebuild_state() == 0;
     if (obj->add_rebuild(get_rebuild_power()))
       ret |= DmgState::TRANSITIONED;
-    else if (get_rebuild_power() > 0)
-      ret |= DmgState::REBUILD;
+    else if (get_rebuild_power() > 0) {
+      if (start_rebuild)
+        ret |= DmgState::START_REBUILD;
+      else
+        ret |= DmgState::REBUILD;
+    }
     repair_wait = 0;
   }
 

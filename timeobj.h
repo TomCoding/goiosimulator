@@ -97,8 +97,8 @@ class TimeObj {
       return register_event(registrar,
                             std::bind(&RepairActor::repair, registrar, _1, _2),
                             DmgState::TRANSITIONED |
-                                  DmgState::START_TARGET |
-                                  DmgState::START_FIRE,
+                                  DmgState::START_TARGET_O |
+                                  DmgState::START_FIRE_O,
                             obj,
                             std::bind(&Actor_t::get_time_func, registrar, _1,
                                                                           _2,
