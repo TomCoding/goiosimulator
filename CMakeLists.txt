@@ -34,8 +34,8 @@ option(Coverage "Enable gcov support." OFF)
 include(FindPkgConfig)
 pkg_check_modules(libconfig REQUIRED "libconfig++>=1.5")
 
-file(GLOB sources "${PROJECT_SOURCE_DIR}/*.cpp")
-include_directories("${PROJECT_SOURCE_DIR}")
+file(GLOB sources "${PROJECT_SOURCE_DIR}/src/*.cpp")
+include_directories("${PROJECT_SOURCE_DIR}/src")
 
 add_executable(goiovalues "${sources}")
 target_link_libraries(goiovalues ${libconfig_LIBRARIES})

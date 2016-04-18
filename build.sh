@@ -261,7 +261,7 @@ if [ "$CPPCHECK" == 1 ]; then
   cppcheck -i "$BUILD_DIR" --enable=all --suppress=missingIncludeSystem --xml . \
                                                2>"$CPPCHECK_DIR/report.xml" &&
   cppcheck-htmlreport --title="$BIN_NAME" --file "$CPPCHECK_DIR/report.xml" \
-                      --report-dir "$CPPCHECK_DIR" --source-dir . &&
+                      --report-dir "$CPPCHECK_DIR" --source-dir "src" &&
   if [ "$CPPCHECK_OPEN" == 1 ]; then
     xdg-open "$CPPCHECK_DIR/index.html"
   fi
@@ -277,7 +277,7 @@ fi
 
 if [ "$CPPLINT" == 1 ]; then
   echo
-  cpplint.py --linelength=84 *.h *.cpp
+  cpplint.py --linelength=84 src/*.h src/*.cpp
 fi
 
 if [ "$LCOV" == 1 ]; then
