@@ -33,9 +33,9 @@ namespace goio {
 
 class GunInfo {
  private:
-    const int     clipsize;
-    const double  rof;
-    const double  reload_;
+    const Shot    clipsize;
+    const ShotPTime rof;
+    const Second    reload_;
     const double  direct_dmg;
     const DmgType direct_dmg_type;
     const double  aoe_dmg;
@@ -47,9 +47,9 @@ class GunInfo {
     const int     aoe_ign_stacks;
 
  protected:
-    GunInfo(int clipsize,
-            double rof,
-            double reload,
+    GunInfo(Shot clipsize,
+            ShotPTime rof,
+            Second reload,
             double direct_dmg,
             DmgType direct_dmg_type,
             double aoe_dmg,
@@ -73,9 +73,9 @@ class GunInfo {
     virtual ~GunInfo() {}
 
  public:
-    inline int     get_orig_clipsize() const { return clipsize; }
-    inline double  get_orig_rof() const { return rof; }
-    inline double  get_orig_reload() const { return reload_; }
+    inline Shot    get_orig_clipsize() const { return clipsize; }
+    inline ShotPTime get_orig_rof() const { return rof; }
+    inline Second    get_orig_reload() const { return reload_; }
     inline double  get_orig_direct_dmg() const { return direct_dmg; }
     inline DmgType get_orig_direct_dmg_type() const { return direct_dmg_type; }
     inline double  get_orig_aoe_dmg() const { return aoe_dmg; }
@@ -89,9 +89,9 @@ class GunInfo {
 
 class Gun : public GunInfo, public ShootActor {
  private:
-    int     cur_clipsize;
-    double  cur_rof;
-    double  cur_reload;
+    Shot    cur_clipsize;
+    ShotPTime cur_rof;
+    Second    cur_reload;
     double  cur_direct_dmg;
     DmgType cur_direct_dmg_type;
     double  cur_aoe_dmg;
@@ -107,9 +107,9 @@ class Gun : public GunInfo, public ShootActor {
     Gun(const Gun& obj);
     Gun& operator=(const Gun& obj);
 
-    void set_clipsize(double clipsize);
-    void set_rof(double rof);
-    void set_reload(double reload);
+    void set_clipsize(Shot clipsize);
+    void set_rof(ShotPTime rof);
+    void set_reload(Second reload);
     void set_direct_dmg(double direct_dmg);
     void set_direct_dmg_type(DmgType direct_dmg_type);
     void set_aoe_dmg(double aoe_dmg);
@@ -118,15 +118,15 @@ class Gun : public GunInfo, public ShootActor {
     void set_direct_ign_chance(double ign_chance);
     void set_aoe_ign_chance(double ign_chance);
 
-    inline int dec_clipsize() {
+    inline Shot dec_clipsize() {
       if (--cur_clipsize < 0)
         cur_clipsize = 0;
       return cur_clipsize;
     }
 
  protected:
-    Gun(const std::string& name, double max_health,
-        int clipsize, double rof, double reload, double direct_dmg,
+    Gun(const std::string& name, Health max_health,
+        Shot clipsize, ShotPTime rof, Second reload, double direct_dmg,
         DmgType direct_dmg_type, double aoe_dmg, DmgType aoe_dmg_type,
         double aoe_radius, double direct_ign_chance, int direct_ign_stacks,
         double aoe_ign_chance, int aoe_ign_stacks) :
@@ -150,11 +150,11 @@ class Gun : public GunInfo, public ShootActor {
  public:
     virtual ~Gun() {}
 
-    int    get_max_clipsize() const;
-    double get_max_rof() const;
-    inline int     get_clipsize() const { return cur_clipsize; }
-    inline double  get_rof() const { return cur_rof; }
-    inline double  get_reload() const { return cur_reload; }
+    Shot           get_max_clipsize() const;
+    ShotPTime      get_max_rof() const;
+    inline Shot     get_clipsize() const { return cur_clipsize; }
+    inline ShotPTime get_rof() const { return cur_rof; }
+    inline Second    get_reload() const { return cur_reload; }
     inline double  get_direct_dmg() const { return cur_direct_dmg; }
     inline DmgType get_direct_dmg_type() const { return cur_direct_dmg_type; }
     inline double  get_aoe_dmg() const { return cur_aoe_dmg; }
@@ -168,23 +168,23 @@ class Gun : public GunInfo, public ShootActor {
 
     void reload(bool with_ammo = true);
 
-    double get_rof_changed() const;
-    double get_time_per_shot() const;
-    double get_reload_changed() const;
+    ShotPTime get_rof_changed() const;
+    Second get_time_per_shot() const;
+    Second get_reload_changed() const;
 
-    DmgState::State shoot(GoioObj* obj, double,
+    DmgState::State shoot(GoioObj* obj, Second,
                           bool aoe, double aoe_range) override;
 
-    TimeFunc get_time_func(const GoioObj*, double, bool&) override;
+    TimeFunc get_time_func(const GoioObj*, Second, bool&) override;
 };
 
 class LightGun : public Gun {
  protected:
-    LightGun(const std::string& name, int clipsize, double rof, double reload,
+    LightGun(const std::string& name, Shot clipsize, ShotPTime rof, Second reload,
              double direct_dmg, DmgType direct_dmg_type, double aoe_dmg,
              DmgType aoe_dmg_type, double aoe_radius, double direct_ign_chance,
              int direct_ign_stacks, double aoe_ign_chance, int aoe_ign_stacks) :
-                Gun(name, 250, clipsize, rof, reload,
+                Gun(name, 250_hp, clipsize, rof, reload,
                     direct_dmg, direct_dmg_type,
                     aoe_dmg, aoe_dmg_type, aoe_radius, direct_ign_chance,
                     direct_ign_stacks, aoe_ign_chance, aoe_ign_stacks) {}
@@ -199,7 +199,7 @@ class Artemis : public LightGun {
                     name,
                     4,                   // magazine size
                     0.63,                // rof
-                    7,                   // reload
+                    7_s,                   // reload
                     70,                  // prim dmg
                     DmgType::EXPLOSIVE,  // prim dmg type
                     120,                 // sec dmg
@@ -218,7 +218,7 @@ class Banshee : public LightGun {
                     name,
                     8,                   // magazine size
                     2,                   // rof
-                    6,                   // reload
+                    6_s,                   // reload
                     25,                  // prim dmg
                     DmgType::EXPLOSIVE,  // prim dmg type
                     25,                  // sec dmg
@@ -237,7 +237,7 @@ class LightCaro : public LightGun {
                     name,
                     5,                   // magazine size
                     1,                   // rof
-                    6,                   // reload
+                    6_s,                   // reload
                     96,                  // prim dmg
                     DmgType::FLECHETTE,  // prim dmg type
                     144,                 // sec dmg
@@ -256,7 +256,7 @@ class Flare : public LightGun {
                     name,
                     2,                   // magazine size
                     0.5,                 // rof
-                    20,                  // reload
+                    20_s,                  // reload
                     10,                  // prim dmg
                     DmgType::FIRE,       // prim dmg type
                     5,                   // sec dmg
@@ -275,7 +275,7 @@ class Flamethrower : public LightGun {
                     name,
                     250,                 // magazine size
                     16.67,               // rof
-                    6,                   // reload
+                    6_s,                   // reload
                     1.2,                 // prim dmg
                     DmgType::FIRE,       // prim dmg type
                     0,                   // sec dmg
@@ -294,7 +294,7 @@ class Gatling : public LightGun {
                     name,
                     82,                  // magazine size
                     8.33,                // rof
-                    5,                   // reload
+                    5_s,                   // reload
                     7.5,                 // prim dmg
                     DmgType::PIERCING,   // prim dmg type
                     10,                  // sec dmg

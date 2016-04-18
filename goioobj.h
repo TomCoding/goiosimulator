@@ -40,7 +40,7 @@ struct ObjectFactory {
  private:
     // full
     typedef Object* CreatorFull_t(const std::string&, CmpType,
-                                  double, double, double);
+                                  double, Health, Health);
     typedef std::map<std::string, CreatorFull_t*> CreatorsFull_t;
 
     static CreatorsFull_t& static_creators_full() {
@@ -82,8 +82,8 @@ struct ObjectFactory {
       static Object* create_full(const std::string& name,
                                  CmpType cmp_type,
                                  double part_type_multiplier,
-                                 double max_health,
-                                 double hull_max_health) {
+                                 Health max_health,
+                                 Health hull_max_health) {
         return new T(name, cmp_type, part_type_multiplier, max_health,
                      hull_max_health);
       }
@@ -128,8 +128,8 @@ struct ObjectFactory {
                           const std::string& name,
                           CmpType cmp_type,
                           double part_type_multiplier,
-                          double max_health,
-                          double hull_max_health) {
+                          Health max_health,
+                          Health hull_max_health) {
       const auto iter = static_creators_full().find(id);
       if (iter == static_creators_full().end())
         return nullptr;
@@ -189,16 +189,16 @@ class GoioObj : public Object {
  private:
     const std::string name;
     const CmpType cmp_type;
-    double max_health;
-    double health;
+    Health max_health;
+    Health health;
     int fire_stacks;
     int rebuild_state;
     const double part_type_multiplier;
     GoioObj* hull;
-    double cooldown_end;
-    double immunity_end;
+    Second cooldown_end;
+    Second immunity_end;
 
-    explicit GoioObj(double max_health) : name(""), cmp_type(CmpType::HULL),
+    explicit GoioObj(Health max_health) : name(""), cmp_type(CmpType::HULL),
                 max_health(max_health), health(max_health),
                 fire_stacks(-1), rebuild_state(-1),
                 part_type_multiplier(-1),
@@ -206,17 +206,17 @@ class GoioObj : public Object {
     GoioObj(const GoioObj& obj);
     GoioObj& operator=(const GoioObj& obj);
 
-    bool set_health_int(double health, GoioObj* obj);
+    bool set_health_int(Health health, GoioObj* obj);
 
  public:
     GoioObj(const std::string& name, CmpType cmp_type,
             double part_type_multiplier = -1,
-            double max_health = 0, double hull_max_health = -1) :
+            Health max_health = 0_hp, Health hull_max_health = -1_hp) :
             name(name), cmp_type(cmp_type), max_health(max_health),
             health(max_health), fire_stacks(-1), rebuild_state(-1),
             part_type_multiplier(part_type_multiplier),
             hull(new GoioObj(hull_max_health)),
-            cooldown_end(0), immunity_end(0) {}
+            cooldown_end(0_s), immunity_end(0_s) {}
     virtual ~GoioObj();
 
     static const     int    max_fire_stacks           = 20;
@@ -227,20 +227,21 @@ class GoioObj : public Object {
     static constexpr double health_after_rebuild      =  0.333333333333;
 
     inline int get_rebuild_value() const {
-      return std::round((rebuild_base_hits+max_health *
-                         rebuild_health_multiplier) *
+      return std::round((rebuild_base_hits +
+                         max_health *
+                         rebuild_health_multiplier/1_hp) *
                         part_type_multiplier);
     }
 
     inline const std::string get_name() const { return name; }
     inline CmpType get_cmp_type() const { return cmp_type; }
-    inline double  get_max_health() const { return max_health; }
-    inline double  get_health() const { return health; }
+    inline Health  get_max_health() const { return max_health; }
+    inline Health  get_health() const { return health; }
     inline int     get_fire_stacks() const { return fire_stacks; }
     inline double  get_rebuild_state() const { return rebuild_state; }
     inline GoioObj* get_hull() const { return hull; }
-    inline double  get_cooldown_end() const { return cooldown_end; }
-    inline double  get_immunity_end() const { return immunity_end; }
+    inline Second    get_cooldown_end() const { return cooldown_end; }
+    inline Second    get_immunity_end() const { return immunity_end; }
 
     static inline int get_max_fire_stacks() { return max_fire_stacks; }
     static inline int get_fire_stacks_unusable() { return fire_stacks_unusable; }
@@ -248,23 +249,24 @@ class GoioObj : public Object {
     /*
      * Return `false` if object gets destroyed, otherwise `true`
      */
-    bool add_health(double health, double cooldown_end = -1);
-    bool add_fire(int fire, double immunity_end = -1, double cooldown_end = -1);
+    bool add_health(Health health, Second cooldown_end = -1_s);
+    bool add_fire(int fire, Second immunity_end = -1_s,
+                            Second cooldown_end = -1_s);
     bool add_rebuild(int rebuild_progress);
 
-    void set_health(double health);
-    void set_hull_health(double health);
+    void set_health(Health health);
+    void set_hull_health(Health health);
     void set_fire(int fire);
 
-    inline void reset_cooldown() { cooldown_end = 0; }
+    inline void reset_cooldown() { cooldown_end = 0_s; }
 
     virtual void reset(bool hull = true);
 };
 
-typedef std::function<double ()> TimeFunc;
-typedef std::function<TimeFunc (const GoioObj*, double, bool&)> TimeCheckFunc;
+typedef std::function<Second ()> TimeFunc;
+typedef std::function<TimeFunc (const GoioObj*, Second, bool&)> TimeCheckFunc;
 
-typedef std::function<DmgState::State (GoioObj*, double)> TimeDmgFunc;
+typedef std::function<DmgState::State (GoioObj*, Second)> TimeDmgFunc;
 
 }  // namespace goio
 

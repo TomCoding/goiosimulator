@@ -28,15 +28,15 @@ namespace goio {
 
 class Monitor : public GoioActor {
  private:
-    double tick;
+    Second tick;
 
  public:
-    explicit Monitor(double tick) : GoioActor("", CmpType::HULL), tick(tick) {}
+    explicit Monitor(Second tick) : GoioActor("", CmpType::HULL), tick(tick) {}
 
-    DmgState::State monitor(GoioObj*, double);
-    inline double get_tick() const { return tick; }
+    DmgState::State monitor(GoioObj*, Second);
+    inline Second get_tick() const { return tick; }
 
-    TimeFunc get_time_func(const GoioObj* obj, double, bool&) override;
+    TimeFunc get_time_func(const GoioObj* obj, Second, bool&) override;
 };
 
 }  // namespace goio

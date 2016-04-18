@@ -34,11 +34,7 @@ namespace goio {
 int TimeObj::max_id = 0;
 
 TimeObj::~TimeObj() {
-  for (auto it = registrars.begin(); it != registrars.end(); ++it) {
-    if (it->second->fire || it->second->end)
-      delete it->second->registrar;
-    delete it->second;
-  }
+  free_funcdatas();
 }
 
 bool TimeObj::next_event() {
@@ -107,7 +103,7 @@ bool TimeObj::next_event() {
          << get_cmp_type_string(funcdata->obj->get_cmp_type())
          << setw(8) << right << funcdata->obj->get_health()
          << setprecision(0);
-    if (funcdata->obj->get_health() == 0) {
+    if (funcdata->obj->get_health() == 0_hp) {
       cout << setw(3) << right
            << funcdata->obj->get_rebuild_state() << setw(3);
     } else {
@@ -117,7 +113,7 @@ bool TimeObj::next_event() {
     cout << setw(7) << right
          << get_cmp_type_string(funcdata->obj->get_hull()->get_cmp_type())
          << setw(8) << right << funcdata->obj->get_hull()->get_health();
-    if (funcdata->obj->get_hull()->get_health() == 0) {
+    if (funcdata->obj->get_hull()->get_health() == 0_hp) {
       cout << setw(3) << right << setprecision(0)
            << funcdata->obj->get_hull()->get_rebuild_state();
     }
@@ -125,11 +121,11 @@ bool TimeObj::next_event() {
   }
 
   bool force = true;
-  TimeFunc timefunc = funcdata->timecheckfunc(funcdata->obj, 0, force);
+  TimeFunc timefunc = funcdata->timecheckfunc(funcdata->obj, 0_s, force);
   if (timefunc != nullptr) {
     funcdata->time_prev = funcdata->time_next;
-    funcdata->time_next = time+timefunc();
-    funcdata->time_cur = 0;
+    funcdata->time_next = get_time()+timefunc();
+    funcdata->time_cur = 0_s;
     register_event(funcdata, funcdata->time_next);
   } else if (funcdata->fire) {
     delete funcdata->registrar;
@@ -154,7 +150,7 @@ bool TimeObj::next_event() {
 }
 
 bool TimeObj::recalc_next_event(FuncData* funcdata) {
-  if (funcdata->time_prev < 0)
+  if (funcdata->time_prev < 0_s)
     return true;
 
   bool res;
@@ -168,15 +164,15 @@ bool TimeObj::recalc_next_event(FuncData* funcdata) {
     auto comp_time = timefunc();
     if (!force) {
       double fac;
-      if (funcdata->time_cur > 0) {
+      if (funcdata->time_cur > 0_s) {
         fac = (funcdata->time_cur-funcdata->time_prev) /
               (funcdata->time_next-funcdata->time_prev);
-        funcdata->time_cur = 0;
+        funcdata->time_cur = 0_s;
       } else {
         fac = (get_time()-funcdata->time_prev) /
               (funcdata->time_next-funcdata->time_prev);
       }
-      funcdata->time_next = get_time() + (1-fac)*comp_time;
+      funcdata->time_next = get_time() + comp_time*(1-fac);
       funcdata->time_prev = funcdata->time_next - comp_time;
     } else {
       funcdata->time_next = get_time() + comp_time;
@@ -187,7 +183,7 @@ bool TimeObj::recalc_next_event(FuncData* funcdata) {
       register_event(funcdata, funcdata->time_next);
     res = true;
   } else {
-    if (funcdata->time_cur == 0)
+    if (funcdata->time_cur == 0_s)
       funcdata->time_cur = get_time();
     res = false;
   }
@@ -204,7 +200,7 @@ bool TimeObj::recalc_next_event(FuncData* funcdata) {
   return res;
 }
 
-void TimeObj::register_event(FuncData* funcdata, double time) {
+void TimeObj::register_event(FuncData* funcdata, Second time) {
   events.insert(std::make_pair(time, funcdata));
 }
 
@@ -217,7 +213,7 @@ void TimeObj::register_burn_event(GoioObj* obj) {
   auto funcdata = new FuncData {++max_id, fire,
                             std::bind(&Fire::burn, fire, _1, _2),
                             DmgState::TRANSITIONED,
-                            obj, -1, comp_time, -1,
+                            obj, -1_s, comp_time, -1_s,
                             std::bind(&Fire::get_time_func, fire, _1, _2, _3),
                             true, false};
   events.insert(std::make_pair(comp_time, funcdata));
@@ -228,8 +224,8 @@ void TimeObj::register_burn_event(GoioObj* obj) {
 int TimeObj::register_event(GoioActor* registrar, TimeDmgFunc timedmgfunc,
                             DmgState::State dmg_flags, GoioObj* obj,
                             TimeCheckFunc timecheckfunc,
-                            double time, bool rel) {
-  double comp_time;
+                            Second time, bool rel) {
+  Second comp_time;
   if (rel)
     comp_time = this->time+time;
   else
@@ -239,7 +235,7 @@ int TimeObj::register_event(GoioActor* registrar, TimeDmgFunc timedmgfunc,
     return false;
 
   auto funcdata = new FuncData {++max_id, registrar, timedmgfunc, dmg_flags,
-                                obj, -1, comp_time, -1, timecheckfunc,
+                                obj, -1_s, comp_time, -1_s, timecheckfunc,
                                 false, false};
   events.insert(std::make_pair(comp_time, funcdata));
   registrars.insert(std::make_pair(registrar, funcdata));
@@ -247,11 +243,17 @@ int TimeObj::register_event(GoioActor* registrar, TimeDmgFunc timedmgfunc,
   return funcdata->id;
 }
 
-void TimeObj::reset() {
-  time = 0;
+void TimeObj::free_funcdatas() {
   for (auto it = registrars.begin(); it != registrars.end(); ++it) {
+    if (it->second->fire || it->second->end)
+      delete it->second->registrar;
     delete it->second;
   }
+}
+
+void TimeObj::reset() {
+  time = 0_s;
+  free_funcdatas();
   events.clear();
   registrars.clear();
   recipients.clear();
@@ -314,7 +316,7 @@ bool TimeObj::unregister_actor(GoioActor* actor) {
   return found;
 }
 
-void TimeObj::unregister_actor(GoioActor* actor, double time) {
+void TimeObj::unregister_actor(GoioActor* actor, Second time) {
   if (time < get_time())
     return;
   auto endevent = new EndEvent(this);
@@ -325,8 +327,8 @@ void TimeObj::unregister_actor(GoioActor* actor, double time) {
                                 std::bind(&EndEvent::noop, endevent, _1, _2),
                                 DmgState::TRANSITIONED,
                                 actor,
-                                -1,
-                                time, -1,
+                                -1_s,
+                                time, -1_s,
                                 std::bind(&EndEvent::get_time_func,
                                           endevent,
                                           _1, _2, _3),

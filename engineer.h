@@ -36,7 +36,7 @@ class Engineer : public RepairActor {
     ExtinguishMode extmode;
 
     RepairTool* tools[3];
-    double repair_thresholds[2];
+    Health repair_thresholds[2];
 
     RepairTool* max_rep_tools[3];
 
@@ -69,6 +69,44 @@ class Engineer : public RepairActor {
     void update_tools(RepairTool* tool1, RepairTool* tool2, RepairTool* tool3);
     void free_tools();
 
+    template<typename T>
+    void set_tools(T ps1, T ps2, T ps3,
+                   RepairTool* tool1,
+                   RepairTool* tool2,
+                   RepairTool* tool3,
+                   RepairTool* *ptr_tools) {
+      if (ps1 > ps2) {
+        if (ps2 > ps3) {
+          ptr_tools[0] = tool1;
+          ptr_tools[1] = tool2;
+          ptr_tools[2] = tool3;
+        } else if (ps1 > ps3) {
+          ptr_tools[0] = tool1;
+          ptr_tools[1] = tool3;
+          ptr_tools[2] = tool2;
+        } else {
+          ptr_tools[0] = tool3;
+          ptr_tools[1] = tool1;
+          ptr_tools[2] = tool2;
+        }
+      } else {
+        if (ps1 > ps3) {
+          ptr_tools[0] = tool2;
+          ptr_tools[1] = tool1;
+          ptr_tools[2] = tool3;
+        } else if (ps2 > ps3) {
+          ptr_tools[0] = tool2;
+          ptr_tools[1] = tool3;
+          ptr_tools[2] = tool1;
+        } else {
+          ptr_tools[0] = tool3;
+          ptr_tools[1] = tool2;
+          ptr_tools[2] = tool1;
+        }
+      }
+    }
+
+
  public:
     Engineer(const std::string& name, RepairTool* tool1, RepairTool* tool2,
              RepairTool* tool3,
@@ -82,9 +120,9 @@ class Engineer : public RepairActor {
     inline void set_mode(RepairMode mode) { this->mode = mode; }
     inline void set_extmode(ExtinguishMode extmode) { this->extmode = extmode; }
 
-    DmgState::State repair(GoioObj* obj, double time) override;
+    DmgState::State repair(GoioObj* obj, Second time) override;
 
-    TimeFunc get_time_func(const GoioObj*, double, bool&) override;
+    TimeFunc get_time_func(const GoioObj*, Second, bool&) override;
 };
 
 class MainEngineer : public Engineer {

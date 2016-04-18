@@ -26,12 +26,14 @@
 
 using std::cout;
 using std::endl;
+using goio::operator""_hp;
+using goio::operator""_s;
 
 int main() {
   goio::init();
   delete goio::ObjectFactory::create("GoioObj", "test",
                                      goio::CmpType::ARMOR,
-                                     -1, 0, -1);
+                                     -1, 0_hp, -1_hp);
   delete goio::ObjectFactory::create("Pyramidion", "test2");
   delete goio::ObjectFactory::create("Lochnagar");
   delete goio::ObjectFactory::create("Mallet", "test3");
@@ -48,7 +50,13 @@ int main() {
 
   c.simulate_all();
 
-  auto mon = new goio::Monitor(1);
+  {
+  using namespace goio;
+  Meter t = -100_m;
+  std::cout << t << std::endl;
+  }
+
+  auto mon = new goio::Monitor(1_s);
 
   auto gat = new goio::Gatling("Gatling1");
   auto gat3 = new goio::Gatling("Gatling3");
@@ -84,17 +92,17 @@ int main() {
   // auto gat_id = time->register_shoot_event(gat, armor);
   // auto gat3_id = time->register_shoot_event(gat3, armor);
   // auto gat4_id = time->register_shoot_event(gat4, armor);
-  // auto wrench_id = time->register_repair_event(wrench, armor, 1);
-  // auto wrench2_id = time->register_repair_event(wrench2, gat, 1);
-  // auto gat2_id = time->register_shoot_event(gat2, gat, 30);
-  // auto engi_id = time->register_repair_event(engi, armor, 1);
-  // auto engi2_id = time->register_repair_event(engi2, armor, 1);
-  // auto engi3_id = time->register_repair_event(engi3, armor, 1);
-  // auto ext_id = time->register_repair_event(ext, armor, 1);
-  // auto chem_id = time->register_repair_event(chem, armor, 1);
+  // auto wrench_id = time->register_repair_event(wrench, armor, 1_s);
+  // auto wrench2_id = time->register_repair_event(wrench2, gat, 1_s);
+  // auto gat2_id = time->register_shoot_event(gat2, gat, 30_s);
+  // auto engi_id = time->register_repair_event(engi, armor, 1_s);
+  // auto engi2_id = time->register_repair_event(engi2, armor, 1_s);
+  // auto engi3_id = time->register_repair_event(engi3, armor, 1_s);
+  // auto ext_id = time->register_repair_event(ext, armor, 1_s);
+  // auto chem_id = time->register_repair_event(chem, armor, 1_s);
   // auto banshee_id = time->register_shoot_event(banshee, armor);
 
-  // time->unregister_actor(gat, 7);
+  // time->unregister_actor(gat, 7_s);
 
   // std::cout << "\033[1m";
   // std::cout << "    time          actor  clip health       target      type  health(R) fire type  health(R)" << endl;
@@ -106,7 +114,7 @@ int main() {
       std::cout << "\nevents limit reached!" << std::endl;
       break;
     }
-    if (time->get_time() > 500) {
+    if (time->get_time() > 500_s) {
       std::cout << "\ntime limit reached!" << std::endl;
       break;
     }

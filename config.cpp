@@ -270,8 +270,8 @@ int Config::load_config() {
           obj = ObjectFactory::create(obj_type, obj_name,
                                       cmp_type,
                                       obj_part_t_mtp,
-                                      obj_health,
-                                      obj_hull_health);
+                                      Health(obj_health),
+                                      Health(obj_hull_health));
           processed = true;
         } else if (obj_type.substr(0, 9) == "Engineer_") {
           RepairMode mode;
@@ -303,15 +303,15 @@ int Config::load_config() {
         if (!processed) {
           if (auto goioobj = dynamic_cast<GoioObj*>(obj)) {
             if (obj_health >= 0)
-              goioobj->set_health(obj_health);
+              goioobj->set_health(Health(obj_health));
             if (obj_hull_health >= 0)
-              goioobj->set_health(obj_hull_health);
+              goioobj->set_health(Health(obj_hull_health));
             if (obj_fire > 0)
               goioobj->set_fire(obj_fire);
             if (obj_cooldown >= 0)
-              goioobj->add_health(0, obj_cooldown);
+              goioobj->add_health(0_hp, Second(obj_cooldown));
             if (obj_fire_immunity >= 0)
-              goioobj->add_fire(0, obj_fire_immunity);
+              goioobj->add_fire(0, Second(obj_fire_immunity));
 
             if (obj_ammo != "") {
               if (auto gun = dynamic_cast<Gun*>(obj)) {
@@ -420,7 +420,9 @@ int Config::load_config() {
 
         if (act_action == "shoot") {
           if (auto shoot_actor = dynamic_cast<ShootActor*>(actor_obj)) {
-            timeobj->register_shoot_event(shoot_actor, recipient_obj, reg_start);
+            timeobj->register_shoot_event(shoot_actor,
+                                          recipient_obj,
+                                          Second(reg_start));
           } else {
             std::cerr << "dynamic_cast for actor to ShootActor failed: "
                       << act_name << std::endl;
@@ -428,7 +430,9 @@ int Config::load_config() {
           }
         } else if (act_action == "repair") {
           if (auto repair_actor = dynamic_cast<RepairActor*>(actor_obj)) {
-            timeobj->register_repair_event(repair_actor, recipient_obj, reg_start);
+            timeobj->register_repair_event(repair_actor,
+                                           recipient_obj,
+                                           Second(reg_start));
           } else {
             std::cerr << "dynamic_cast for actor to RepairActor failed: "
                       << act_name << std::endl;
@@ -440,7 +444,7 @@ int Config::load_config() {
         }
 
         if (act_end > 0)
-          timeobj->unregister_actor(actor_obj, act_end);
+          timeobj->unregister_actor(actor_obj, Second(act_end));
       }
 
       cur_setting = "options";
@@ -545,7 +549,8 @@ bool Config::simulate(unsigned int simulation) {
       std::cout << "Events limit reached: " << opt->max_events << std::endl;
       return false;
     }
-    if (opt->max_time != -1 && timeobj->get_time() > opt->max_time) {
+    if (Second(opt->max_time) != -1_s &&
+                                timeobj->get_time() > Second(opt->max_time)) {
       std::cout << "Time limit reached: " << opt->max_time << std::endl;
       return false;
     }

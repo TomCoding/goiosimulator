@@ -30,7 +30,7 @@ namespace goio {
 
 class Ship : public GoioObj {
  protected:
-    Ship(const std::string& name, double max_health, double hull_max_health) :
+    Ship(const std::string& name, Health max_health, Health hull_max_health) :
               GoioObj(name, CmpType::ARMOR, 1, max_health, hull_max_health) {}
 
  public:
@@ -39,37 +39,37 @@ class Ship : public GoioObj {
 
 class Pyramidion : public Ship {
  public:
-    explicit Pyramidion(const std::string& name) : Ship(name, 650, 700) {}
+    explicit Pyramidion(const std::string& name) : Ship(name, 650_hp, 700_hp) {}
 };
 
 class Goldfish : public Ship {
  public:
-    explicit Goldfish(const std::string& name) : Ship(name, 400, 1100) {}
+    explicit Goldfish(const std::string& name) : Ship(name, 400_hp, 1100_hp) {}
 };
 
 class Junker : public Ship {
  public:
-    explicit Junker(const std::string& name) : Ship(name, 700, 500) {}
+    explicit Junker(const std::string& name) : Ship(name, 700_hp, 500_hp) {}
 };
 
 class Galleon : public Ship {
  public:
-    explicit Galleon(const std::string& name) : Ship(name, 800, 1400) {}
+    explicit Galleon(const std::string& name) : Ship(name, 800_hp, 1400_hp) {}
 };
 
 class Squid : public Ship {
  public:
-    explicit Squid(const std::string& name) : Ship(name, 230, 950) {}
+    explicit Squid(const std::string& name) : Ship(name, 230_hp, 950_hp) {}
 };
 
 class Spire : public Ship {
  public:
-    explicit Spire(const std::string& name) : Ship(name, 400, 950) {}
+    explicit Spire(const std::string& name) : Ship(name, 400_hp, 950_hp) {}
 };
 
 class Mobula : public Ship {
  public:
-    explicit Mobula(const std::string& name) : Ship(name, 600, 700) {}
+    explicit Mobula(const std::string& name) : Ship(name, 600_hp, 700_hp) {}
 };
 
 }  // namespace goio

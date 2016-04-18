@@ -35,26 +35,26 @@ namespace goio {
 
 class TimeObj {
  private:
-    double time;
+    Second time;
     struct FuncData {
       int id;
       GoioActor* registrar;  // key in registrars
       TimeDmgFunc timedmgfunc;
       DmgState::State dmg_flags;
       GoioObj* obj;
-      double time_prev;
-      double time_next;    // key in events
-      double time_cur;     // if set, not in events (on hold)
+      Second time_prev;
+      Second time_next;    // key in events
+      Second time_cur;     // if set, not in events (on hold)
       TimeCheckFunc timecheckfunc;
       bool fire;
       bool end;
     };
 
-    std::multimap<double, FuncData*> events;
+    std::multimap<Second, FuncData*> events;
     std::multimap<GoioObj*, FuncData*> registrars;
     std::multimap<GoioObj*, FuncData*> recipients;
 
-    void register_event(FuncData* funcdata, double time);
+    void register_event(FuncData* funcdata, Second time);
     void register_burn_event(GoioObj* obj);
     bool recalc_next_event(FuncData* funcdata);
 
@@ -71,29 +71,31 @@ class TimeObj {
         explicit EndEvent(TimeObj* timeobj) : GoioActor("", CmpType::HULL),
                                               timeobj(timeobj) {}
 
-        inline DmgState::State noop(GoioObj*, double) {
+        inline DmgState::State noop(GoioObj*, Second) {
           return DmgState::NONE;
         }
 
-        inline TimeFunc get_time_func(const GoioObj*, double, bool&) override {
+        inline TimeFunc get_time_func(const GoioObj*, Second, bool&) override {
           return nullptr;
         }
     };
+
+    void free_funcdatas();
 
  public:
     TimeObj() : time(0), events(), registrars(), recipients() {}
     ~TimeObj();
 
-    inline double get_time() const { return time; }
+    inline Second get_time() const { return time; }
     bool next_event();
     int register_event(GoioActor* registrar, TimeDmgFunc timedmgfunc,
                        DmgState::State dmg_flags,
                        GoioObj* obj, TimeCheckFunc timecheckfunc,
-                       double time = 0, bool rel = true);
+                       Second time = 0_s, bool rel = true);
 
     template <typename Actor_t>
     inline int register_repair_event(Actor_t* registrar, GoioObj* obj,
-                              double time = 0, bool rel = true) {
+                              Second time = 0_s, bool rel = true) {
       return register_event(registrar,
                             std::bind(&RepairActor::repair, registrar, _1, _2),
                             DmgState::TRANSITIONED |
@@ -108,10 +110,10 @@ class TimeObj {
     }
     template <typename Actor_t>
     inline int register_shoot_event(Actor_t* registrar, GoioObj* obj,
-                              double time = 0, bool rel = true) {
+                              Second time = 0_s, bool rel = true) {
       return register_event(registrar,
                             std::bind(static_cast<DmgState::State (Actor_t::*)
-                                                  (GoioObj*, double)>
+                                                  (GoioObj*, Second)>
                                       (&ShootActor::shoot), registrar, _1, _2),
                             DmgState::TRANSITIONED,
                             obj,
@@ -123,7 +125,7 @@ class TimeObj {
     }
     template <typename Actor_t>
     inline int register_monitor_event(Actor_t* registrar, GoioObj* obj,
-                              double time = 0, bool rel = true) {
+                              Second time = 0_s, bool rel = true) {
       return register_event(registrar,
                             std::bind(&Actor_t::monitor, registrar, _1, _2),
                             DmgState::TRANSITIONED,
@@ -137,7 +139,7 @@ class TimeObj {
 
     bool unregister_event(int id);
     bool unregister_actor(GoioActor* obj);
-    void unregister_actor(GoioActor* obj, double time);
+    void unregister_actor(GoioActor* obj, Second time);
 
     void reset();
 };

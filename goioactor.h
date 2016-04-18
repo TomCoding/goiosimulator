@@ -31,44 +31,44 @@ class GoioActor : public GoioObj {
  protected:
     GoioActor(const std::string& name, CmpType cmp_type,
               double part_type_multiplier = -1,
-              double max_health = 0, double hull_max_health = 0) :
+              Health max_health = 0_hp, Health hull_max_health = 0_hp) :
               GoioObj(name, cmp_type, part_type_multiplier, max_health,
                       hull_max_health) {}
 
  public:
     virtual ~GoioActor() {}
 
-    virtual TimeFunc get_time_func(const GoioObj*, double, bool&) = 0;
+    virtual TimeFunc get_time_func(const GoioObj*, Second, bool&) = 0;
 };
 
 class RepairActor : public GoioActor {
  protected:
     RepairActor(const std::string& name, CmpType cmp_type,
                 double part_type_multiplier = -1,
-                double max_health = 0, double hull_max_health = 0) :
+                Health max_health = 0_hp, Health hull_max_health = 0_hp) :
                 GoioActor(name, cmp_type, part_type_multiplier,
                           max_health, hull_max_health) {}
 
  public:
     virtual ~RepairActor() {}
 
-    virtual DmgState::State repair(GoioObj* obj, double time) = 0;
+    virtual DmgState::State repair(GoioObj* obj, Second time) = 0;
 };
 
 class ShootActor : public GoioActor {
  protected:
     ShootActor(const std::string& name, CmpType cmp_type,
                double part_type_multiplier = -1,
-               double max_health = 0, double hull_max_health = 0) :
+               Health max_health = 0_hp, Health hull_max_health = 0_hp) :
                GoioActor(name, cmp_type, part_type_multiplier,
                          max_health, hull_max_health) {}
 
  public:
     virtual ~ShootActor() {}
 
-    virtual DmgState::State shoot(GoioObj* obj, double time,
+    virtual DmgState::State shoot(GoioObj* obj, Second time,
                            bool aoe, double aoe_range) = 0;
-    inline DmgState::State shoot(GoioObj* obj, double time) {
+    inline DmgState::State shoot(GoioObj* obj, Second time) {
       return shoot(obj, time, true, 0);
     }
 };

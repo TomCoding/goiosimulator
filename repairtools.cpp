@@ -37,28 +37,28 @@ REGISTER_TYPE(FireExtinguisher, "FireExtinguisher");
 REGISTER_TYPE(ChemicalSpray, "ChemicalSpray");
 REGISTER_TYPE(BuffHammer, "BuffHammer");
 
-void RepairTool::set_cur_swing(double swing) {
+void RepairTool::set_cur_swing(Second swing) {
   if (swing > get_swing())
     cur_swing = get_swing();
-  else if (swing < 0)
-    cur_swing = 0;
+  else if (swing < 0_s)
+    cur_swing = 0_s;
   else
     cur_swing = swing;
 }
 
-DmgState::State RepairTool::repair(GoioObj* obj, double time) {
+DmgState::State RepairTool::repair(GoioObj* obj, Second time) {
   cur_swing = get_swing();
 
-  if (obj->get_health() == 0 && obj->get_hull()->get_health() == 0) {
+  if (obj->get_health() == 0_hp && obj->get_hull()->get_health() == 0_hp) {
     done = 2;
     std::cout << "                            ";
     return DmgState::NONE;
   }
 
   auto valid = true;
-  if (get_heal() > 0 && obj->get_health() == obj->get_max_health())
+  if (get_heal() > 0_hp && obj->get_health() == obj->get_max_health())
     valid = false;
-  if ((!valid || get_heal() == 0) && (get_extinguish() == 0 ||
+  if ((!valid || get_heal() == 0_hp) && (get_extinguish() == 0 ||
                     (get_extinguish() > 0 && obj->get_fire_stacks() <= 0))) {
     done = 2;
     std::cout << "                            ";
@@ -95,12 +95,12 @@ DmgState::State RepairTool::repair(GoioObj* obj, double time) {
   cout << "             ";
 
   auto ret = DmgState::NONE;
-  if (obj->get_health() > 0) {
+  if (obj->get_health() > 0_hp) {
     done = 0;
     obj->add_health(get_heal(), time + get_cooldown());
-    if (get_heal() > 0)
+    if (get_heal() > 0_hp)
       ret |= DmgState::TARGET;
-    double immunity_end;
+    Second immunity_end;
     auto start_immunity = obj->get_immunity_end() < time;
     if (time + get_fire_immune() > obj->get_immunity_end()) {
       immunity_end = time + get_fire_immune();
@@ -109,7 +109,7 @@ DmgState::State RepairTool::repair(GoioObj* obj, double time) {
       else
         ret |= DmgState::IMMUNITY;
     } else {
-      immunity_end = -1;
+      immunity_end = -1_s;
     }
     obj->add_fire(-get_extinguish(), immunity_end);
     if (get_extinguish() > 0)
@@ -126,7 +126,7 @@ DmgState::State RepairTool::repair(GoioObj* obj, double time) {
       else
         ret |= DmgState::REBUILD;
     }
-    repair_wait = 0;
+    repair_wait = 0_s;
   }
 
   return ret;
@@ -137,33 +137,33 @@ void RepairTool::reset(bool) {
   cur_swing = get_swing();
 }
 
-TimeFunc RepairTool::get_time_func(const GoioObj* obj, double time, bool& force) {
+TimeFunc RepairTool::get_time_func(const GoioObj* obj, Second time, bool& force) {
   switch (done) {
     case 1:
       return std::bind(&RepairTool::get_cur_swing, this);
     case 2:
       {
       auto valid = true;
-      if (get_heal() > 0 && obj->get_health() == obj->get_max_health())
+      if (get_heal() > 0_hp && obj->get_health() == obj->get_max_health())
         valid = false;
-      if ((!valid || get_heal() == 0) && (get_extinguish() == 0 ||
+      if ((!valid || get_heal() == 0_hp) && (get_extinguish() == 0 ||
                       (get_extinguish() > 0 && obj->get_fire_stacks() <= 0)))
           return nullptr;
       }
 
-      if (obj->get_health() == 0) {
-        if (obj->get_hull()->get_health() == 0)
+      if (obj->get_health() == 0_hp) {
+        if (obj->get_hull()->get_health() == 0_hp)
           return nullptr;
         if (get_rebuild_power() == 0)
           return nullptr;
-        cur_swing = swing_foreshadowing_delay;
+        cur_swing = Second(swing_foreshadowing_delay);
         force = true;
         return std::bind(&RepairTool::get_cur_swing, this);
       }
 
       return std::bind(&RepairTool::get_cooldown, this);
     case 0:
-      if (obj->get_health() == 0) {
+      if (obj->get_health() == 0_hp) {
         // if (get_rebuild_power() == 0) {
         //   done = 2;
         //   return nullptr;
@@ -171,20 +171,20 @@ TimeFunc RepairTool::get_time_func(const GoioObj* obj, double time, bool& force)
 
         auto timediff = get_cur_swing() - time;
         // still in swing or ready? (tool usage ahead of time)
-        if (timediff >= -0.00000001)  // take care of floating point errors
+        if (timediff >= -0.00000001_s)  // take care of floating point errors
           cur_swing = timediff;
         else
-          cur_swing = swing_foreshadowing_delay;
+          cur_swing = Second(swing_foreshadowing_delay);
         // std::cout << "\nset swing delay: "
         //           << cur_swing << " "
         //           << get_name() << std::endl
         //           << "                                    ";
         force = true;
-        repair_wait = 0;
+        repair_wait = 0_s;
         return std::bind(&RepairTool::get_cur_swing, this);
       }
 
-      if (wait_cooldown() > 0)
+      if (wait_cooldown() > 0_s)
         return std::bind(&RepairTool::wait_cooldown, this);
       else
         return std::bind(&RepairTool::get_cooldown, this);

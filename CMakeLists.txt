@@ -60,6 +60,7 @@ if(CMAKE_COMPILER_IS_GNUCC)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR COVERAGE)
     target_compile_options(goiovalues PUBLIC
         -g
+        -DSTRONG_TYPE_COMPILE
     )
     if(COVERAGE)
       list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")

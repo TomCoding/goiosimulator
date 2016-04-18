@@ -33,26 +33,26 @@ GoioObj::~GoioObj() {
   delete hull;
 }
 
-bool GoioObj::add_health(double health, double cooldown_end) {
-  if ((health > 0 && cmp_type == CmpType::HULL))
+bool GoioObj::add_health(Health health, Second cooldown_end) {
+  if ((health > 0_hp && cmp_type == CmpType::HULL))
     return false;
-  if (cooldown_end >= 0) {
+  if (cooldown_end >= 0_s) {
     this->cooldown_end = cooldown_end;
     // std::cout << "\ncooldownS: " << get_name() << " "
     //           << cooldown_end << std::endl
     //           << "                                    ";
   }
-  if (health == 0)
+  if (health == 0_hp)
     return true;
   return set_health_int(this->health + health, this);
 }
 
-bool GoioObj::add_fire(int fire, double immunity_end, double cooldown_end) {
-  if (health == 0 || cmp_type == CmpType::HULL)
+bool GoioObj::add_fire(int fire, Second immunity_end, Second cooldown_end) {
+  if (health == 0_hp || cmp_type == CmpType::HULL)
     return false;
-  if (immunity_end >= 0)
+  if (immunity_end >= 0_s)
     this->immunity_end = immunity_end;
-  if (cooldown_end >= 0)
+  if (cooldown_end >= 0_s)
     this->cooldown_end = cooldown_end;
 
   if (fire_stacks == -1)
@@ -77,18 +77,18 @@ bool GoioObj::add_rebuild(int rebuild_progress) {
   return false;
 }
 
-bool GoioObj::set_health_int(double health, GoioObj* obj) {
-  if (obj->health == -1)
+bool GoioObj::set_health_int(Health health, GoioObj* obj) {
+  if (obj->health == -1_hp)
     return true;
   if (health > obj->max_health) {
     obj->health = obj->max_health;
-  } else if (health <= 0) {
-    obj->health = 0;
+  } else if (health <= 0_hp) {
+    obj->health = 0_hp;
     if (obj->fire_stacks > 0)
       obj->fire_stacks = 0;
     if (obj->cmp_type != CmpType::HULL) {
       obj->rebuild_state = 0;
-      obj->cooldown_end = 0;
+      obj->cooldown_end = 0_s;
       // std::cout << "\ncooldown0: 0" << std::endl
       //           << "        ";
     }
@@ -99,16 +99,16 @@ bool GoioObj::set_health_int(double health, GoioObj* obj) {
   return true;
 }
 
-void GoioObj::set_health(double health) {
+void GoioObj::set_health(Health health) {
   if (health > max_health)
     max_health = health;
-  cooldown_end = 0;
+  cooldown_end = 0_s;
   set_health_int(health, this);
 }
 
-void GoioObj::set_hull_health(double health) {
-  if (health == -1) {
-    hull->max_health = hull->health = -1;
+void GoioObj::set_hull_health(Health health) {
+  if (health == -1_hp) {
+    hull->max_health = hull->health = -1_hp;
     return;
   }
   if (health > hull->max_health)
@@ -123,15 +123,15 @@ void GoioObj::set_fire(int fire) {
     fire_stacks = 0;
   else
     fire_stacks = fire;
-  immunity_end = 0;
+  immunity_end = 0_s;
 }
 
 void GoioObj::reset(bool hull) {
   health = max_health;
   if (fire_stacks > 0)
     fire_stacks = 0;
-  cooldown_end = 0;
-  immunity_end = 0;
+  cooldown_end = 0_s;
+  immunity_end = 0_s;
   if (hull)
     this->hull->health = this->hull->max_health;
 }

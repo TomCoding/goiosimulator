@@ -46,83 +46,40 @@ Engineer::Engineer(const std::string& name, RepairTool* tool1,
 
 void Engineer::update_tools(RepairTool* tool1, RepairTool* tool2,
                             RepairTool* tool3) {
-  for (auto i = 0; i < 4; ++i) {
-    double ps1;
-    double ps2;
-    double ps3;
-    RepairTool* *ptr_tools;
-
-    switch (i) {
-      case 0:
-        ps1 = tool1->get_heal()/tool1->get_cooldown();
-        ps2 = tool2->get_heal()/tool2->get_cooldown();
-        ps3 = tool3->get_heal()/tool3->get_cooldown();
-        ptr_tools = tools;
-        break;
-      case 1:
-        ps1 = tool1->get_heal();
-        ps2 = tool2->get_heal();
-        ps3 = tool3->get_heal();
-        ptr_tools = max_rep_tools;
-        break;
-      case 2:
-        ps1 = tool1->get_rebuild_power()/tool1->get_swing();
-        ps2 = tool2->get_rebuild_power()/tool2->get_swing();
-        ps3 = tool3->get_rebuild_power()/tool3->get_swing();
-        ptr_tools = rebuild_tools;
-        break;
-      case 3:
-        if (tool1->get_extinguish() > max_fire_stacks)
-          ps1 = max_fire_stacks/tool1->get_cooldown();
-        else
-          ps1 = tool1->get_extinguish()/tool1->get_cooldown();
-
-        if (tool2->get_extinguish() > max_fire_stacks)
-          ps2 = max_fire_stacks/tool2->get_cooldown();
-        else
-          ps2 = tool2->get_extinguish()/tool2->get_cooldown();
-
-        if (tool3->get_extinguish() > max_fire_stacks)
-          ps3 = max_fire_stacks/tool3->get_cooldown();
-        else
-          ps3 = tool3->get_extinguish()/tool3->get_cooldown();
-
-        ptr_tools = ext_tools;
-        break;
-      default:
-        assert(false);
-    }
-
-    if (ps1 > ps2) {
-      if (ps2 > ps3) {
-        ptr_tools[0] = tool1;
-        ptr_tools[1] = tool2;
-        ptr_tools[2] = tool3;
-      } else if (ps1 > ps3) {
-        ptr_tools[0] = tool1;
-        ptr_tools[1] = tool3;
-        ptr_tools[2] = tool2;
-      } else {
-        ptr_tools[0] = tool3;
-        ptr_tools[1] = tool1;
-        ptr_tools[2] = tool2;
-      }
-    } else {
-      if (ps1 > ps3) {
-        ptr_tools[0] = tool2;
-        ptr_tools[1] = tool1;
-        ptr_tools[2] = tool3;
-      } else if (ps2 > ps3) {
-        ptr_tools[0] = tool2;
-        ptr_tools[1] = tool3;
-        ptr_tools[2] = tool1;
-      } else {
-        ptr_tools[0] = tool3;
-        ptr_tools[1] = tool2;
-        ptr_tools[2] = tool1;
-      }
-    }
-  }
+  set_tools(tool1->get_heal()/tool1->get_cooldown(),
+            tool2->get_heal()/tool2->get_cooldown(),
+            tool3->get_heal()/tool3->get_cooldown(),
+            tool1,
+            tool2,
+            tool3,
+            tools);
+  set_tools(tool1->get_heal(),
+            tool2->get_heal(),
+            tool3->get_heal(),
+            tool1,
+            tool2,
+            tool3,
+            max_rep_tools);
+  set_tools(tool1->get_rebuild_power()/tool1->get_swing(),
+            tool2->get_rebuild_power()/tool2->get_swing(),
+            tool3->get_rebuild_power()/tool3->get_swing(),
+            tool1,
+            tool2,
+            tool3,
+            rebuild_tools);
+  set_tools((tool1->get_extinguish() > max_fire_stacks) ?
+                max_fire_stacks/tool1->get_cooldown() :
+                tool1->get_extinguish()/tool1->get_cooldown(),
+            (tool2->get_extinguish() > max_fire_stacks) ?
+                max_fire_stacks/tool2->get_cooldown() :
+                tool2->get_extinguish()/tool2->get_cooldown(),
+            (tool3->get_extinguish() > max_fire_stacks) ?
+                max_fire_stacks/tool3->get_cooldown() :
+                tool3->get_extinguish()/tool3->get_cooldown(),
+            tool1,
+            tool2,
+            tool3,
+            ext_tools);
 
   repair_thresholds[0] = tools[1]->get_heal() *
                          tools[0]->get_cooldown()/tools[1]->get_cooldown();
@@ -140,7 +97,7 @@ void Engineer::select_tool(RepairTool* tool) {
     return;
   }
 
-  double swing;
+  Second swing;
   bool set_swing;
   if (cur_tool != nullptr) {
     if (cur_tool == &tool[0]) {
@@ -196,8 +153,8 @@ RepairTool* Engineer::get_repair_tool(GoioObj* obj) {
   }
 }
 
-DmgState::State Engineer::repair(GoioObj* obj, double time) {
-  if (obj->get_health() == 0) {
+DmgState::State Engineer::repair(GoioObj* obj, Second time) {
+  if (obj->get_health() == 0_hp) {
     auto rebuilddiff = obj->get_rebuild_value() - obj->get_rebuild_state();
     if (rebuilddiff > rebuild_thresholds[0])
       select_tool(rebuild_tools[0]);
@@ -212,7 +169,7 @@ DmgState::State Engineer::repair(GoioObj* obj, double time) {
           {
           auto repair_tool = get_repair_tool(obj);
           if (repair_tool->get_heal() <
-                          Fire::get_fire_dmg(obj, repair_tool->get_cooldown())) {
+                  Health(Fire::get_fire_dmg(obj, repair_tool->get_cooldown()))) {
             select_tool(ext_tools[0]);
           } else {
             select_tool(repair_tool);
@@ -233,17 +190,17 @@ DmgState::State Engineer::repair(GoioObj* obj, double time) {
   return cur_tool->repair(obj, time);
 }
 
-TimeFunc Engineer::get_time_func(const GoioObj* obj, double time, bool& force) {
+TimeFunc Engineer::get_time_func(const GoioObj* obj, Second time, bool& force) {
   if (cur_tool == nullptr)
     return nullptr;
   switch (cur_tool->get_done()) {
     case 2:
-        if (obj->get_health() == 0 && obj->get_hull()->get_health() != 0)
+        if (obj->get_health() == 0_hp && obj->get_hull()->get_health() != 0_hp)
           delay = true;
       break;
     case 0:
-        if (obj->get_health() == 0 &&
-                              cur_tool->get_cur_swing() - time < -0.00000001)
+        if (obj->get_health() == 0_hp &&
+                            cur_tool->get_cur_swing() - time < -0.00000001_s)
           delay = true;
       break;
     default:

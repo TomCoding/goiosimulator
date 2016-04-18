@@ -21,6 +21,8 @@
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
 
+#include <iostream>
+
 #include "./dmg_types.h"
 #include "./ai_behavior.h"
 
@@ -105,6 +107,131 @@ inline DmgState::State get_dmg_state_self_reversed(DmgState::State dmg_state) {
                 static_cast<std::underlying_type_t<DmgState::State>>(dmg_state)
                 >> 16);
 }
+
+
+#ifdef STRONG_TYPE_COMPILE
+template<int M, int K, int S, int H> struct Unit {
+  enum { m=M, kg=K, s=S, h=H };
+};
+
+template<typename Unit>
+struct Value {
+  double val;
+  constexpr Value() : val() {}
+  constexpr explicit Value(double d) : val(d) {} 
+  Value(const Value& obj) : val(obj.val) {} 
+  constexpr Value& operator=(const Value& obj) { val = obj.val; return *this; }
+
+  constexpr Value operator+(const Value& obj) const { return Value(val + obj.val); }
+  constexpr Value operator-(const Value& obj) const { return Value(val - obj.val); }
+  constexpr bool operator==(const Value& obj) const { return val == obj.val; }
+  constexpr bool operator!=(const Value& obj) const { return val != obj.val; }
+  constexpr bool operator>(const Value& obj) const { return val > obj.val; }
+  constexpr bool operator<(const Value& obj) const { return val < obj.val; }
+  constexpr bool operator>=(const Value& obj) const { return val >= obj.val; }
+  constexpr bool operator<=(const Value& obj) const { return val <= obj.val; }
+  constexpr Value& operator-() { val = -val; return *this; }
+  constexpr Value operator*(double d) const { return Value(val * d); }
+  constexpr Value operator*(int i) const { return Value(val * i); }
+  constexpr Value operator/(double d) const { return Value(val / d); }
+  constexpr Value operator/(int d) const { return Value(val / d); }
+
+  operator double();
+
+  friend std::ostream& operator<<(std::ostream& os, const Value& obj) {
+    os << obj.val;
+    return os;
+  }
+};
+
+template<>
+inline constexpr Value<Unit<0,0,0,0>>::operator double() { return val; }
+
+using Meter   = Value<Unit<1,0,0,0>>;
+using Second  = Value<Unit<0,0,1,0>>;
+using Health  = Value<Unit<0,0,0,1>>;
+using Speed   = Value<Unit<1,0,-1,0>>;
+
+// a f-p literal suffixed by '_s'
+constexpr Second operator"" _s(long double d) {
+  return Second(d);
+}
+// an integral literal suffixed by'_s'
+constexpr Second operator"" _s(unsigned long long d) {
+  return Second(d);
+}
+constexpr Meter operator"" _m(long double d) {
+  return Meter(d);
+}
+constexpr Meter operator"" _m(unsigned long long d) {
+  return Meter(d);
+}
+constexpr Health operator"" _hp(long double d) {
+  return Health(d);
+}
+constexpr Health operator"" _hp(unsigned long long d) {
+  return Health(d);
+}
+
+template<int m1, int k1, int s1, int h1, int m2, int k2, int s2, int h2>
+Value<Unit<m1 - m2, k1 - k2, s1 - s2, h1 - h2>> operator/
+                (Value<Unit<m1, k1, s1, h1>> a, Value<Unit<m2, k2, s2, h2>> b) {
+  return Value<Unit<m1 - m2, k1 - k2, s1 - s2, h1 - h2>>(a.val / b.val);
+}
+template<int m1, int k1, int s1, int h1, int m2, int k2, int s2, int h2>
+Value<Unit<m1 + m2, k1 + k2, s1 + s2, h1 + h2>> operator*
+                (Value<Unit<m1, k1, s1, h1>> a, Value<Unit<m2, k2, s2, h2>> b) {
+  return Value<Unit<m1 + m2, k1 + k2, s1 + s2, h1 + h2>>(a.val * b.val);
+}
+
+template<int m, int k, int s, int h>
+constexpr Value<Unit<m,k,s,h>> operator*(double d, const Value<Unit<m,k,s,h>>& obj) {
+  return Value<Unit<m,k,s,h>>(d * obj.val);
+}
+template<int m, int k, int s, int h>
+constexpr Value<Unit<m,k,s,h>> operator*(int i, const Value<Unit<m,k,s,h>>& obj) {
+  return Value<Unit<m,k,s,h>>(i * obj.val);
+}
+
+template<int m, int k, int s, int h>
+constexpr Value<Unit<-m,-k,-s,-h>> operator/(double d, const Value<Unit<m,k,s,h>>& obj) {
+  return Value<Unit<-m,-k,-s,-h>>(d / obj.val);
+}
+template<int m, int k, int s, int h>
+constexpr Value<Unit<-m,-k,-s,-h>> operator/(int i, const Value<Unit<m,k,s,h>>& obj) {
+  return Value<Unit<-m,-k,-s,-h>>(i / obj.val);
+}
+
+// typedef double Second;
+typedef int    Shot;
+typedef double ShotPTime;
+#else
+typedef double Meter;
+typedef double Second;
+typedef double Health;
+typedef int    Shot;
+typedef double ShotPTime;
+
+constexpr double operator"" _s(long double d) {
+  return double (d);
+}
+constexpr double operator"" _s(unsigned long long d) {
+  return double (d);
+}
+constexpr double operator"" _m(long double d) {
+  return double (d);
+}
+constexpr double operator"" _m(unsigned long long d) {
+  return double (d);
+}
+constexpr double operator"" _hp(long double d) {
+  return double (d);
+}
+constexpr double operator"" _hp(unsigned long long d) {
+  return double (d);
+}
+
+#endif
 
 }  // namespace goio
 

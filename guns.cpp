@@ -39,21 +39,21 @@ REGISTER_TYPE(Flare, "Flare");
 REGISTER_TYPE(Flamethrower, "Flamethrower");
 REGISTER_TYPE(Gatling, "Gatling");
 
-void Gun::set_clipsize(double clipsize) {
+void Gun::set_clipsize(Shot clipsize) {
   if (clipsize < 0)
     cur_clipsize = 0;
   else
-    cur_clipsize = std::round(clipsize);
+    cur_clipsize = clipsize;
 }
-void Gun::set_rof(double rof) {
+void Gun::set_rof(ShotPTime rof) {
   if (rof < 0)
     cur_rof = 0;
   else
     cur_rof = rof;
 }
-void Gun::set_reload(double reload) {
-  if (reload < 0)
-    cur_reload = 0;
+void Gun::set_reload(Second reload) {
+  if (reload < 0_s)
+    cur_reload = 0_s;
   else
     cur_reload = reload;
 }
@@ -98,13 +98,13 @@ void Gun::set_aoe_ign_chance(double ign_chance) {
     cur_aoe_ign_chance = ign_chance;
 }
 
-int Gun::get_max_clipsize() const {
+Shot Gun::get_max_clipsize() const {
   if (get_ammo() != nullptr)
     return get_orig_clipsize() * get_ammo()->get_clipsize();
   return get_orig_clipsize();
 }
 
-double Gun::get_max_rof() const {
+ShotPTime Gun::get_max_rof() const {
   if (get_ammo() != nullptr)
     return get_orig_rof() * get_ammo()->get_rof();
   return get_orig_rof();
@@ -144,35 +144,35 @@ void Gun::reload(bool with_ammo) {
   }
 }
 
-inline double Gun::get_rof_changed() const {
+inline ShotPTime Gun::get_rof_changed() const {
   return get_health()/get_max_health()*get_max_rof();
 }
 
-inline double Gun::get_time_per_shot() const {
-  return get_max_health()/get_health()/get_max_rof();
+inline Second Gun::get_time_per_shot() const {
+  return Second(get_max_health()/get_health()/get_max_rof());
 }
 
-inline double Gun::get_reload_changed() const {
+inline Second Gun::get_reload_changed() const {
   return get_max_health()/get_health()*get_reload();
 }
 
-DmgState::State Gun::shoot(GoioObj* obj, double time, bool aoe, double aoe_range) {
+DmgState::State Gun::shoot(GoioObj* obj, Second time, bool aoe, double aoe_range) {
   if (during_reload) {
     reload();
     during_reload = false;
   }
-  if (get_health() == 0 || get_clipsize() == 0 ||
+  if (get_health() == 0_hp || get_clipsize() == 0 ||
           get_fire_stacks() >= GoioObj::get_fire_stacks_unusable()) {
     std::cout << "                            ";
     return DmgState::NONE;
   }
 
   GoioObj* tmpobj;
-  if (obj->get_health() > 0) {
+  if (obj->get_health() > 0_hp) {
     tmpobj = obj;
   } else {
     tmpobj = obj->get_hull();
-    if (tmpobj->get_health() == 0) {
+    if (tmpobj->get_health() == 0_hp) {
       std::cout << "                            ";
       return DmgState::NONE;
     }
@@ -183,9 +183,9 @@ DmgState::State Gun::shoot(GoioObj* obj, double time, bool aoe, double aoe_range
   if (obj->get_health() == obj->get_max_health())
     ret |= DmgState::START_TARGET;
 
-  if (!tmpobj->add_health(-get_direct_dmg() *
-                          get_dmg_modifier(get_direct_dmg_type(),
-                                           tmpobj->get_cmp_type())))
+  if (!tmpobj->add_health(Health(-get_direct_dmg() *
+                                 get_dmg_modifier(get_direct_dmg_type(),
+                                                  tmpobj->get_cmp_type()))))
 
     ret |= DmgState::TRANSITIONED;
 
@@ -226,9 +226,9 @@ DmgState::State Gun::shoot(GoioObj* obj, double time, bool aoe, double aoe_range
                (1-aoe_dmg_falloff_min) *
                (get_aoe_radius()-aoe_range) /
                (get_aoe_radius()/aoe_radius_dmg_falloff);
-    if (!tmpobj->add_health(-falloff*get_aoe_dmg() *
-                            get_dmg_modifier(get_aoe_dmg_type(),
-                                             tmpobj->get_cmp_type())))
+    if (!tmpobj->add_health(Health(-falloff*get_aoe_dmg() *
+                                   get_dmg_modifier(get_aoe_dmg_type(),
+                                                    tmpobj->get_cmp_type()))))
       ret |= DmgState::TRANSITIONED;
     if (tmpobj->get_immunity_end() <= time) {
       if (get_aoe_ign_chance() > 0 &&
@@ -279,10 +279,10 @@ DmgState::State Gun::shoot(GoioObj* obj, double time, bool aoe, double aoe_range
   return ret;
 }
 
-TimeFunc Gun::get_time_func(const GoioObj* obj, double, bool&) {
-  if (get_health() == 0 ||
+TimeFunc Gun::get_time_func(const GoioObj* obj, Second, bool&) {
+  if (get_health() == 0_hp ||
         get_fire_stacks() >= GoioObj::get_fire_stacks_unusable() ||
-        (obj->get_health() == 0 && obj->get_hull()->get_health() == 0))
+        (obj->get_health() == 0_hp && obj->get_hull()->get_health() == 0_hp))
     return nullptr;
   // if (during_reload)
   //   return std::bind(&Gun::get_reload_changed, this);

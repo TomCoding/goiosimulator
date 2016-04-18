@@ -27,13 +27,13 @@
 
 namespace goio {
 
-DmgState::State Monitor::monitor(GoioObj*, double) {
+DmgState::State Monitor::monitor(GoioObj*, Second) {
   std::cout << "                            ";
   return DmgState::NONE;
 }
 
-TimeFunc Monitor::get_time_func(const GoioObj* obj, double, bool&) {
-  if (obj->get_health() == 0 && obj->get_hull()->get_health() == 0)
+TimeFunc Monitor::get_time_func(const GoioObj* obj, Second, bool&) {
+  if (obj->get_health() == 0_hp && obj->get_hull()->get_health() == 0_hp)
     return nullptr;
   return std::bind(&Monitor::get_tick, this);
 }

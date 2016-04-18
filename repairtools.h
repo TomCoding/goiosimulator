@@ -31,46 +31,46 @@ namespace goio {
 
 class RepairInfo {
  private:
-    const double swing;
-    const double heal;
+    const Second   swing;
+    const Health heal;
     const int    rebuild_power;
     const int    extinguish;
-    const int    fire_immune;
-    const double cooldown;
+    const Second   fire_immune;
+    const Second   cooldown;
 
  protected:
-    RepairInfo(double swing,
-               double heal,
+    RepairInfo(Second swing,
+               Health heal,
                int rebuild_power,
                int extinguish,
-               int fire_immune,
-               double cooldown) : swing(swing),
-                                  heal(heal),
-                                  rebuild_power(rebuild_power),
-                                  extinguish(extinguish),
-                                  fire_immune(fire_immune),
-                                  cooldown(cooldown) {}
+               Second fire_immune,
+               Second cooldown) : swing(swing),
+                                heal(heal),
+                                rebuild_power(rebuild_power),
+                                extinguish(extinguish),
+                                fire_immune(fire_immune),
+                                cooldown(cooldown) {}
     virtual ~RepairInfo() {}
 
  public:
-    inline double get_swing() const { return swing; }
-    inline double get_heal() const { return heal; }
+    inline Second   get_swing() const { return swing; }
+    inline Health get_heal() const { return heal; }
     inline int    get_rebuild_power() const { return rebuild_power; }
     inline int    get_extinguish() const { return extinguish; }
-    inline int    get_fire_immune() const { return fire_immune; }
-    inline double get_cooldown() const { return cooldown; }
+    inline Second   get_fire_immune() const { return fire_immune; }
+    inline Second   get_cooldown() const { return cooldown; }
 };
 
 class RepairTool : public RepairInfo, public RepairActor {
  private:
     int done;  // 0 = normal, 1 = rebuild swings, 2 = done
-    double cur_swing;
-    double repair_wait;
+    Second cur_swing;
+    Second repair_wait;
 
  protected:
-    RepairTool(const std::string& name, double swing, double heal,
-               int rebuild_power, int extinguish, int fire_immune,
-               double cooldown) :
+    RepairTool(const std::string& name, Second swing, Health heal,
+               int rebuild_power, int extinguish, Second fire_immune,
+               Second cooldown) :
                     RepairInfo(swing, heal, rebuild_power, extinguish,
                                fire_immune, cooldown),
                     RepairActor(name, CmpType::COMPONENTS),
@@ -81,15 +81,15 @@ class RepairTool : public RepairInfo, public RepairActor {
 
     static constexpr double swing_foreshadowing_delay = 0.1;
 
-    void set_cur_swing(double swing);
-    inline double get_cur_swing() const { return cur_swing; }
-    inline double wait_cooldown() const { return repair_wait; }
+    void set_cur_swing(Second swing);
+    inline Second get_cur_swing() const { return cur_swing; }
+    inline Second wait_cooldown() const { return repair_wait; }
 
-    DmgState::State repair(GoioObj* obj, double time) override;
+    DmgState::State repair(GoioObj* obj, Second time) override;
 
     void reset(bool = true) override;
 
-    TimeFunc get_time_func(const GoioObj*, double, bool&) override;
+    TimeFunc get_time_func(const GoioObj*, Second, bool&) override;
 
     inline int get_done() const { return done; }
 };
@@ -97,37 +97,37 @@ class RepairTool : public RepairInfo, public RepairActor {
 class Spanner : public RepairTool {
  public:
     explicit Spanner(const std::string& name) :
-                        RepairTool(name, 0.7, 40, 5, 0, 0, 2) {}
+                        RepairTool(name, 0.7_s, 40_hp, 5, 0, 0_s, 2_s) {}
 };
 
 class Mallet : public RepairTool {
  public:
     explicit Mallet(const std::string& name) :
-                        RepairTool(name, 0.65, 250, 2, 0, 0, 9) {}
+                        RepairTool(name, 0.65_s, 250_hp, 2, 0, 0_s, 9_s) {}
 };
 
 class PipeWrench : public RepairTool {
  public:
     explicit PipeWrench(const std::string& name) :
-                        RepairTool(name, 0.667, 120, 4, 0, 0, 5) {}
+                        RepairTool(name, 0.667_s, 120_hp, 4, 0, 0_s, 5_s) {}
 };
 
 class FireExtinguisher : public RepairTool {
  public:
     explicit FireExtinguisher(const std::string& name) :
-                        RepairTool(name, 0.667, 0, 0, 50, 5, 3) {}
+                        RepairTool(name, 0.667_s, 0_hp, 0, 50, 5_s, 3_s) {}
 };
 
 class ChemicalSpray : public RepairTool {
  public:
     explicit ChemicalSpray(const std::string& name) :
-                        RepairTool(name, 0.667, 0, 0, 3, 25, 5) {}
+                        RepairTool(name, 0.667_s, 0_hp, 0, 3, 25_s, 5_s) {}
 };
 
 class BuffHammer : public RepairTool {
  public:
     explicit BuffHammer(const std::string& name) :
-                        RepairTool(name, 0.667, 0, 0, 0, 0, 0.667) {}
+                        RepairTool(name, 0.667_s, 0_hp, 0, 0, 0_s, 0.667_s) {}
 };
 
 }  // namespace goio
