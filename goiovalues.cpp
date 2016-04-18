@@ -52,7 +52,7 @@ int main() {
 
   {
   using namespace goio;
-  Meter t = -100_m;
+  Distance t = -100_m;
   std::cout << t << std::endl;
   }
 

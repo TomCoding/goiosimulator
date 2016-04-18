@@ -309,9 +309,9 @@ int Config::load_config() {
             if (obj_fire > 0)
               goioobj->set_fire(obj_fire);
             if (obj_cooldown >= 0)
-              goioobj->add_health(0_hp, Second(obj_cooldown));
+              goioobj->add_health(0_hp, Time(obj_cooldown));
             if (obj_fire_immunity >= 0)
-              goioobj->add_fire(0, Second(obj_fire_immunity));
+              goioobj->add_fire(0, Time(obj_fire_immunity));
 
             if (obj_ammo != "") {
               if (auto gun = dynamic_cast<Gun*>(obj)) {
@@ -422,7 +422,7 @@ int Config::load_config() {
           if (auto shoot_actor = dynamic_cast<ShootActor*>(actor_obj)) {
             timeobj->register_shoot_event(shoot_actor,
                                           recipient_obj,
-                                          Second(reg_start));
+                                          Time(reg_start));
           } else {
             std::cerr << "dynamic_cast for actor to ShootActor failed: "
                       << act_name << std::endl;
@@ -432,7 +432,7 @@ int Config::load_config() {
           if (auto repair_actor = dynamic_cast<RepairActor*>(actor_obj)) {
             timeobj->register_repair_event(repair_actor,
                                            recipient_obj,
-                                           Second(reg_start));
+                                           Time(reg_start));
           } else {
             std::cerr << "dynamic_cast for actor to RepairActor failed: "
                       << act_name << std::endl;
@@ -444,7 +444,7 @@ int Config::load_config() {
         }
 
         if (act_end > 0)
-          timeobj->unregister_actor(actor_obj, Second(act_end));
+          timeobj->unregister_actor(actor_obj, Time(act_end));
       }
 
       cur_setting = "options";
@@ -549,8 +549,8 @@ bool Config::simulate(unsigned int simulation) {
       std::cout << "Events limit reached: " << opt->max_events << std::endl;
       return false;
     }
-    if (Second(opt->max_time) != -1_s &&
-                                timeobj->get_time() > Second(opt->max_time)) {
+    if (Time(opt->max_time) != -1_s &&
+                                timeobj->get_time() > Time(opt->max_time)) {
       std::cout << "Time limit reached: " << opt->max_time << std::endl;
       return false;
     }

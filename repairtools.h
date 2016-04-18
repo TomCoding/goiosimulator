@@ -31,20 +31,20 @@ namespace goio {
 
 class RepairInfo {
  private:
-    const Second   swing;
+    const Time   swing;
     const Health heal;
     const int    rebuild_power;
     const int    extinguish;
-    const Second   fire_immune;
-    const Second   cooldown;
+    const Time   fire_immune;
+    const Time   cooldown;
 
  protected:
-    RepairInfo(Second swing,
+    RepairInfo(Time swing,
                Health heal,
                int rebuild_power,
                int extinguish,
-               Second fire_immune,
-               Second cooldown) : swing(swing),
+               Time fire_immune,
+               Time cooldown) : swing(swing),
                                 heal(heal),
                                 rebuild_power(rebuild_power),
                                 extinguish(extinguish),
@@ -53,24 +53,24 @@ class RepairInfo {
     virtual ~RepairInfo() {}
 
  public:
-    inline Second   get_swing() const { return swing; }
+    inline Time   get_swing() const { return swing; }
     inline Health get_heal() const { return heal; }
     inline int    get_rebuild_power() const { return rebuild_power; }
     inline int    get_extinguish() const { return extinguish; }
-    inline Second   get_fire_immune() const { return fire_immune; }
-    inline Second   get_cooldown() const { return cooldown; }
+    inline Time   get_fire_immune() const { return fire_immune; }
+    inline Time   get_cooldown() const { return cooldown; }
 };
 
 class RepairTool : public RepairInfo, public RepairActor {
  private:
     int done;  // 0 = normal, 1 = rebuild swings, 2 = done
-    Second cur_swing;
-    Second repair_wait;
+    Time cur_swing;
+    Time repair_wait;
 
  protected:
-    RepairTool(const std::string& name, Second swing, Health heal,
-               int rebuild_power, int extinguish, Second fire_immune,
-               Second cooldown) :
+    RepairTool(const std::string& name, Time swing, Health heal,
+               int rebuild_power, int extinguish, Time fire_immune,
+               Time cooldown) :
                     RepairInfo(swing, heal, rebuild_power, extinguish,
                                fire_immune, cooldown),
                     RepairActor(name, CmpType::COMPONENTS),
@@ -81,15 +81,15 @@ class RepairTool : public RepairInfo, public RepairActor {
 
     static constexpr double swing_foreshadowing_delay = 0.1;
 
-    void set_cur_swing(Second swing);
-    inline Second get_cur_swing() const { return cur_swing; }
-    inline Second wait_cooldown() const { return repair_wait; }
+    void set_cur_swing(Time swing);
+    inline Time get_cur_swing() const { return cur_swing; }
+    inline Time wait_cooldown() const { return repair_wait; }
 
-    DmgState::State repair(GoioObj* obj, Second time) override;
+    DmgState::State repair(GoioObj* obj, Time time) override;
 
     void reset(bool = true) override;
 
-    TimeFunc get_time_func(const GoioObj*, Second, bool&) override;
+    TimeFunc get_time_func(const GoioObj*, Time, bool&) override;
 
     inline int get_done() const { return done; }
 };

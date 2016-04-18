@@ -200,7 +200,7 @@ bool TimeObj::recalc_next_event(FuncData* funcdata) {
   return res;
 }
 
-void TimeObj::register_event(FuncData* funcdata, Second time) {
+void TimeObj::register_event(FuncData* funcdata, Time time) {
   events.insert(std::make_pair(time, funcdata));
 }
 
@@ -224,8 +224,8 @@ void TimeObj::register_burn_event(GoioObj* obj) {
 int TimeObj::register_event(GoioActor* registrar, TimeDmgFunc timedmgfunc,
                             DmgState::State dmg_flags, GoioObj* obj,
                             TimeCheckFunc timecheckfunc,
-                            Second time, bool rel) {
-  Second comp_time;
+                            Time time, bool rel) {
+  Time comp_time;
   if (rel)
     comp_time = this->time+time;
   else
@@ -316,7 +316,7 @@ bool TimeObj::unregister_actor(GoioActor* actor) {
   return found;
 }
 
-void TimeObj::unregister_actor(GoioActor* actor, Second time) {
+void TimeObj::unregister_actor(GoioActor* actor, Time time) {
   if (time < get_time())
     return;
   auto endevent = new EndEvent(this);

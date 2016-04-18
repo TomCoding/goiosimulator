@@ -27,21 +27,21 @@
 
 namespace goio {
 
-double Fire::get_fire_dmg(GoioObj* obj, Second time) {
+Health Fire::get_fire_dmg(GoioObj* obj, Time time) {
   return get_dmg_modifier(DmgType::FIRE,
                           obj->get_cmp_type()) *
          (2*obj->get_fire_stacks()+8)/1_s *
-         time;
+         time*1_hp;
 }
 
-DmgState::State Fire::burn(GoioObj* obj, Second) {
+DmgState::State Fire::burn(GoioObj* obj, Time) {
   if (obj->get_fire_stacks() < 1)
     return DmgState::NONE;
-  obj->add_health(Health(-get_fire_dmg(obj, Second(firetick))));
+  obj->add_health(-get_fire_dmg(obj, get_firetick()));
   return DmgState::TARGET;
 }
 
-TimeFunc Fire::get_time_func(const GoioObj* obj, Second, bool&) {
+TimeFunc Fire::get_time_func(const GoioObj* obj, Time, bool&) {
   if (obj->get_fire_stacks() > 0)
     return &Fire::get_firetick;
   return nullptr;

@@ -97,7 +97,7 @@ void Engineer::select_tool(RepairTool* tool) {
     return;
   }
 
-  Second swing;
+  Time swing;
   bool set_swing;
   if (cur_tool != nullptr) {
     if (cur_tool == &tool[0]) {
@@ -153,7 +153,7 @@ RepairTool* Engineer::get_repair_tool(GoioObj* obj) {
   }
 }
 
-DmgState::State Engineer::repair(GoioObj* obj, Second time) {
+DmgState::State Engineer::repair(GoioObj* obj, Time time) {
   if (obj->get_health() == 0_hp) {
     auto rebuilddiff = obj->get_rebuild_value() - obj->get_rebuild_state();
     if (rebuilddiff > rebuild_thresholds[0])
@@ -169,7 +169,7 @@ DmgState::State Engineer::repair(GoioObj* obj, Second time) {
           {
           auto repair_tool = get_repair_tool(obj);
           if (repair_tool->get_heal() <
-                  Health(Fire::get_fire_dmg(obj, repair_tool->get_cooldown()))) {
+                      Fire::get_fire_dmg(obj, repair_tool->get_cooldown())) {
             select_tool(ext_tools[0]);
           } else {
             select_tool(repair_tool);
@@ -190,7 +190,7 @@ DmgState::State Engineer::repair(GoioObj* obj, Second time) {
   return cur_tool->repair(obj, time);
 }
 
-TimeFunc Engineer::get_time_func(const GoioObj* obj, Second time, bool& force) {
+TimeFunc Engineer::get_time_func(const GoioObj* obj, Time time, bool& force) {
   if (cur_tool == nullptr)
     return nullptr;
   switch (cur_tool->get_done()) {

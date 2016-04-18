@@ -147,30 +147,58 @@ struct Value {
 template<>
 inline constexpr Value<Unit<0,0,0,0>>::operator double() { return val; }
 
-using Meter   = Value<Unit<1,0,0,0>>;
-using Second  = Value<Unit<0,0,1,0>>;
-using Health  = Value<Unit<0,0,0,1>>;
-using Speed   = Value<Unit<1,0,-1,0>>;
+using Distance     = Value<Unit<1,0,0,0>>;
+using Time         = Value<Unit<0,0,1,0>>;
+using P_Time       = Value<Unit<0,0,-1,0>>;
+using Health       = Value<Unit<0,0,0,1>>;
+using Speed        = Value<Unit<1,0,-1,0>>;
+using Acceleration = Value<Unit<1,0,-2,0>>;
+using Weight       = Value<Unit<0,1,0,0>>;
+using Force        = Value<Unit<1,1,-2,0>>;
 
 // a f-p literal suffixed by '_s'
-constexpr Second operator"" _s(long double d) {
-  return Second(d);
+constexpr Time operator"" _s(long double d) {
+  return Time(d);
 }
 // an integral literal suffixed by'_s'
-constexpr Second operator"" _s(unsigned long long d) {
-  return Second(d);
+constexpr Time operator"" _s(unsigned long long d) {
+  return Time(d);
 }
-constexpr Meter operator"" _m(long double d) {
-  return Meter(d);
+constexpr Time operator"" _min(long double d) {
+  return Time(d*60);
 }
-constexpr Meter operator"" _m(unsigned long long d) {
-  return Meter(d);
+constexpr Time operator"" _min(unsigned long long d) {
+  return Time(d*60);
+}
+constexpr Distance operator"" _m(long double d) {
+  return Distance(d);
+}
+constexpr Distance operator"" _m(unsigned long long d) {
+  return Distance(d);
 }
 constexpr Health operator"" _hp(long double d) {
   return Health(d);
 }
 constexpr Health operator"" _hp(unsigned long long d) {
   return Health(d);
+}
+constexpr Acceleration operator ""_m_s2(long double d) {
+  return Acceleration(d);
+}
+constexpr Acceleration operator"" _m_s2(unsigned long long d) {
+  return Acceleration(d);
+}
+constexpr Weight operator"" _kg(long double d) {
+  return Weight(d);
+}
+constexpr Weight operator"" _kg(unsigned long long d) {
+  return Weight(d);
+}
+constexpr Force operator"" _N(long double d) {
+  return Force(d);
+}
+constexpr Force operator"" _N(unsigned long long d) {
+  return Force(d);
 }
 
 template<int m1, int k1, int s1, int h1, int m2, int k2, int s2, int h2>
@@ -185,50 +213,70 @@ Value<Unit<m1 + m2, k1 + k2, s1 + s2, h1 + h2>> operator*
 }
 
 template<int m, int k, int s, int h>
-constexpr Value<Unit<m,k,s,h>> operator*(double d, const Value<Unit<m,k,s,h>>& obj) {
+constexpr Value<Unit<m,k,s,h>> operator*(double d,
+                                         const Value<Unit<m,k,s,h>>& obj) {
   return Value<Unit<m,k,s,h>>(d * obj.val);
 }
 template<int m, int k, int s, int h>
-constexpr Value<Unit<m,k,s,h>> operator*(int i, const Value<Unit<m,k,s,h>>& obj) {
+constexpr Value<Unit<m,k,s,h>> operator*(int i,
+                                         const Value<Unit<m,k,s,h>>& obj) {
   return Value<Unit<m,k,s,h>>(i * obj.val);
 }
 
 template<int m, int k, int s, int h>
-constexpr Value<Unit<-m,-k,-s,-h>> operator/(double d, const Value<Unit<m,k,s,h>>& obj) {
+constexpr Value<Unit<-m,-k,-s,-h>> operator/(double d,
+                                             const Value<Unit<m,k,s,h>>& obj) {
   return Value<Unit<-m,-k,-s,-h>>(d / obj.val);
 }
 template<int m, int k, int s, int h>
-constexpr Value<Unit<-m,-k,-s,-h>> operator/(int i, const Value<Unit<m,k,s,h>>& obj) {
+constexpr Value<Unit<-m,-k,-s,-h>> operator/(int i,
+                                             const Value<Unit<m,k,s,h>>& obj) {
   return Value<Unit<-m,-k,-s,-h>>(i / obj.val);
 }
 
-// typedef double Second;
-typedef int    Shot;
-typedef double ShotPTime;
 #else
-typedef double Meter;
-typedef double Second;
+typedef double Distance;
+typedef double Time;
 typedef double Health;
-typedef int    Shot;
-typedef double ShotPTime;
+typedef double Acceleration;
+typedef double Weight;
+typedef double Force;
 
 constexpr double operator"" _s(long double d) {
-  return double (d);
+  return double(d);
 }
 constexpr double operator"" _s(unsigned long long d) {
-  return double (d);
+  return double(d);
 }
 constexpr double operator"" _m(long double d) {
-  return double (d);
+  return double(d);
 }
 constexpr double operator"" _m(unsigned long long d) {
-  return double (d);
+  return double(d);
 }
 constexpr double operator"" _hp(long double d) {
-  return double (d);
+  return double(d);
 }
 constexpr double operator"" _hp(unsigned long long d) {
-  return double (d);
+  return double(d);
+}
+constexpr double operator"" _m_s2(long double d) {
+  return double(d);
+}
+constexpr double operator"" _m_s2(unsigned long long d) {
+  return double(d);
+}
+constexpr double operator"" _kg(long double d) {
+  return double(d);
+}
+constexpr double operator"" _kg(unsigned long long d) {
+  return double(d);
+}
+constexpr double operator"" _N(long double d) {
+  return double(d);
+}
+constexpr double operator"" _N(unsigned long long d) {
+  return double(d);
 }
 
 #endif

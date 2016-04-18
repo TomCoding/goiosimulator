@@ -37,7 +37,7 @@ REGISTER_TYPE(FireExtinguisher, "FireExtinguisher");
 REGISTER_TYPE(ChemicalSpray, "ChemicalSpray");
 REGISTER_TYPE(BuffHammer, "BuffHammer");
 
-void RepairTool::set_cur_swing(Second swing) {
+void RepairTool::set_cur_swing(Time swing) {
   if (swing > get_swing())
     cur_swing = get_swing();
   else if (swing < 0_s)
@@ -46,7 +46,7 @@ void RepairTool::set_cur_swing(Second swing) {
     cur_swing = swing;
 }
 
-DmgState::State RepairTool::repair(GoioObj* obj, Second time) {
+DmgState::State RepairTool::repair(GoioObj* obj, Time time) {
   cur_swing = get_swing();
 
   if (obj->get_health() == 0_hp && obj->get_hull()->get_health() == 0_hp) {
@@ -100,7 +100,7 @@ DmgState::State RepairTool::repair(GoioObj* obj, Second time) {
     obj->add_health(get_heal(), time + get_cooldown());
     if (get_heal() > 0_hp)
       ret |= DmgState::TARGET;
-    Second immunity_end;
+    Time immunity_end;
     auto start_immunity = obj->get_immunity_end() < time;
     if (time + get_fire_immune() > obj->get_immunity_end()) {
       immunity_end = time + get_fire_immune();
@@ -137,7 +137,7 @@ void RepairTool::reset(bool) {
   cur_swing = get_swing();
 }
 
-TimeFunc RepairTool::get_time_func(const GoioObj* obj, Second time, bool& force) {
+TimeFunc RepairTool::get_time_func(const GoioObj* obj, Time time, bool& force) {
   switch (done) {
     case 1:
       return std::bind(&RepairTool::get_cur_swing, this);
@@ -156,7 +156,7 @@ TimeFunc RepairTool::get_time_func(const GoioObj* obj, Second time, bool& force)
           return nullptr;
         if (get_rebuild_power() == 0)
           return nullptr;
-        cur_swing = Second(swing_foreshadowing_delay);
+        cur_swing = Time(swing_foreshadowing_delay);
         force = true;
         return std::bind(&RepairTool::get_cur_swing, this);
       }
@@ -174,7 +174,7 @@ TimeFunc RepairTool::get_time_func(const GoioObj* obj, Second time, bool& force)
         if (timediff >= -0.00000001_s)  // take care of floating point errors
           cur_swing = timediff;
         else
-          cur_swing = Second(swing_foreshadowing_delay);
+          cur_swing = Time(swing_foreshadowing_delay);
         // std::cout << "\nset swing delay: "
         //           << cur_swing << " "
         //           << get_name() << std::endl

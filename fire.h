@@ -33,11 +33,11 @@ class Fire : public GoioActor {
  public:
     Fire() : GoioActor("", CmpType::HULL) {}
 
-    static double get_fire_dmg(GoioObj* obj, Second time);
-    DmgState::State burn(GoioObj* obj, Second);
-    static inline Second get_firetick() { return Second(firetick); }
+    static Health get_fire_dmg(GoioObj* obj, Time time);
+    DmgState::State burn(GoioObj* obj, Time);
+    static inline Time get_firetick() { return Time(firetick); }
 
-    TimeFunc get_time_func(const GoioObj* obj, Second, bool&) override;
+    TimeFunc get_time_func(const GoioObj* obj, Time, bool&) override;
 };
 
 }  // namespace goio

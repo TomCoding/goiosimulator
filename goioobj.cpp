@@ -33,7 +33,7 @@ GoioObj::~GoioObj() {
   delete hull;
 }
 
-bool GoioObj::add_health(Health health, Second cooldown_end) {
+bool GoioObj::add_health(Health health, Time cooldown_end) {
   if ((health > 0_hp && cmp_type == CmpType::HULL))
     return false;
   if (cooldown_end >= 0_s) {
@@ -47,7 +47,7 @@ bool GoioObj::add_health(Health health, Second cooldown_end) {
   return set_health_int(this->health + health, this);
 }
 
-bool GoioObj::add_fire(int fire, Second immunity_end, Second cooldown_end) {
+bool GoioObj::add_fire(int fire, Time immunity_end, Time cooldown_end) {
   if (health == 0_hp || cmp_type == CmpType::HULL)
     return false;
   if (immunity_end >= 0_s)

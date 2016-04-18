@@ -39,45 +39,45 @@ REGISTER_TYPE(Flare, "Flare");
 REGISTER_TYPE(Flamethrower, "Flamethrower");
 REGISTER_TYPE(Gatling, "Gatling");
 
-void Gun::set_clipsize(Shot clipsize) {
+void Gun::set_clipsize(int clipsize) {
   if (clipsize < 0)
     cur_clipsize = 0;
   else
     cur_clipsize = clipsize;
 }
-void Gun::set_rof(ShotPTime rof) {
-  if (rof < 0)
-    cur_rof = 0;
+void Gun::set_rof(P_Time rof) {
+  if (rof < 0/1_s)
+    cur_rof = 0/1_s;
   else
     cur_rof = rof;
 }
-void Gun::set_reload(Second reload) {
+void Gun::set_reload(Time reload) {
   if (reload < 0_s)
     cur_reload = 0_s;
   else
     cur_reload = reload;
 }
-void Gun::set_direct_dmg(double direct_dmg) {
-  if (direct_dmg < 0)
-    cur_direct_dmg = 0;
+void Gun::set_direct_dmg(Health direct_dmg) {
+  if (direct_dmg < 0_hp)
+    cur_direct_dmg = 0_hp;
   else
     cur_direct_dmg = direct_dmg;
 }
 void Gun::set_direct_dmg_type(DmgType direct_dmg_type) {
   cur_direct_dmg_type = direct_dmg_type;
 }
-void Gun::set_aoe_dmg(double aoe_dmg) {
-  if (aoe_dmg < 0)
-    cur_aoe_dmg = 0;
+void Gun::set_aoe_dmg(Health aoe_dmg) {
+  if (aoe_dmg < 0_hp)
+    cur_aoe_dmg = 0_hp;
   else
     cur_aoe_dmg = aoe_dmg;
 }
 void Gun::set_aoe_dmg_type(DmgType aoe_dmg_type) {
   cur_aoe_dmg_type = aoe_dmg_type;
 }
-void Gun::set_aoe_radius(double aoe_radius) {
-  if (aoe_radius < 0)
-    cur_aoe_radius = 0;
+void Gun::set_aoe_radius(Distance aoe_radius) {
+  if (aoe_radius < 0_m)
+    cur_aoe_radius = 0_m;
   else
     cur_aoe_radius = aoe_radius;
 }
@@ -98,13 +98,13 @@ void Gun::set_aoe_ign_chance(double ign_chance) {
     cur_aoe_ign_chance = ign_chance;
 }
 
-Shot Gun::get_max_clipsize() const {
+int Gun::get_max_clipsize() const {
   if (get_ammo() != nullptr)
     return get_orig_clipsize() * get_ammo()->get_clipsize();
   return get_orig_clipsize();
 }
 
-ShotPTime Gun::get_max_rof() const {
+P_Time Gun::get_max_rof() const {
   if (get_ammo() != nullptr)
     return get_orig_rof() * get_ammo()->get_rof();
   return get_orig_rof();
@@ -144,19 +144,19 @@ void Gun::reload(bool with_ammo) {
   }
 }
 
-inline ShotPTime Gun::get_rof_changed() const {
+inline P_Time Gun::get_rof_changed() const {
   return get_health()/get_max_health()*get_max_rof();
 }
 
-inline Second Gun::get_time_per_shot() const {
-  return Second(get_max_health()/get_health()/get_max_rof());
+inline Time Gun::get_time_per_shot() const {
+  return get_max_health()/get_health()/get_max_rof();
 }
 
-inline Second Gun::get_reload_changed() const {
+inline Time Gun::get_reload_changed() const {
   return get_max_health()/get_health()*get_reload();
 }
 
-DmgState::State Gun::shoot(GoioObj* obj, Second time, bool aoe, double aoe_range) {
+DmgState::State Gun::shoot(GoioObj* obj, Time time, bool aoe, Distance aoe_range) {
   if (during_reload) {
     reload();
     during_reload = false;
@@ -183,9 +183,9 @@ DmgState::State Gun::shoot(GoioObj* obj, Second time, bool aoe, double aoe_range
   if (obj->get_health() == obj->get_max_health())
     ret |= DmgState::START_TARGET;
 
-  if (!tmpobj->add_health(Health(-get_direct_dmg() *
-                                 get_dmg_modifier(get_direct_dmg_type(),
-                                                  tmpobj->get_cmp_type()))))
+  if (!tmpobj->add_health(-get_direct_dmg() *
+                          get_dmg_modifier(get_direct_dmg_type(),
+                          tmpobj->get_cmp_type())))
 
     ret |= DmgState::TRANSITIONED;
 
@@ -200,7 +200,7 @@ DmgState::State Gun::shoot(GoioObj* obj, Second time, bool aoe, double aoe_range
           ret |= DmgState::FIRE;
       }
     } else if (get_direct_dmg_type() == DmgType::EXPLOSIVE) {
-      auto ign_chance = get_direct_dmg() *
+      auto ign_chance = get_direct_dmg()/1_hp *
                         get_dmg_modifier(DmgType::EXPLOSIVE,
                                          tmpobj->get_cmp_type()) *
                         explosive_ign_chance;
@@ -226,9 +226,9 @@ DmgState::State Gun::shoot(GoioObj* obj, Second time, bool aoe, double aoe_range
                (1-aoe_dmg_falloff_min) *
                (get_aoe_radius()-aoe_range) /
                (get_aoe_radius()/aoe_radius_dmg_falloff);
-    if (!tmpobj->add_health(Health(-falloff*get_aoe_dmg() *
-                                   get_dmg_modifier(get_aoe_dmg_type(),
-                                                    tmpobj->get_cmp_type()))))
+    if (!tmpobj->add_health(-falloff*get_aoe_dmg() *
+                            get_dmg_modifier(get_aoe_dmg_type(),
+                            tmpobj->get_cmp_type())))
       ret |= DmgState::TRANSITIONED;
     if (tmpobj->get_immunity_end() <= time) {
       if (get_aoe_ign_chance() > 0 &&
@@ -240,7 +240,7 @@ DmgState::State Gun::shoot(GoioObj* obj, Second time, bool aoe, double aoe_range
             ret |= DmgState::FIRE;
         }
       } else if (get_aoe_dmg_type() == DmgType::EXPLOSIVE) {
-        auto ign_chance = get_aoe_dmg() *
+        auto ign_chance = get_aoe_dmg()/1_hp *
                           get_dmg_modifier(DmgType::EXPLOSIVE,
                                            tmpobj->get_cmp_type()) *
                           explosive_ign_chance;
@@ -279,7 +279,7 @@ DmgState::State Gun::shoot(GoioObj* obj, Second time, bool aoe, double aoe_range
   return ret;
 }
 
-TimeFunc Gun::get_time_func(const GoioObj* obj, Second, bool&) {
+TimeFunc Gun::get_time_func(const GoioObj* obj, Time, bool&) {
   if (get_health() == 0_hp ||
         get_fire_stacks() >= GoioObj::get_fire_stacks_unusable() ||
         (obj->get_health() == 0_hp && obj->get_hull()->get_health() == 0_hp))

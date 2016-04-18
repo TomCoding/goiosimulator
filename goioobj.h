@@ -195,8 +195,8 @@ class GoioObj : public Object {
     int rebuild_state;
     const double part_type_multiplier;
     GoioObj* hull;
-    Second cooldown_end;
-    Second immunity_end;
+    Time cooldown_end;
+    Time immunity_end;
 
     explicit GoioObj(Health max_health) : name(""), cmp_type(CmpType::HULL),
                 max_health(max_health), health(max_health),
@@ -240,8 +240,8 @@ class GoioObj : public Object {
     inline int     get_fire_stacks() const { return fire_stacks; }
     inline double  get_rebuild_state() const { return rebuild_state; }
     inline GoioObj* get_hull() const { return hull; }
-    inline Second    get_cooldown_end() const { return cooldown_end; }
-    inline Second    get_immunity_end() const { return immunity_end; }
+    inline Time    get_cooldown_end() const { return cooldown_end; }
+    inline Time    get_immunity_end() const { return immunity_end; }
 
     static inline int get_max_fire_stacks() { return max_fire_stacks; }
     static inline int get_fire_stacks_unusable() { return fire_stacks_unusable; }
@@ -249,9 +249,9 @@ class GoioObj : public Object {
     /*
      * Return `false` if object gets destroyed, otherwise `true`
      */
-    bool add_health(Health health, Second cooldown_end = -1_s);
-    bool add_fire(int fire, Second immunity_end = -1_s,
-                            Second cooldown_end = -1_s);
+    bool add_health(Health health, Time cooldown_end = -1_s);
+    bool add_fire(int fire, Time immunity_end = -1_s,
+                            Time cooldown_end = -1_s);
     bool add_rebuild(int rebuild_progress);
 
     void set_health(Health health);
@@ -263,10 +263,10 @@ class GoioObj : public Object {
     virtual void reset(bool hull = true);
 };
 
-typedef std::function<Second ()> TimeFunc;
-typedef std::function<TimeFunc (const GoioObj*, Second, bool&)> TimeCheckFunc;
+typedef std::function<Time ()> TimeFunc;
+typedef std::function<TimeFunc (const GoioObj*, Time, bool&)> TimeCheckFunc;
 
-typedef std::function<DmgState::State (GoioObj*, Second)> TimeDmgFunc;
+typedef std::function<DmgState::State (GoioObj*, Time)> TimeDmgFunc;
 
 }  // namespace goio
 

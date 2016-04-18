@@ -38,7 +38,7 @@ class GoioActor : public GoioObj {
  public:
     virtual ~GoioActor() {}
 
-    virtual TimeFunc get_time_func(const GoioObj*, Second, bool&) = 0;
+    virtual TimeFunc get_time_func(const GoioObj*, Time, bool&) = 0;
 };
 
 class RepairActor : public GoioActor {
@@ -52,7 +52,7 @@ class RepairActor : public GoioActor {
  public:
     virtual ~RepairActor() {}
 
-    virtual DmgState::State repair(GoioObj* obj, Second time) = 0;
+    virtual DmgState::State repair(GoioObj* obj, Time time) = 0;
 };
 
 class ShootActor : public GoioActor {
@@ -66,10 +66,10 @@ class ShootActor : public GoioActor {
  public:
     virtual ~ShootActor() {}
 
-    virtual DmgState::State shoot(GoioObj* obj, Second time,
-                           bool aoe, double aoe_range) = 0;
-    inline DmgState::State shoot(GoioObj* obj, Second time) {
-      return shoot(obj, time, true, 0);
+    virtual DmgState::State shoot(GoioObj* obj, Time time,
+                                  bool aoe, Distance aoe_range) = 0;
+    inline DmgState::State shoot(GoioObj* obj, Time time) {
+      return shoot(obj, time, true, 0_m);
     }
 };
 
