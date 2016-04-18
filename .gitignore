@@ -1,0 +1,4 @@
+build/*
+cppcheck/*
+clangcheck/*
+docs/*
