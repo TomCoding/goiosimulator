@@ -32,7 +32,7 @@ configure_file(
 option(Coverage "Enable gcov support." OFF)
 
 include(FindPkgConfig)
-pkg_check_modules(libconfig REQUIRED "libconfig++")
+pkg_check_modules(libconfig REQUIRED "libconfig++>=1.5")
 
 file(GLOB sources "${PROJECT_SOURCE_DIR}/*.cpp")
 include_directories("${PROJECT_SOURCE_DIR}")
@@ -42,8 +42,7 @@ target_link_libraries(goiovalues ${libconfig_LIBRARIES})
 
 target_compile_options(goiovalues PUBLIC
     -g
-    -fdiagnostics-color=always
-    -std=c++14 -O3 -ffast-math -pedantic -Wall -Wextra -Wcast-align
+    -std=c++1y -O3 -ffast-math -pedantic -Wall -Wextra -Wcast-align
     -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2
     -Winit-self -Wmissing-declarations -Wmissing-include-dirs
     -Wold-style-cast -Woverloaded-virtual -Wredundant-decls
@@ -51,30 +50,19 @@ target_compile_options(goiovalues PUBLIC
     -Wundef -Weffc++
 )
 if(CMAKE_COMPILER_IS_GNUCC)
+  if("${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 4.8.4)
+    message(FATAL_ERROR "GCC version must be at least 4.8.4!")
+  elseif(NOT "${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 4.9)
+    target_compile_options(goiovalues PUBLIC
+        -fdiagnostics-color=always
+    )
+  endif()
+
   target_compile_options(goiovalues PUBLIC
       -Wlogical-op
       -Wnoexcept
       -Wstrict-null-sentinel
   )
-
-if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR COVERAGE)
-    target_compile_options(goiovalues PUBLIC
-        -g
-        -DSTRONG_TYPE_COMPILE
-    )
-    if(COVERAGE)
-      list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
-      include(CodeCoverage)
-      target_compile_options(goiovalues PUBLIC
-        -O0 -fprofile-arcs -ftest-coverage
-        --coverage
-        -fno-inline -fno-inline-small-functions -fno-default-inline
-      )
-      target_link_libraries(goiovalues gcov)
-      setup_target_for_coverage(goiovalues_coverage goiovalues
-                                "${PROJECT_BINARY_DIR}/coverage")
-    endif()
-  endif()
 
   if("${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER 5)
     target_compile_options(goiovalues PUBLIC
@@ -84,7 +72,31 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR COVERAGE)
         -Wbool-compare
     )
   endif()
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  if("${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 3.4)
+    message(FATAL_ERROR "Clang version must be at least 3.4!")
+  endif()
 endif()
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR COVERAGE)
+  target_compile_options(goiovalues PUBLIC
+      -g
+      -DSTRONG_TYPE_COMPILE
+  )
+  if(COVERAGE)
+    list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+    include(CodeCoverage)
+    target_compile_options(goiovalues PUBLIC
+      -O0 -fprofile-arcs -ftest-coverage
+      --coverage
+      -fno-inline -fno-inline-small-functions -fno-default-inline
+    )
+    target_link_libraries(goiovalues gcov)
+    setup_target_for_coverage(goiovalues_coverage goiovalues
+                              "${PROJECT_BINARY_DIR}/coverage")
+  endif()
+endif()
+
 
 find_program(MEMORYCHECK_COMMAND valgrind)
 set(MEMORYCHECK_COMMAND_OPTIONS "--trace-children=yes \

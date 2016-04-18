@@ -242,7 +242,7 @@ if [ "$SUCCESS" == 0 ]; then
 fi
 
 if [ "$?" == 0 ]; then
-  SUCCESS=1
+  SUCCESS=0
   if [ "$NO_TESTS" == 0 ]; then
     echo
     ctest --output-on-failure -R run -D ExperimentalMemCheck
@@ -297,7 +297,7 @@ if [ "$DOC" == 1 ]; then
   cd ..
 fi
 
-if [ "$SUCCESS" == 1 ]; then
+if [ "$SUCCESS" == 0 ]; then
   if [ "$RUN" == 1 ]; then
     wait_input
     echo
@@ -308,3 +308,4 @@ if [ "$SUCCESS" == 1 ]; then
     valgrind --trace-children=yes --leak-check=full --show-reachable=yes "$BUILD_DIR/./$BIN_NAME"
   fi
 fi
+exit $SUCCESS
