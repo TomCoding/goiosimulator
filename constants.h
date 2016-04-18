@@ -111,15 +111,15 @@ inline DmgState::State get_dmg_state_self_reversed(DmgState::State dmg_state) {
 
 #ifdef STRONG_TYPE_COMPILE
 template<int M, int K, int S, int H> struct Unit {
-  enum { m=M, kg=K, s=S, h=H };
+  enum { m = M, kg = K, s = S, h = H };
 };
 
 template<typename Unit>
 struct Value {
   double val;
   constexpr Value() : val() {}
-  constexpr explicit Value(double d) : val(d) {} 
-  Value(const Value& obj) : val(obj.val) {} 
+  constexpr explicit Value(double d) : val(d) {}
+  Value(const Value& obj) : val(obj.val) {}
   constexpr Value& operator=(const Value& obj) { val = obj.val; return *this; }
 
   constexpr Value operator+(const Value& obj) const { return Value(val + obj.val); }
@@ -145,16 +145,16 @@ struct Value {
 };
 
 template<>
-inline constexpr Value<Unit<0,0,0,0>>::operator double() { return val; }
+inline constexpr Value<Unit<0, 0, 0, 0>>::operator double() { return val; }
 
-using Distance     = Value<Unit<1,0,0,0>>;
-using Time         = Value<Unit<0,0,1,0>>;
-using P_Time       = Value<Unit<0,0,-1,0>>;
-using Health       = Value<Unit<0,0,0,1>>;
-using Speed        = Value<Unit<1,0,-1,0>>;
-using Acceleration = Value<Unit<1,0,-2,0>>;
-using Weight       = Value<Unit<0,1,0,0>>;
-using Force        = Value<Unit<1,1,-2,0>>;
+using Distance     = Value<Unit<1, 0,  0, 0>>;
+using Time         = Value<Unit<0, 0,  1, 0>>;
+using P_Time       = Value<Unit<0, 0, -1, 0>>;
+using Health       = Value<Unit<0, 0,  0, 1>>;
+using Speed        = Value<Unit<1, 0, -1, 0>>;
+using Acceleration = Value<Unit<1, 0, -2, 0>>;
+using Weight       = Value<Unit<0, 1,  0, 0>>;
+using Force        = Value<Unit<1, 1, -2, 0>>;
 
 // a f-p literal suffixed by '_s'
 constexpr Time operator"" _s(long double d) {
@@ -203,82 +203,82 @@ constexpr Force operator"" _N(unsigned long long d) {
 
 template<int m1, int k1, int s1, int h1, int m2, int k2, int s2, int h2>
 Value<Unit<m1 - m2, k1 - k2, s1 - s2, h1 - h2>> operator/
-                (Value<Unit<m1, k1, s1, h1>> a, Value<Unit<m2, k2, s2, h2>> b) {
+              (Value<Unit<m1, k1, s1, h1>> a, Value<Unit<m2, k2, s2, h2>> b) {
   return Value<Unit<m1 - m2, k1 - k2, s1 - s2, h1 - h2>>(a.val / b.val);
 }
 template<int m1, int k1, int s1, int h1, int m2, int k2, int s2, int h2>
 Value<Unit<m1 + m2, k1 + k2, s1 + s2, h1 + h2>> operator*
-                (Value<Unit<m1, k1, s1, h1>> a, Value<Unit<m2, k2, s2, h2>> b) {
+              (Value<Unit<m1, k1, s1, h1>> a, Value<Unit<m2, k2, s2, h2>> b) {
   return Value<Unit<m1 + m2, k1 + k2, s1 + s2, h1 + h2>>(a.val * b.val);
 }
 
 template<int m, int k, int s, int h>
-constexpr Value<Unit<m,k,s,h>> operator*(double d,
-                                         const Value<Unit<m,k,s,h>>& obj) {
-  return Value<Unit<m,k,s,h>>(d * obj.val);
+constexpr Value<Unit<m, k, s, h>> operator*(double d,
+                                         const Value<Unit<m, k, s, h>>& obj) {
+  return Value<Unit<m, k, s, h>>(d * obj.val);
 }
 template<int m, int k, int s, int h>
-constexpr Value<Unit<m,k,s,h>> operator*(int i,
-                                         const Value<Unit<m,k,s,h>>& obj) {
-  return Value<Unit<m,k,s,h>>(i * obj.val);
+constexpr Value<Unit<m, k, s, h>> operator*(int i,
+                                         const Value<Unit<m, k, s, h>>& obj) {
+  return Value<Unit<m, k, s, h>>(i * obj.val);
 }
 
 template<int m, int k, int s, int h>
-constexpr Value<Unit<-m,-k,-s,-h>> operator/(double d,
-                                             const Value<Unit<m,k,s,h>>& obj) {
-  return Value<Unit<-m,-k,-s,-h>>(d / obj.val);
+constexpr Value<Unit<-m, -k, -s, -h>> operator/(double d,
+                                        const Value<Unit<m, k, s, h>>& obj) {
+  return Value<Unit<-m, -k, -s, -h>>(d / obj.val);
 }
 template<int m, int k, int s, int h>
-constexpr Value<Unit<-m,-k,-s,-h>> operator/(int i,
-                                             const Value<Unit<m,k,s,h>>& obj) {
-  return Value<Unit<-m,-k,-s,-h>>(i / obj.val);
+constexpr Value<Unit<-m, -k, -s, -h>> operator/(int i,
+                                        const Value<Unit<m, k, s, h>>& obj) {
+  return Value<Unit<-m, -k, -s, -h>>(i / obj.val);
 }
 
 #else
 typedef double Distance;
 typedef double Time;
+typedef double P_Time;
 typedef double Health;
 typedef double Acceleration;
 typedef double Weight;
 typedef double Force;
 
 constexpr double operator"" _s(long double d) {
-  return double(d);
+  return d;
 }
 constexpr double operator"" _s(unsigned long long d) {
-  return double(d);
+  return d;
 }
 constexpr double operator"" _m(long double d) {
-  return double(d);
+  return d;
 }
 constexpr double operator"" _m(unsigned long long d) {
-  return double(d);
+  return d;
 }
 constexpr double operator"" _hp(long double d) {
-  return double(d);
+  return d;
 }
 constexpr double operator"" _hp(unsigned long long d) {
-  return double(d);
+  return d;
 }
 constexpr double operator"" _m_s2(long double d) {
-  return double(d);
+  return d;
 }
 constexpr double operator"" _m_s2(unsigned long long d) {
-  return double(d);
+  return d;
 }
 constexpr double operator"" _kg(long double d) {
-  return double(d);
+  return d;
 }
 constexpr double operator"" _kg(unsigned long long d) {
-  return double(d);
+  return d;
 }
 constexpr double operator"" _N(long double d) {
-  return double(d);
+  return d;
 }
 constexpr double operator"" _N(unsigned long long d) {
-  return double(d);
+  return d;
 }
-
 #endif
 
 }  // namespace goio

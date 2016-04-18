@@ -118,9 +118,9 @@ DmgState::State RepairTool::repair(GoioObj* obj, Time time) {
   } else {
     done = 1;
     auto start_rebuild = obj->get_rebuild_state() == 0;
-    if (obj->add_rebuild(get_rebuild_power()))
+    if (obj->add_rebuild(get_rebuild_power())) {
       ret |= DmgState::TRANSITIONED;
-    else if (get_rebuild_power() > 0) {
+    } else if (get_rebuild_power() > 0) {
       if (start_rebuild)
         ret |= DmgState::START_REBUILD;
       else

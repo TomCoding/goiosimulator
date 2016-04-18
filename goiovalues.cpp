@@ -50,12 +50,6 @@ int main() {
 
   c.simulate_all();
 
-  {
-  using namespace goio;
-  Distance t = -100_m;
-  std::cout << t << std::endl;
-  }
-
   auto mon = new goio::Monitor(1_s);
 
   auto gat = new goio::Gatling("Gatling1");
@@ -67,7 +61,7 @@ int main() {
   gat->apply_ammunition(inc);
   // gat3->apply_ammunition(loch);
   // gat4->apply_ammunition(loch);
-  // gat->set_health(10);
+  // gat->set_health(10_hp);
 
   auto gat2 = new goio::Gatling("Gatling2");
 
