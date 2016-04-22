@@ -182,7 +182,7 @@ constexpr Health operator"" _hp(long double d) {
 constexpr Health operator"" _hp(unsigned long long d) {
   return Health(d);
 }
-constexpr Acceleration operator ""_m_s2(long double d) {
+constexpr Acceleration operator"" _m_s2(long double d) {
   return Acceleration(d);
 }
 constexpr Acceleration operator"" _m_s2(unsigned long long d) {

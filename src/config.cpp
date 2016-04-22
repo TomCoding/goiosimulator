@@ -55,7 +55,12 @@ bool Config::find_unknown_setting(const std::set<std::string>& settings,
   bool unknown = false;
   for (auto i = 0; i < settingsobj.getLength(); ++i) {
     if (settings.find(settingsobj[i].getName()) == settings.end()) {
-      std::cerr << "Unknown setting in '" << settingsobj.getPath() << "': "
+#ifndef CLANG
+      std::cerr << "Unknown setting in '"
+                << settingsobj.getPath() << "': "
+#else
+      std::cerr << "Unknown setting: "
+#endif
                 << settingsobj[i].getName() << std::endl;
       unknown = true;
     }
@@ -118,7 +123,11 @@ int Config::load_config() {
 
       cur_setting = "name";
       simulation_settings.insert(cur_setting);
-      const std::string name = simulation[cur_setting];
+      const std::string name =
+#ifdef CLANG
+                               static_cast<const char*>
+#endif
+                                                       (simulation[cur_setting]);
       sim_new.add(cur_setting, Setting::TypeString) = name;
 
 
@@ -142,12 +151,20 @@ int Config::load_config() {
 
         cur_setting = "name";
         object_settings.insert(cur_setting);
-        const std::string obj_name = object[cur_setting];
+        const std::string obj_name =
+#ifdef CLANG
+                                     static_cast<const char*>
+#endif
+                                                             (object[cur_setting]);
         obj_new.add(cur_setting, Setting::TypeString) = obj_name;
 
         cur_setting = "type";
         object_settings.insert(cur_setting);
-        const std::string obj_type = object[cur_setting];
+        const std::string obj_type =
+#ifdef CLANG
+                                     static_cast<const char*>
+#endif
+                                                             (object[cur_setting]);
         obj_new.add(cur_setting, Setting::TypeString) = obj_type;
 
         cur_setting = "ammo";
@@ -357,17 +374,29 @@ int Config::load_config() {
 
         cur_setting = "name";
         actor_settings.insert(cur_setting);
-        const std::string act_name = actor[cur_setting];
+        const std::string act_name =
+#ifdef CLANG
+                                     static_cast<const char*>
+#endif
+                                                             (actor[cur_setting]);
         act_new.add(cur_setting, Setting::TypeString) = act_name;
 
         cur_setting = "recipient";
         actor_settings.insert(cur_setting);
-        const std::string act_recipient = actor[cur_setting];
+        const std::string act_recipient =
+#ifdef CLANG
+                                static_cast<const char*>
+#endif
+                                                        (actor[cur_setting]);
         act_new.add(cur_setting, Setting::TypeString) = act_recipient;
 
         cur_setting = "action";
         actor_settings.insert(cur_setting);
-        const std::string act_action = actor[cur_setting];
+        const std::string act_action =
+#ifdef CLANG
+                                static_cast<const char*>
+#endif
+                                                        (actor[cur_setting]);
         act_new.add(cur_setting, Setting::TypeString) = act_action;
 
         cur_setting = "start";

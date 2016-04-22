@@ -76,6 +76,9 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   if("${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 3.4)
     message(FATAL_ERROR "Clang version must be at least 3.4!")
   endif()
+  target_compile_options(goiovalues PUBLIC
+    -DCLANG
+  )
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR COVERAGE)
