@@ -68,31 +68,37 @@ bool TimeObj::next_event() {
       fire = false;
 
     // update targeted actor
+    {
     auto iterpair = registrars.equal_range(funcdata->obj);
     for (auto it = iterpair.first; it != iterpair.second; ++it) {
       if (dmg_state & it->second->dmg_flags)
         recalc_next_event(it->second);
     }
+    }
 
     // update to recipient associated actors
-    auto iterpair2 = recipients.equal_range(funcdata->obj);
-    for (auto it = iterpair2.first; it != iterpair2.second; ++it) {
+    {
+    auto iterpair = recipients.equal_range(funcdata->obj);
+    for (auto it = iterpair.first; it != iterpair.second; ++it) {
       // don't update current actor itself
       if (it->second != funcdata && dmg_state & it->second->dmg_flags)
         recalc_next_event(it->second);
       if (it->second->fire)
         fire = false;
     }
+    }
     if (fire)
       register_burn_event(funcdata->obj);
 
     // update to actor associated actors
     if (dmg_state & DmgState::SELF_ALL) {
-      auto iterpair3 = recipients.equal_range(funcdata->registrar);
-      for (auto it = iterpair3.first; it != iterpair3.second; ++it) {
+      {
+      auto iterpair = recipients.equal_range(funcdata->registrar);
+      for (auto it = iterpair.first; it != iterpair.second; ++it) {
         if (it->second != funcdata &&
             get_dmg_state_self_reversed(dmg_state) & it->second->dmg_flags)
           recalc_next_event(it->second);
+      }
       }
     }
   }
@@ -138,7 +144,7 @@ bool TimeObj::next_event() {
     return true;
   } else {
     auto iterpair = registrars.equal_range(funcdata->registrar);
-    for (auto it = iterpair.first; it != iterpair.second; ++it) {
+    for (auto&& it = iterpair.first; it != iterpair.second; ++it) {
       if (it->second == funcdata) {
         funcdata->time_cur = get_time();
         break;

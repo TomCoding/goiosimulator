@@ -210,8 +210,8 @@ TimeFunc Engineer::get_time_func(const GoioObj* obj, Time time, bool& force) {
 }
 
 void Engineer::free_tools() {
-  for (auto i = 0; i < 3; ++i)
-    delete tools[i];
+  for (auto&& tool : tools)
+    delete tool;
 }
 
 MainEngineer::MainEngineer(const std::string& name, bool extinguisher,

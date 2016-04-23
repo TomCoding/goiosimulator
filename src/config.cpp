@@ -39,12 +39,11 @@
 namespace goio {
 
 Config::~Config() {
-  for (auto it = simulations.begin(); it != simulations.end(); ++it) {
-    delete std::get<1>(*it);
-    delete std::get<2>(*it);
-    for (auto it2 = std::get<3>(*it).begin();
-                                    it2 != std::get<3>(*it).end(); ++it2) {
-      delete it2->second;
+  for (auto&& it : simulations) {
+    delete std::get<1>(it);
+    delete std::get<2>(it);
+    for (auto&& it2 : std::get<3>(it)) {
+      delete it2.second;
     }
   }
   delete cfg_new;
