@@ -41,7 +41,6 @@ add_executable(goiovalues "${sources}")
 target_link_libraries(goiovalues ${libconfig_LIBRARIES})
 
 target_compile_options(goiovalues PUBLIC
-    -g
     -std=c++1y -O3 -ffast-math -pedantic -Wall -Wextra -Wcast-align
     -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2
     -Winit-self -Wmissing-declarations -Wmissing-include-dirs

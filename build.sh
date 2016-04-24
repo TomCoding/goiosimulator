@@ -166,6 +166,7 @@ for i in "$@"; do
       shift
       ;;
     *)
+      echo "Invalid option: $i"
       help
       exit 1
       ;;

@@ -81,6 +81,12 @@ void Gun::set_aoe_radius(Distance aoe_radius) {
   else
     cur_aoe_radius = aoe_radius;
 }
+void Gun::set_arming_time(Time arming_time) {
+  if (arming_time < 0_s)
+    cur_arming_time = 0_s;
+  else
+    cur_arming_time = arming_time;
+}
 void Gun::set_direct_ign_chance(double ign_chance) {
   if (ign_chance < 0)
     cur_direct_ign_chance = 0;
@@ -96,6 +102,66 @@ void Gun::set_aoe_ign_chance(double ign_chance) {
     cur_aoe_ign_chance = 1;
   else
     cur_aoe_ign_chance = ign_chance;
+}
+void Gun::set_range(Distance range) {
+  if (range < 0_m)
+    cur_range = 0_m;
+  else
+    cur_range = range;
+}
+void Gun::set_projectile_speed(Speed projectile_speed) {
+  if (projectile_speed < 0_m/1_s)
+    cur_projectile_speed = 0_m/1_s;
+  else
+    cur_projectile_speed = projectile_speed;
+}
+void Gun::set_shell_drop(Acceleration shell_drop) {
+  if (shell_drop < 0_m_s2)
+    cur_shell_drop = 0_m_s2;
+  else
+    cur_shell_drop = shell_drop;
+}
+void Gun::set_jitter(Angle jitter) {
+  if (jitter < 0_deg)
+    cur_jitter = 0_deg;
+  else
+    cur_jitter = jitter;
+}
+void Gun::set_turn_left(Angle turn_left) {
+  if (turn_left < 0_deg)
+    cur_turn_left = 0_deg;
+  else
+    cur_turn_left = turn_left;
+}
+void Gun::set_turn_right(Angle turn_right) {
+  if (turn_right < 0_deg)
+    cur_turn_right = 0_deg;
+  else
+    cur_turn_right = turn_right;
+}
+void Gun::set_turn_up(Angle turn_up) {
+  if (turn_up < 0_deg)
+    cur_turn_up = 0_deg;
+  else
+    cur_turn_up = turn_up;
+}
+void Gun::set_turn_down(Angle turn_down) {
+  if (turn_down < 0_deg)
+    cur_turn_down = 0_deg;
+  else
+    cur_turn_down = turn_down;
+}
+void Gun::set_turn_horizontal(Angular_Speed turn_horizontal) {
+  if (turn_horizontal < 0_deg/1_s)
+    cur_turn_horizontal = 0_deg/1_s;
+  else
+    cur_turn_horizontal = turn_horizontal;
+}
+void Gun::set_turn_vertical(Angular_Speed turn_vertical) {
+  if (turn_vertical < 0_deg/1_s)
+    cur_turn_vertical = 0_deg/1_s;
+  else
+    cur_turn_vertical = turn_vertical;
 }
 
 int Gun::get_max_clipsize() const {

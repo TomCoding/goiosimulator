@@ -110,8 +110,8 @@ inline DmgState::State get_dmg_state_self_reversed(DmgState::State dmg_state) {
 
 
 #ifdef STRONG_TYPE_COMPILE
-template<int M, int K, int S, int H> struct Unit {
-  enum { m = M, kg = K, s = S, h = H };
+template<int M, int K, int S, int H, int A> struct Unit {
+  enum { m = M, kg = K, s = S, h = H, a = A };
 };
 
 template<typename Unit>
@@ -145,16 +145,18 @@ struct Value {
 };
 
 template<>
-inline constexpr Value<Unit<0, 0, 0, 0>>::operator double() { return val; }
+inline constexpr Value<Unit<0, 0, 0, 0, 0>>::operator double() { return val; }
 
-using Distance     = Value<Unit<1, 0,  0, 0>>;
-using Time         = Value<Unit<0, 0,  1, 0>>;
-using P_Time       = Value<Unit<0, 0, -1, 0>>;
-using Health       = Value<Unit<0, 0,  0, 1>>;
-using Speed        = Value<Unit<1, 0, -1, 0>>;
-using Acceleration = Value<Unit<1, 0, -2, 0>>;
-using Weight       = Value<Unit<0, 1,  0, 0>>;
-using Force        = Value<Unit<1, 1, -2, 0>>;
+using Distance      = Value<Unit<1, 0,  0, 0, 0>>;
+using Time          = Value<Unit<0, 0,  1, 0, 0>>;
+using P_Time        = Value<Unit<0, 0, -1, 0, 0>>;
+using Health        = Value<Unit<0, 0,  0, 1, 0>>;
+using Speed         = Value<Unit<1, 0, -1, 0, 0>>;
+using Acceleration  = Value<Unit<1, 0, -2, 0, 0>>;
+using Weight        = Value<Unit<0, 1,  0, 0, 0>>;
+using Force         = Value<Unit<1, 1, -2, 0, 0>>;
+using Angle         = Value<Unit<0, 0,  0, 0, 1>>;
+using Angular_Speed = Value<Unit<0, 0, -1, 0, 1>>;
 
 // a f-p literal suffixed by '_s'
 constexpr Time operator"" _s(long double d) {
@@ -200,38 +202,56 @@ constexpr Force operator"" _N(long double d) {
 constexpr Force operator"" _N(unsigned long long d) {
   return Force(d);
 }
-
-template<int m1, int k1, int s1, int h1, int m2, int k2, int s2, int h2>
-Value<Unit<m1 - m2, k1 - k2, s1 - s2, h1 - h2>> operator/
-              (Value<Unit<m1, k1, s1, h1>> a, Value<Unit<m2, k2, s2, h2>> b) {
-  return Value<Unit<m1 - m2, k1 - k2, s1 - s2, h1 - h2>>(a.val / b.val);
+constexpr Angle operator"" _deg(long double d) {
+  return Angle(d);
 }
-template<int m1, int k1, int s1, int h1, int m2, int k2, int s2, int h2>
-Value<Unit<m1 + m2, k1 + k2, s1 + s2, h1 + h2>> operator*
-              (Value<Unit<m1, k1, s1, h1>> a, Value<Unit<m2, k2, s2, h2>> b) {
-  return Value<Unit<m1 + m2, k1 + k2, s1 + s2, h1 + h2>>(a.val * b.val);
+constexpr Angle operator"" _deg(unsigned long long d) {
+  return Angle(d);
 }
 
-template<int m, int k, int s, int h>
-constexpr Value<Unit<m, k, s, h>> operator*(double d,
-                                         const Value<Unit<m, k, s, h>>& obj) {
-  return Value<Unit<m, k, s, h>>(d * obj.val);
+template<int m1, int k1, int s1, int h1, int a1,
+         int m2, int k2, int s2, int h2, int a2>
+Value<Unit<m1 - m2, k1 - k2, s1 - s2, h1 - h2, a1 - a2>> operator/
+                                      (Value<Unit<m1, k1, s1, h1, a1>> a,
+                                       Value<Unit<m2, k2, s2, h2, a2>> b) {
+  return Value<Unit<m1 - m2,
+                    k1 - k2,
+                    s1 - s2,
+                    h1 - h2,
+                    a1 - a2>>(a.val / b.val);
 }
-template<int m, int k, int s, int h>
-constexpr Value<Unit<m, k, s, h>> operator*(int i,
-                                         const Value<Unit<m, k, s, h>>& obj) {
-  return Value<Unit<m, k, s, h>>(i * obj.val);
+template<int m1, int k1, int s1, int h1, int a1,
+         int m2, int k2, int s2, int h2, int a2>
+Value<Unit<m1 + m2, k1 + k2, s1 + s2, h1 + h2, a1 + a2>> operator*
+                                      (Value<Unit<m1, k1, s1, h1, a1>> a,
+                                       Value<Unit<m2, k2, s2, h2, a2>> b) {
+  return Value<Unit<m1 + m2,
+                    k1 + k2,
+                    s1 + s2,
+                    h1 + h2,
+                    a1 + a2>>(a.val * b.val);
 }
 
-template<int m, int k, int s, int h>
-constexpr Value<Unit<-m, -k, -s, -h>> operator/(double d,
-                                        const Value<Unit<m, k, s, h>>& obj) {
-  return Value<Unit<-m, -k, -s, -h>>(d / obj.val);
+template<int m, int k, int s, int h, int a>
+constexpr Value<Unit<m, k, s, h, a>> operator*(double d,
+                                      const Value<Unit<m, k, s, h, a>>& obj) {
+  return Value<Unit<m, k, s, h, a>>(d * obj.val);
 }
-template<int m, int k, int s, int h>
-constexpr Value<Unit<-m, -k, -s, -h>> operator/(int i,
-                                        const Value<Unit<m, k, s, h>>& obj) {
-  return Value<Unit<-m, -k, -s, -h>>(i / obj.val);
+template<int m, int k, int s, int h, int a>
+constexpr Value<Unit<m, k, s, h, a>> operator*(int i,
+                                      const Value<Unit<m, k, s, h, a>>& obj) {
+  return Value<Unit<m, k, s, h, a>>(i * obj.val);
+}
+
+template<int m, int k, int s, int h, int a>
+constexpr Value<Unit<-m, -k, -s, -h, -a>> operator/(double d,
+                                      const Value<Unit<m, k, s, h, a>>& obj) {
+  return Value<Unit<-m, -k, -s, -h, -a>>(d / obj.val);
+}
+template<int m, int k, int s, int h, int a>
+constexpr Value<Unit<-m, -k, -s, -h, -a>> operator/(int i,
+                                      const Value<Unit<m, k, s, h, a>>& obj) {
+  return Value<Unit<-m, -k, -s, -h, -a>>(i / obj.val);
 }
 
 #else
@@ -242,6 +262,8 @@ typedef double Health;
 typedef double Acceleration;
 typedef double Weight;
 typedef double Force;
+typedef double Angle;
+typedef double Angular_Speed;
 
 constexpr double operator"" _s(long double d) {
   return d;
@@ -277,6 +299,12 @@ constexpr double operator"" _N(long double d) {
   return d;
 }
 constexpr double operator"" _N(unsigned long long d) {
+  return d;
+}
+constexpr double operator"" _deg(long double d) {
+  return d;
+}
+constexpr double operator"" _deg(unsigned long long d) {
   return d;
 }
 #endif
