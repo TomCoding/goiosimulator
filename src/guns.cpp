@@ -76,16 +76,22 @@ void Gun::set_aoe_dmg_type(DmgType aoe_dmg_type) {
   cur_aoe_dmg_type = aoe_dmg_type;
 }
 void Gun::set_aoe_radius(Distance aoe_radius) {
-  if (aoe_radius < 0_m)
+  if (aoe_radius < 0_m) {
     cur_aoe_radius = 0_m;
-  else
+    cur_arming_time = 0_s;
+  } else {
     cur_aoe_radius = aoe_radius;
+    cur_arming_time = aoe_radius/cur_projectile_speed;
+  }
 }
 void Gun::set_arming_time(Time arming_time) {
-  if (arming_time < 0_s)
+  if (arming_time < 0_s) {
     cur_arming_time = 0_s;
-  else
+    cur_aoe_radius = 0_m;
+  } else {
     cur_arming_time = arming_time;
+    cur_aoe_radius = arming_time * cur_projectile_speed;
+  }
 }
 void Gun::set_direct_ign_chance(double ign_chance) {
   if (ign_chance < 0)
@@ -114,6 +120,7 @@ void Gun::set_projectile_speed(Speed projectile_speed) {
     cur_projectile_speed = 0_m/1_s;
   else
     cur_projectile_speed = projectile_speed;
+  cur_aoe_radius = cur_arming_time * cur_projectile_speed;
 }
 void Gun::set_shell_drop(Acceleration shell_drop) {
   if (shell_drop < 0_m_s2)
@@ -170,12 +177,6 @@ int Gun::get_max_clipsize() const {
   return get_orig_clipsize();
 }
 
-P_Time Gun::get_max_rof() const {
-  if (get_ammo() != nullptr)
-    return get_orig_rof() * get_ammo()->get_rof();
-  return get_orig_rof();
-}
-
 bool Gun::apply_ammunition(const Ammunition* ammo) {
   if (ammo == nullptr)
     return false;
@@ -211,15 +212,19 @@ void Gun::reload(bool with_ammo) {
 }
 
 inline P_Time Gun::get_rof_changed() const {
-  return get_health()/get_max_health()*get_max_rof();
+  return get_health()/get_max_health()*get_rof();
 }
-
 inline Time Gun::get_time_per_shot() const {
-  return get_max_health()/get_health()/get_max_rof();
+  return get_max_health()/get_health()/get_rof();
 }
-
 inline Time Gun::get_reload_changed() const {
   return get_max_health()/get_health()*get_reload();
+}
+inline Angular_Speed Gun::get_turn_horizontal_changed() const {
+  return get_max_health()/get_health()*get_turn_horizontal();
+}
+inline Angular_Speed Gun::get_turn_vertical_changed() const {
+  return get_max_health()/get_health()*get_turn_vertical();
 }
 
 DmgState::State Gun::shoot(GoioObj* obj, Time time, bool aoe, Distance aoe_range) {

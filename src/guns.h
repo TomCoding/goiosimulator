@@ -238,7 +238,6 @@ class Gun : public GunInfo, public ShootActor {
     virtual ~Gun() {}
 
     int             get_max_clipsize() const;
-    P_Time          get_max_rof() const;
     inline int      get_clipsize() const { return cur_clipsize; }
     inline P_Time   get_rof() const { return cur_rof; }
     inline Time     get_reload() const { return cur_reload; }
@@ -269,6 +268,8 @@ class Gun : public GunInfo, public ShootActor {
     P_Time get_rof_changed() const;
     Time get_time_per_shot() const;
     Time get_reload_changed() const;
+    Angular_Speed get_turn_horizontal_changed() const;
+    Angular_Speed get_turn_vertical_changed() const;
 
     DmgState::State shoot(GoioObj* obj, Time,
                           bool aoe, Distance aoe_range) override;
