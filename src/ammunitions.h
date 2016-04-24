@@ -88,7 +88,103 @@ class Lochnagar : public Ammunition {
             0.2,           // rotation speed
             0,             // fire stacks
             true,          // proportional self damage
-            false) {}      // temporary fire immunity
+            false          // temporary fire immunity
+    ) {}
+};
+
+class Greased : public Ammunition {
+ public:
+    Greased() : Ammunition(
+            1.2,           // magazine
+            0.8,           // damage
+            1.6,           // rof
+            1,             // aoe radius
+            1,             // arming time
+            0,             // ign_chance
+            0.8,           // projectile speed
+            1,             // shell drop
+            1,             // jitter
+            0.85,          // rotation speed
+            0,             // fire stacks
+            false,         // proportional self damage
+            false          // temporary fire immunity
+    ) {}
+};
+
+class Charged : public Ammunition {
+ public:
+    Charged() : Ammunition(
+            0.8,           // magazine
+            1.3,           // damage
+            0.75,          // rof
+            1,             // aoe radius
+            1,             // arming time
+            0,             // ign_chance
+            1,             // projectile speed
+            1,             // shell drop
+            1,             // jitter
+            1,             // rotation speed
+            0,             // fire stacks
+            false,         // proportional self damage
+            false          // temporary fire immunity
+    ) {}
+};
+
+class Lesmok : public Ammunition {
+ public:
+    Lesmok() : Ammunition(
+            0.7,           // magazine
+            1,             // damage
+            1,             // rof
+            1,             // aoe radius
+            1,             // arming time
+            0,             // ign_chance
+            1.7,           // projectile speed
+            0.7,           // shell drop
+            1,             // jitter
+            0.7,           // rotation speed
+            0,             // fire stacks
+            false,         // proportional self damage
+            false          // temporary fire immunity
+    ) {}
+};
+
+class Burst : public Ammunition {
+ public:
+    Burst() : Ammunition(
+            1.2,           // magazine
+            1,             // damage
+            0.85,          // rof
+            1.5,           // aoe radius
+            1,             // arming time
+            0,             // ign_chance
+            1,             // projectile speed
+            1,             // shell drop
+            1,             // jitter
+            1,             // rotation speed
+            0,             // fire stacks
+            false,         // proportional self damage
+            false          // temporary fire immunity
+    ) {}
+};
+
+class Heavy : public Ammunition {
+ public:
+    Heavy() : Ammunition(
+            0.75,          // magazine
+            1,             // damage
+            1,             // rof
+            1,             // aoe radius
+            1,             // arming time
+            0,             // ign_chance
+            1,             // projectile speed
+            1,             // shell drop
+            0.3,           // jitter
+            1,             // rotation speed
+            0,             // fire stacks
+            false,         // proportional self damage
+            false          // temporary fire immunity
+    ) {}
 };
 
 class Incendiary : public Ammunition {
@@ -106,7 +202,8 @@ class Incendiary : public Ammunition {
             1,             // rotation speed
             0,             // fire stacks
             false,         // proportional self damage
-            false) {}      // temporary fire immunity
+            false          // temporary fire immunity
+    ) {}
 };
 
 class Heatsink : public Ammunition {
@@ -124,7 +221,8 @@ class Heatsink : public Ammunition {
             1.5,           // rotation speed
             -3,            // fire stacks
             false,         // proportional self damage
-            true) {}       // temporary fire immunity
+            true           // temporary fire immunity
+    ) {}
 };
 
 }  // namespace goio

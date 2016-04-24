@@ -26,5 +26,10 @@ namespace goio {
 REGISTER_TYPE_SHORT(Lochnagar, "Lochnagar");
 REGISTER_TYPE_SHORT(Incendiary, "Incendiary");
 REGISTER_TYPE_SHORT(Heatsink, "Heatsink");
+REGISTER_TYPE_SHORT(Greased, "Greased");
+REGISTER_TYPE_SHORT(Charged, "Charged");
+REGISTER_TYPE_SHORT(Lesmok, "Lesmok");
+REGISTER_TYPE_SHORT(Burst, "Burst");
+REGISTER_TYPE_SHORT(Heavy, "Heavy");
 
 }  // namespace goio
