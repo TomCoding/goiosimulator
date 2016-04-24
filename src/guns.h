@@ -31,8 +31,25 @@
 
 namespace goio {
 
+enum class GunType {
+  PROJECTILE,
+  RAYCAST,
+  PARTICLE
+};
+
+enum class GunCategory {
+  MORTARS,
+  CARRONADES,
+  FLAKS,
+  ROCKET_LAUNCHERS,
+  UTILITY,
+  OTHERS
+};
+
 class GunInfo {
  private:
+    const GunType  type;
+    const GunCategory category;
     const int      clipsize;
     const P_Time   rof;
     const Time     reload_;
@@ -58,7 +75,9 @@ class GunInfo {
     const Angular_Speed turn_vertical;
 
  protected:
-    GunInfo(int clipsize,
+    GunInfo(GunType type,
+            GunCategory category,
+            int clipsize,
             P_Time rof,
             Time reload,
             Health direct_dmg,
@@ -81,6 +100,8 @@ class GunInfo {
             Angle turn_down,
             Angular_Speed turn_horizontal,
             Angular_Speed turn_vertical) :
+                                   type(type),
+                                   category(category),
                                    clipsize(clipsize),
                                    rof(rof),
                                    reload_(reload),
@@ -107,6 +128,8 @@ class GunInfo {
     virtual ~GunInfo() {}
 
  public:
+    inline GunType  get_type() const { return type; }
+    inline GunCategory get_category() const { return category; }
     inline int      get_orig_clipsize() const { return clipsize; }
     inline P_Time   get_orig_rof() const { return rof; }
     inline Time     get_orig_reload() const { return reload_; }
@@ -193,6 +216,7 @@ class Gun : public GunInfo, public ShootActor {
 
  protected:
     Gun(const std::string& name, Health max_health,
+        GunType type, GunCategory category,
         int clipsize, P_Time rof, Time reload, Health direct_dmg,
         DmgType direct_dmg_type, Health aoe_dmg, DmgType aoe_dmg_type,
         Distance aoe_radius, Time arming_time,
@@ -202,7 +226,8 @@ class Gun : public GunInfo, public ShootActor {
         Acceleration shell_drop, Angle jitter,
         Angle turn_left, Angle turn_right, Angle turn_up, Angle turn_down,
         Angular_Speed turn_horizontal, Angular_Speed turn_vertical) :
-                GunInfo(clipsize, rof, reload, direct_dmg, direct_dmg_type,
+                GunInfo(type, category,
+                        clipsize, rof, reload, direct_dmg, direct_dmg_type,
                         aoe_dmg, aoe_dmg_type, aoe_radius, arming_time,
                         direct_ign_chance, direct_ign_stacks,
                         aoe_ign_chance, aoe_ign_stacks,
@@ -279,9 +304,11 @@ class Gun : public GunInfo, public ShootActor {
 
 class LightGun : public Gun {
  protected:
-    LightGun(const std::string& name, int clipsize, P_Time rof, Time reload,
-             Health direct_dmg, DmgType direct_dmg_type, Health aoe_dmg,
-             DmgType aoe_dmg_type, Distance aoe_radius, Time arming_time,
+    LightGun(const std::string& name, GunType type, GunCategory category,
+             int clipsize, P_Time rof, Time reload,
+             Health direct_dmg, DmgType direct_dmg_type,
+             Health aoe_dmg, DmgType aoe_dmg_type,
+             Distance aoe_radius, Time arming_time,
              double direct_ign_chance, int direct_ign_stacks,
              double aoe_ign_chance, int aoe_ign_stacks,
              Distance range, Speed projectile_speed,
@@ -290,7 +317,7 @@ class LightGun : public Gun {
              Angle turn_up = 0_deg, Angle turn_down = 0_deg,
              Angular_Speed turn_horizontal = 0_deg/1_s,
              Angular_Speed turn_vertical = 0_deg/1_s) :
-                Gun(name, 250_hp, clipsize, rof, reload,
+                Gun(name, 250_hp, type, category, clipsize, rof, reload,
                     direct_dmg, direct_dmg_type,
                     aoe_dmg, aoe_dmg_type, aoe_radius, arming_time,
                     direct_ign_chance, direct_ign_stacks,
@@ -307,6 +334,8 @@ class Artemis : public LightGun {
  public:
     explicit Artemis(const std::string& name) : LightGun(
                     name,
+                    GunType::PROJECTILE, // gun type
+                    GunCategory::ROCKET_LAUNCHERS, // gun category
                     4,                   // magazine size
                     0.63/1_s,            // rof
                     7_s,                 // reload
@@ -331,6 +360,8 @@ class Banshee : public LightGun {
  public:
     explicit Banshee(const std::string& name) : LightGun(
                     name,
+                    GunType::PROJECTILE, // gun type
+                    GunCategory::ROCKET_LAUNCHERS, // gun category
                     8,                   // magazine size
                     2/1_s,               // rof
                     6_s,                 // reload
@@ -355,6 +386,8 @@ class LightCaro : public LightGun {
  public:
     explicit LightCaro(const std::string& name) : LightGun(
                     name,
+                    GunType::RAYCAST,    // gun type
+                    GunCategory::CARRONADES, // gun category
                     5,                   // magazine size
                     1/1_s,               // rof
                     6_s,                 // reload
@@ -379,6 +412,8 @@ class Flare : public LightGun {
  public:
     explicit Flare(const std::string& name) : LightGun(
                     name,
+                    GunType::PROJECTILE, // gun type
+                    GunCategory::UTILITY, // gun category
                     2,                   // magazine size
                     0.5/1_s,             // rof
                     20_s,                // reload
@@ -403,6 +438,8 @@ class Flamethrower : public LightGun {
  public:
     explicit Flamethrower(const std::string& name) : LightGun(
                     name,
+                    GunType::PARTICLE,   // gun type
+                    GunCategory::OTHERS, // gun category
                     250,                 // magazine size
                     16.67/1_s,           // rof
                     6_s,                 // reload
@@ -427,6 +464,8 @@ class Gatling : public LightGun {
  public:
     explicit Gatling(const std::string& name) : LightGun(
                     name,
+                    GunType::RAYCAST,    // gun type
+                    GunCategory::OTHERS, // gun category
                     82,                  // magazine size
                     8.33/1_s,            // rof
                     5_s,                 // reload
