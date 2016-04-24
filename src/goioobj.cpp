@@ -55,7 +55,7 @@ bool GoioObj::add_fire(int fire, Time immunity_end, Time cooldown_end) {
   if (cooldown_end >= 0_s)
     this->cooldown_end = cooldown_end;
 
-  if (fire_stacks == -1)
+  if (fire_stacks == -1 || get_temporary_immunity())
     return true;
 
   auto new_fire = fire_stacks + fire;

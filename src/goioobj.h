@@ -198,11 +198,14 @@ class GoioObj : public Object {
     Time cooldown_end;
     Time immunity_end;
 
+    bool temporary_immunity;
+
     explicit GoioObj(Health max_health) : name(""), cmp_type(CmpType::HULL),
                 max_health(max_health), health(max_health),
                 fire_stacks(-1), rebuild_state(-1),
                 part_type_multiplier(-1),
-                hull(nullptr), cooldown_end(0), immunity_end(0) {}
+                hull(nullptr), cooldown_end(0), immunity_end(0),
+                temporary_immunity(false) {}
     GoioObj(const GoioObj& obj);
     GoioObj& operator=(const GoioObj& obj);
 
@@ -216,7 +219,7 @@ class GoioObj : public Object {
             health(max_health), fire_stacks(-1), rebuild_state(-1),
             part_type_multiplier(part_type_multiplier),
             hull(new GoioObj(hull_max_health)),
-            cooldown_end(0_s), immunity_end(0_s) {}
+            cooldown_end(0_s), immunity_end(0_s), temporary_immunity(false) {}
     virtual ~GoioObj();
 
     static const     int    max_fire_stacks           = 20;
@@ -242,6 +245,7 @@ class GoioObj : public Object {
     inline GoioObj* get_hull() const { return hull; }
     inline Time    get_cooldown_end() const { return cooldown_end; }
     inline Time    get_immunity_end() const { return immunity_end; }
+    inline bool    get_temporary_immunity() const { return temporary_immunity; }
 
     static inline int get_max_fire_stacks() { return max_fire_stacks; }
     static inline int get_fire_stacks_unusable() { return fire_stacks_unusable; }
@@ -259,6 +263,9 @@ class GoioObj : public Object {
     void set_fire(int fire);
 
     inline void reset_cooldown() { cooldown_end = 0_s; }
+    inline void set_temporary_immunity(bool temporary_immunity) {
+      this->temporary_immunity = temporary_immunity;
+    }
 
     virtual void reset(bool hull = true);
 };

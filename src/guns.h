@@ -272,7 +272,7 @@ class Gun : public GunInfo, public ShootActor {
     Angular_Speed get_turn_vertical_changed() const;
 
     DmgState::State shoot(GoioObj* obj, Time,
-                          bool aoe, Distance aoe_range) override;
+                          bool armed, Distance aoe_range) override;
 
     TimeFunc get_time_func(const GoioObj*, Time, bool&) override;
 };

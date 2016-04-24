@@ -67,7 +67,7 @@ class ShootActor : public GoioActor {
     virtual ~ShootActor() {}
 
     virtual DmgState::State shoot(GoioObj* obj, Time time,
-                                  bool aoe, Distance aoe_range) = 0;
+                                  bool armed, Distance aoe_range) = 0;
     inline DmgState::State shoot(GoioObj* obj, Time time) {
       return shoot(obj, time, true, 0_m);
     }
