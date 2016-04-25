@@ -278,7 +278,7 @@ fi
 
 if [ "$CPPLINT" == 1 ]; then
   echo
-  cpplint.py --linelength=84 src/*.h src/*.cpp
+  cpplint.py --linelength=84 --root=src src/*.h src/*.cpp
 fi
 
 if [ "$LCOV" == 1 ]; then

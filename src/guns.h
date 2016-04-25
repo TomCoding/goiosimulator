@@ -151,8 +151,12 @@ class GunInfo {
     inline Angle    get_orig_turn_right() const { return turn_right; }
     inline Angle    get_orig_turn_up() const { return turn_up; }
     inline Angle    get_orig_turn_down() const { return turn_down; }
-    inline Angular_Speed get_orig_turn_horizontal() const { return turn_horizontal; }
-    inline Angular_Speed get_orig_turn_vertical() const { return turn_vertical; }
+    inline Angular_Speed get_orig_turn_horizontal() const {
+      return turn_horizontal;
+    }
+    inline Angular_Speed get_orig_turn_vertical() const {
+      return turn_vertical;
+    }
 };
 
 class Gun : public GunInfo, public ShootActor {
@@ -333,156 +337,156 @@ class LightGun : public Gun {
 class Artemis : public LightGun {
  public:
     explicit Artemis(const std::string& name) : LightGun(
-                    name,
-                    GunType::PROJECTILE, // gun type
-                    GunCategory::ROCKET_LAUNCHERS, // gun category
-                    4,                   // magazine size
-                    0.63/1_s,            // rof
-                    7_s,                 // reload
-                    70_hp,               // prim dmg
-                    DmgType::EXPLOSIVE,  // prim dmg type
-                    120_hp,              // sec dmg
-                    DmgType::SHATTER,    // sec dmg type
-                    2.5_m,               // aoe radius
-                    0_s,                 // arming time
-                    0,                   // prim ign chance
-                    1,                   // prim ign stacks
-                    0,                   // sec ign chance
-                    1,                   // sec ign stacks
-                    1334_m,              // range
-                    575_m/1_s,           // projectile speed
-                    0_m_s2,              // shell_drop
-                    0_deg                // jitter
+                name,
+                GunType::PROJECTILE,     // gun type
+                GunCategory::ROCKET_LAUNCHERS,  // gun category
+                4,                       // magazine size
+                0.63/1_s,                // rof
+                7_s,                     // reload
+                70_hp,                   // prim dmg
+                DmgType::EXPLOSIVE,      // prim dmg type
+                120_hp,                  // sec dmg
+                DmgType::SHATTER,        // sec dmg type
+                2.5_m,                   // aoe radius
+                0_s,                     // arming time
+                0,                       // prim ign chance
+                1,                       // prim ign stacks
+                0,                       // sec ign chance
+                1,                       // sec ign stacks
+                1334_m,                  // range
+                575_m/1_s,               // projectile speed
+                0_m_s2,                  // shell_drop
+                0_deg                    // jitter
     ) {}
 };
 
 class Banshee : public LightGun {
  public:
     explicit Banshee(const std::string& name) : LightGun(
-                    name,
-                    GunType::PROJECTILE, // gun type
-                    GunCategory::ROCKET_LAUNCHERS, // gun category
-                    8,                   // magazine size
-                    2/1_s,               // rof
-                    6_s,                 // reload
-                    25_hp,               // prim dmg
-                    DmgType::EXPLOSIVE,  // prim dmg type
-                    25_hp,               // sec dmg
-                    DmgType::FIRE,       // sec dmg type
-                    3_m,                 // aoe radius
-                    0_s,                 // arming time
-                    0.35,                // prim ign chance
-                    1,                   // prim ign stacks
-                    0.264,               // sec ign chance
-                    2,                   // sec ign stacks
-                    1334_m,              // range
-                    450_m/1_s,           // projectile speed
-                    0_m_s2,              // shell_drop
-                    2_deg                // jitter
+                name,
+                GunType::PROJECTILE,     // gun type
+                GunCategory::ROCKET_LAUNCHERS,  // gun category
+                8,                       // magazine size
+                2/1_s,                   // rof
+                6_s,                     // reload
+                25_hp,                   // prim dmg
+                DmgType::EXPLOSIVE,      // prim dmg type
+                25_hp,                   // sec dmg
+                DmgType::FIRE,           // sec dmg type
+                3_m,                     // aoe radius
+                0_s,                     // arming time
+                0.35,                    // prim ign chance
+                1,                       // prim ign stacks
+                0.264,                   // sec ign chance
+                2,                       // sec ign stacks
+                1334_m,                  // range
+                450_m/1_s,               // projectile speed
+                0_m_s2,                  // shell_drop
+                2_deg                    // jitter
     ) {}
 };
 
 class LightCaro : public LightGun {
  public:
     explicit LightCaro(const std::string& name) : LightGun(
-                    name,
-                    GunType::RAYCAST,    // gun type
-                    GunCategory::CARRONADES, // gun category
-                    5,                   // magazine size
-                    1/1_s,               // rof
-                    6_s,                 // reload
-                    96_hp,               // prim dmg
-                    DmgType::FLECHETTE,  // prim dmg type
-                    144_hp,              // sec dmg
-                    DmgType::SHATTER,    // sec dmg type
-                    0_m,                 // aoe radius
-                    0_s,                 // arming time
-                    0,                   // prim ign chance
-                    1,                   // prim ign stacks
-                    0,                   // sec ign chance
-                    1,                   // sec ign stacks
-                    325_m,               // range
-                    600_m/1_s,           // projectile speed
-                    6_m_s2,              // shell_drop
-                    5_deg                // jitter
+                name,
+                GunType::RAYCAST,        // gun type
+                GunCategory::CARRONADES,  // gun category
+                5,                       // magazine size
+                1/1_s,                   // rof
+                6_s,                     // reload
+                96_hp,                   // prim dmg
+                DmgType::FLECHETTE,      // prim dmg type
+                144_hp,                  // sec dmg
+                DmgType::SHATTER,        // sec dmg type
+                0_m,                     // aoe radius
+                0_s,                     // arming time
+                0,                       // prim ign chance
+                1,                       // prim ign stacks
+                0,                       // sec ign chance
+                1,                       // sec ign stacks
+                325_m,                   // range
+                600_m/1_s,               // projectile speed
+                6_m_s2,                  // shell_drop
+                5_deg                    // jitter
     ) {}
 };
 
 class Flare : public LightGun {
  public:
     explicit Flare(const std::string& name) : LightGun(
-                    name,
-                    GunType::PROJECTILE, // gun type
-                    GunCategory::UTILITY, // gun category
-                    2,                   // magazine size
-                    0.5/1_s,             // rof
-                    20_s,                // reload
-                    10_hp,               // prim dmg
-                    DmgType::FIRE,       // prim dmg type
-                    5_hp,                // sec dmg
-                    DmgType::FIRE,       // sec dmg type
-                    3_m,                 // aoe radius
-                    0.6666_s,            // arming time
-                    0,                   // prim ign chance
-                    1,                   // prim ign stacks
-                    0,                   // sec ign chance
-                    1,                   // sec ign stacks
-                    750_m,               // range
-                    300_m/1_s,           // projectile speed
-                    3_m_s2,              // shell_drop
-                    5_deg                // jitter
+                name,
+                GunType::PROJECTILE,     // gun type
+                GunCategory::UTILITY,    // gun category
+                2,                       // magazine size
+                0.5/1_s,                 // rof
+                20_s,                    // reload
+                10_hp,                   // prim dmg
+                DmgType::FIRE,           // prim dmg type
+                5_hp,                    // sec dmg
+                DmgType::FIRE,           // sec dmg type
+                3_m,                     // aoe radius
+                0.6666_s,                // arming time
+                0,                       // prim ign chance
+                1,                       // prim ign stacks
+                0,                       // sec ign chance
+                1,                       // sec ign stacks
+                750_m,                   // range
+                300_m/1_s,               // projectile speed
+                3_m_s2,                  // shell_drop
+                5_deg                    // jitter
     ) {}
 };
 
 class Flamethrower : public LightGun {
  public:
     explicit Flamethrower(const std::string& name) : LightGun(
-                    name,
-                    GunType::PARTICLE,   // gun type
-                    GunCategory::OTHERS, // gun category
-                    250,                 // magazine size
-                    16.67/1_s,           // rof
-                    6_s,                 // reload
-                    1.2_hp,              // prim dmg
-                    DmgType::FIRE,       // prim dmg type
-                    0_hp,                // sec dmg
-                    DmgType::FIRE,       // sec dmg type
-                    4_m,                 // aoe radius
-                    0_s,                 // arming time
-                    0.22,                // prim ign chance
-                    1,                   // prim ign stacks
-                    0,                   // sec ign chance
-                    1,                   // sec ign stacks
-                    200_m,               // range
-                    180_m/1_s,           // projectile speed
-                    0_m_s2,              // shell_drop
-                    6_deg                // jitter
+                name,
+                GunType::PARTICLE,       // gun type
+                GunCategory::OTHERS,     // gun category
+                250,                     // magazine size
+                16.67/1_s,               // rof
+                6_s,                     // reload
+                1.2_hp,                  // prim dmg
+                DmgType::FIRE,           // prim dmg type
+                0_hp,                    // sec dmg
+                DmgType::FIRE,           // sec dmg type
+                4_m,                     // aoe radius
+                0_s,                     // arming time
+                0.22,                    // prim ign chance
+                1,                       // prim ign stacks
+                0,                       // sec ign chance
+                1,                       // sec ign stacks
+                200_m,                   // range
+                180_m/1_s,               // projectile speed
+                0_m_s2,                  // shell_drop
+                6_deg                    // jitter
     ) {}
 };
 
 class Gatling : public LightGun {
  public:
     explicit Gatling(const std::string& name) : LightGun(
-                    name,
-                    GunType::RAYCAST,    // gun type
-                    GunCategory::OTHERS, // gun category
-                    82,                  // magazine size
-                    8.33/1_s,            // rof
-                    5_s,                 // reload
-                    7.5_hp,              // prim dmg
-                    DmgType::PIERCING,   // prim dmg type
-                    10_hp,               // sec dmg
-                    DmgType::SHATTER,    // sec dmg type
-                    0_m,                 // aoe radius
-                    0_s,                 // arming time
-                    0,                   // prim ign chance
-                    1,                   // prim ign stacks
-                    0,                   // sec ign chance
-                    1,                   // sec ign stacks
-                    450_m,               // range
-                    500_m/1_s,           // projectile speed
-                    0_m_s2,              // shell_drop
-                    2.25_deg             // jitter
+                name,
+                GunType::RAYCAST,        // gun type
+                GunCategory::OTHERS,     // gun category
+                82,                      // magazine size
+                8.33/1_s,                // rof
+                5_s,                     // reload
+                7.5_hp,                  // prim dmg
+                DmgType::PIERCING,       // prim dmg type
+                10_hp,                   // sec dmg
+                DmgType::SHATTER,        // sec dmg type
+                0_m,                     // aoe radius
+                0_s,                     // arming time
+                0,                       // prim ign chance
+                1,                       // prim ign stacks
+                0,                       // sec ign chance
+                1,                       // sec ign stacks
+                450_m,                   // range
+                500_m/1_s,               // projectile speed
+                0_m_s2,                  // shell_drop
+                2.25_deg                 // jitter
     ) {}
 };
 

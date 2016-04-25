@@ -44,7 +44,7 @@ inline bool get_repair_mode(const std::string& val, RepairMode& mode) {
                       std::end(RepairModeString),
                       val);
   if (it != std::end(RepairModeString)) {
-    mode = static_cast<RepairMode>(it-std::begin(RepairModeString));
+    mode = static_cast<RepairMode>(it - std::begin(RepairModeString));
     return true;
   } else {
     return false;
@@ -80,7 +80,7 @@ inline bool get_extinguish_mode(const std::string& val, ExtinguishMode& extmode)
                       std::end(ExtinguishModeString),
                       val);
   if (it != std::end(ExtinguishModeString)) {
-    extmode = static_cast<ExtinguishMode>(it-std::begin(ExtinguishModeString));
+    extmode = static_cast<ExtinguishMode>(it - std::begin(ExtinguishModeString));
     return true;
   } else {
     return false;
