@@ -101,14 +101,14 @@ void Engineer::select_tool(RepairTool* tool) {
   bool set_swing;
   if (cur_tool != nullptr) {
     if (cur_tool == &tool[0]) {
-      tool[1].reset();
-      tool[2].reset();
+      tools[1]->reset();
+      tools[2]->reset();
     } else if (cur_tool == &tool[1]) {
-      tool[0].reset();
-      tool[2].reset();
+      tools[0]->reset();
+      tools[2]->reset();
     } else if (cur_tool == &tool[2]) {
-      tool[0].reset();
-      tool[1].reset();
+      tools[0]->reset();
+      tools[1]->reset();
     }
     if (delay) {
       swing = cur_tool->get_cur_swing();
