@@ -57,7 +57,7 @@ bool Config::find_unknown_setting(const std::set<std::string>& settings,
   bool unknown = false;
   for (auto i = 0; i < settingsobj.getLength(); ++i) {
     if (settings.find(settingsobj[i].getName()) == settings.end()) {
-#ifndef CLANG
+#if !defined(CLANG) && !defined(GCC_4_9)
       std::cerr << "Unknown setting in '"
                 << settingsobj.getPath() << "': "
 #else
@@ -125,12 +125,13 @@ int Config::load_config() {
 
       cur_setting = "name";
       simulation_settings.insert(cur_setting);
-#ifdef CLANG
 #ifdef GCC_4_9
       const char* name;
-#else
+#endif
+#ifdef CLANG
       std::string name;
 #endif
+#if defined(CLANG) || defined(GCC_4_9)
       simulation.lookupValue(cur_setting, name);
 #else
       const std::string name = simulation[cur_setting];
@@ -158,12 +159,13 @@ int Config::load_config() {
 
         cur_setting = "name";
         object_settings.insert(cur_setting);
-#ifdef CLANG
 #ifdef GCC_4_9
         const char* obj_name;
-#else
+#endif
+#ifdef CLANG
         std::string obj_name;
 #endif
+#if defined(CLANG) || defined(GCC_4_9)
         object.lookupValue(cur_setting, obj_name);
 #else
         const std::string obj_name = object[cur_setting];
@@ -172,12 +174,13 @@ int Config::load_config() {
 
         cur_setting = "type";
         object_settings.insert(cur_setting);
-#ifdef CLANG
 #ifdef GCC_4_9
         const char* obj_type;
-#else
+#endif
+#ifdef CLANG
         std::string obj_type;
 #endif
+#if defined(CLANG) || defined(GCC_4_9)
         object.lookupValue(cur_setting, obj_type);
 #else
         const std::string obj_type = object[cur_setting];
@@ -431,12 +434,13 @@ int Config::load_config() {
 
         cur_setting = "name";
         actor_settings.insert(cur_setting);
-#ifdef CLANG
 #ifdef GCC_4_9
         const char* act_name;
-#else
+#endif
+#ifdef CLANG
         std::string act_name;
 #endif
+#if defined(CLANG) || defined(GCC_4_9)
         actor.lookupValue(cur_setting, act_name);
 #else
         const std::string act_name = actor[cur_setting];
@@ -445,12 +449,13 @@ int Config::load_config() {
 
         cur_setting = "recipient";
         actor_settings.insert(cur_setting);
-#ifdef CLANG
 #ifdef GCC_4_9
         const char* act_recipient;
-#else
+#endif
+#ifdef CLANG
         std::string act_recipient;
 #endif
+#if defined(CLANG) || defined(GCC_4_9)
         actor.lookupValue(cur_setting, act_recipient);
 #else
         const std::string act_recipient = actor[cur_setting];
@@ -459,12 +464,13 @@ int Config::load_config() {
 
         cur_setting = "action";
         actor_settings.insert(cur_setting);
-#ifdef CLANG
 #ifdef GCC_4_9
         const char* act_action;
-#else
+#endif
+#ifdef CLANG
         std::string act_action;
 #endif
+#if defined(CLANG) || defined(GCC_4_9)
         actor.lookupValue(cur_setting, act_action);
 #else
         const std::string act_action = actor[cur_setting];
@@ -624,7 +630,7 @@ int Config::load_config() {
     if (find_unknown_setting(toplevel_settings, root))
       return 1;
   } catch (const SettingNotFoundException& nfex) {
-#ifndef CLANG
+#if !defined(CLANG) && !defined(GCC_4_9)
     std::cerr << "No '" << nfex.getPath() << "' setting in configuration file."
               << std::endl;
 #else
@@ -632,7 +638,7 @@ int Config::load_config() {
 #endif
   } catch (const SettingTypeException& ste) {
     std::cerr << "'" <<
-#ifndef CLANG
+#if !defined(CLANG) && !defined(GCC_4_9)
                        ste.getPath()
 #else
                        cur_setting

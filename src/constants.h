@@ -124,7 +124,10 @@ struct Value {
   constexpr Value() : val() {}
   constexpr explicit Value(double d) : val(d) {}
   Value(const Value& obj) : val(obj.val) {}
-  constexpr Value& operator=(const Value& obj) { val = obj.val; return *this; }
+#ifndef GCC_4_9
+  constexpr
+#endif
+            Value& operator=(const Value& obj) { val = obj.val; return *this; }
 
   constexpr Value operator+(const Value& obj) const { return Value(val + obj.val); }
   constexpr Value operator-(const Value& obj) const { return Value(val - obj.val); }
@@ -134,7 +137,10 @@ struct Value {
   constexpr bool operator<(const Value& obj) const { return val < obj.val; }
   constexpr bool operator>=(const Value& obj) const { return val >= obj.val; }
   constexpr bool operator<=(const Value& obj) const { return val <= obj.val; }
-  constexpr Value& operator-() { val = -val; return *this; }
+#ifndef GCC_4_9
+  constexpr
+#endif
+            Value& operator-() { val = -val; return *this; }
   constexpr Value operator*(double d) const { return Value(val * d); }
   constexpr Value operator*(int i) const { return Value(val * i); }
   constexpr Value operator/(double d) const { return Value(val / d); }

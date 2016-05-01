@@ -41,36 +41,35 @@ add_executable(goiovalues "${sources}")
 target_link_libraries(goiovalues ${libconfig_LIBRARIES})
 
 target_compile_options(goiovalues PUBLIC
-    -std=c++1y -O3 -ffast-math -pedantic -Wall -Wextra -Wcast-align
-    -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2
-    -Winit-self -Wmissing-declarations -Wmissing-include-dirs
-    -Wold-style-cast -Woverloaded-virtual -Wredundant-decls
-    -Wsign-conversion -Wsign-promo -Wswitch-default
-    -Wundef -Weffc++
+  -std=c++1y -O3 -ffast-math -pedantic -Wall -Wextra -Wcast-align
+  -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2
+  -Winit-self -Wmissing-declarations -Wmissing-include-dirs
+  -Wold-style-cast -Woverloaded-virtual -Wredundant-decls
+  -Wsign-conversion -Wsign-promo -Wswitch-default
+  -Wundef -Weffc++
 )
 if(CMAKE_COMPILER_IS_GNUCC)
   if("${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 4.9.3)
     message(FATAL_ERROR "GCC version must be at least 4.9.3!")
   elseif("${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 5)
     target_compile_options(goiovalues PUBLIC
-        -DGCC_4_9
-        -DCLANG
+      -DGCC_4_9
     )
   endif()
 
   target_compile_options(goiovalues PUBLIC
-      -Wlogical-op
-      -Wnoexcept
-      -Wstrict-null-sentinel
-      -fdiagnostics-color=always
+    -Wlogical-op
+    -Wnoexcept
+    -Wstrict-null-sentinel
+    -fdiagnostics-color=always
   )
 
   if(NOT "${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 5)
     target_compile_options(goiovalues PUBLIC
-        -Wswitch-bool
-        -Wlogical-not-parentheses
-        -Wsizeof-array-argument
-        -Wbool-compare
+      -Wswitch-bool
+      -Wlogical-not-parentheses
+      -Wsizeof-array-argument
+      -Wbool-compare
     )
   endif()
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
@@ -84,8 +83,8 @@ endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR COVERAGE)
   target_compile_options(goiovalues PUBLIC
-      -g
-      -DSTRONG_TYPE_COMPILE
+    -g
+    -DSTRONG_TYPE_COMPILE
   )
   if(COVERAGE)
     list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
