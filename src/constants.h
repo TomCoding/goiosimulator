@@ -96,7 +96,11 @@ inline constexpr State operator&(State a, State b) {
                 static_cast<std::underlying_type_t<State>>(a) &
                 static_cast<std::underlying_type_t<State>>(b));
 }
-inline constexpr State& operator|=(State& a, State b) {
+inline
+#ifndef GCC_4_9
+       constexpr
+#endif
+                 State& operator|=(State& a, State b) {
   a = a | b;
   return a;
 }
@@ -145,7 +149,7 @@ struct Value {
 };
 
 template<>
-inline constexpr Value<Unit<0, 0, 0, 0, 0>>::operator double() { return val; }
+inline Value<Unit<0, 0, 0, 0, 0>>::operator double() { return val; }
 
 using Distance      = Value<Unit<1, 0,  0, 0, 0>>;
 using Time          = Value<Unit<0, 0,  1, 0, 0>>;
@@ -159,53 +163,53 @@ using Angle         = Value<Unit<0, 0,  0, 0, 1>>;
 using Angular_Speed = Value<Unit<0, 0, -1, 0, 1>>;
 
 // a f-p literal suffixed by '_s'
-constexpr Time operator"" _s(long double d) {
+inline Time operator"" _s(long double d) {
   return Time(d);
 }
 // an integral literal suffixed by'_s'
-constexpr Time operator"" _s(unsigned long long d) {
+inline Time operator"" _s(unsigned long long d) {
   return Time(d);
 }
-constexpr Time operator"" _min(long double d) {
+inline Time operator"" _min(long double d) {
   return Time(d*60);
 }
-constexpr Time operator"" _min(unsigned long long d) {
+inline Time operator"" _min(unsigned long long d) {
   return Time(d*60);
 }
-constexpr Distance operator"" _m(long double d) {
+inline Distance operator"" _m(long double d) {
   return Distance(d);
 }
-constexpr Distance operator"" _m(unsigned long long d) {
+inline Distance operator"" _m(unsigned long long d) {
   return Distance(d);
 }
-constexpr Health operator"" _hp(long double d) {
+inline Health operator"" _hp(long double d) {
   return Health(d);
 }
-constexpr Health operator"" _hp(unsigned long long d) {
+inline Health operator"" _hp(unsigned long long d) {
   return Health(d);
 }
-constexpr Acceleration operator"" _m_s2(long double d) {
+inline Acceleration operator"" _m_s2(long double d) {
   return Acceleration(d);
 }
-constexpr Acceleration operator"" _m_s2(unsigned long long d) {
+inline Acceleration operator"" _m_s2(unsigned long long d) {
   return Acceleration(d);
 }
-constexpr Weight operator"" _kg(long double d) {
+inline Weight operator"" _kg(long double d) {
   return Weight(d);
 }
-constexpr Weight operator"" _kg(unsigned long long d) {
+inline Weight operator"" _kg(unsigned long long d) {
   return Weight(d);
 }
-constexpr Force operator"" _N(long double d) {
+inline Force operator"" _N(long double d) {
   return Force(d);
 }
-constexpr Force operator"" _N(unsigned long long d) {
+inline Force operator"" _N(unsigned long long d) {
   return Force(d);
 }
-constexpr Angle operator"" _deg(long double d) {
+inline Angle operator"" _deg(long double d) {
   return Angle(d);
 }
-constexpr Angle operator"" _deg(unsigned long long d) {
+inline Angle operator"" _deg(unsigned long long d) {
   return Angle(d);
 }
 
@@ -259,6 +263,7 @@ typedef double Distance;
 typedef double Time;
 typedef double P_Time;
 typedef double Health;
+typedef double Speed;
 typedef double Acceleration;
 typedef double Weight;
 typedef double Force;

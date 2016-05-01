@@ -122,11 +122,12 @@ int Config::load_config() {
 
       cur_setting = "name";
       simulation_settings.insert(cur_setting);
-      const std::string name =
 #ifdef CLANG
-                               static_cast<const char*>
+      std::string name;
+      simulation.lookupValue(cur_setting, name);
+#else
+      const std::string name = simulation[cur_setting];
 #endif
-                                                       (simulation[cur_setting]);
       sim_new.add(cur_setting, Setting::TypeString) = name;
 
 
@@ -150,20 +151,22 @@ int Config::load_config() {
 
         cur_setting = "name";
         object_settings.insert(cur_setting);
-        const std::string obj_name =
 #ifdef CLANG
-                                     static_cast<const char*>
+        std::string obj_name;
+        simulation.lookupValue(cur_setting, obj_name);
+#else
+        const std::string obj_name = object[cur_setting];
 #endif
-                                                             (object[cur_setting]);
         obj_new.add(cur_setting, Setting::TypeString) = obj_name;
 
         cur_setting = "type";
         object_settings.insert(cur_setting);
-        const std::string obj_type =
 #ifdef CLANG
-                                     static_cast<const char*>
+        std::string obj_type;
+        simulation.lookupValue(cur_setting, obj_type);
+#else
+        const std::string obj_type = object[cur_setting];
 #endif
-                                                             (object[cur_setting]);
         obj_new.add(cur_setting, Setting::TypeString) = obj_type;
 
         cur_setting = "ammo";
@@ -373,29 +376,32 @@ int Config::load_config() {
 
         cur_setting = "name";
         actor_settings.insert(cur_setting);
-        const std::string act_name =
 #ifdef CLANG
-                                     static_cast<const char*>
+        std::string act_name;
+        simulation.lookupValue(cur_setting, act_name);
+#else
+        const std::string act_name = actor[cur_setting];
 #endif
-                                                             (actor[cur_setting]);
         act_new.add(cur_setting, Setting::TypeString) = act_name;
 
         cur_setting = "recipient";
         actor_settings.insert(cur_setting);
-        const std::string act_recipient =
 #ifdef CLANG
-                                static_cast<const char*>
+        std::string act_recipient;
+        simulation.lookupValue(cur_setting, act_recipient);
+#else
+        const std::string act_recipient = actor[cur_setting];
 #endif
-                                                        (actor[cur_setting]);
         act_new.add(cur_setting, Setting::TypeString) = act_recipient;
 
         cur_setting = "action";
         actor_settings.insert(cur_setting);
-        const std::string act_action =
 #ifdef CLANG
-                                static_cast<const char*>
+        std::string act_action;
+        simulation.lookupValue(cur_setting, act_action);
+#else
+        const std::string act_action = actor[cur_setting];
 #endif
-                                                        (actor[cur_setting]);
         act_new.add(cur_setting, Setting::TypeString) = act_action;
 
         cur_setting = "start";

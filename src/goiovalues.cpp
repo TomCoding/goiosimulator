@@ -26,8 +26,8 @@
 
 using std::cout;
 using std::endl;
-using goio::operator""_hp;
-using goio::operator""_s;
+using goio::operator"" _hp;
+using goio::operator"" _s;
 
 int main() {
   goio::init();

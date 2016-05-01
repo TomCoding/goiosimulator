@@ -49,11 +49,12 @@ target_compile_options(goiovalues PUBLIC
     -Wundef -Weffc++
 )
 if(CMAKE_COMPILER_IS_GNUCC)
-  if("${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 4.8.4)
-    message(FATAL_ERROR "GCC version must be at least 4.8.4!")
-  elseif(NOT "${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 4.9)
+  if("${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 4.9.3)
+    message(FATAL_ERROR "GCC version must be at least 4.9.3!")
+  elseif("${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 5)
     target_compile_options(goiovalues PUBLIC
-        -fdiagnostics-color=always
+        -DGCC_4_9
+        -DCLANG
     )
   endif()
 
@@ -61,9 +62,10 @@ if(CMAKE_COMPILER_IS_GNUCC)
       -Wlogical-op
       -Wnoexcept
       -Wstrict-null-sentinel
+      -fdiagnostics-color=always
   )
 
-  if("${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER 5)
+  if(NOT "${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 5)
     target_compile_options(goiovalues PUBLIC
         -Wswitch-bool
         -Wlogical-not-parentheses
