@@ -21,6 +21,9 @@
 #include "./config.h"
 
 #include <stdint.h>
+#ifdef GCC_4_9
+#include <string.h>
+#endif
 
 #include <libconfig.h++>
 #include <set>
@@ -123,7 +126,11 @@ int Config::load_config() {
       cur_setting = "name";
       simulation_settings.insert(cur_setting);
 #ifdef CLANG
+#ifdef GCC_4_9
+      const char* name;
+#else
       std::string name;
+#endif
       simulation.lookupValue(cur_setting, name);
 #else
       const std::string name = simulation[cur_setting];
@@ -152,8 +159,12 @@ int Config::load_config() {
         cur_setting = "name";
         object_settings.insert(cur_setting);
 #ifdef CLANG
+#ifdef GCC_4_9
+        const char* obj_name;
+#else
         std::string obj_name;
-        simulation.lookupValue(cur_setting, obj_name);
+#endif
+        object.lookupValue(cur_setting, obj_name);
 #else
         const std::string obj_name = object[cur_setting];
 #endif
@@ -162,8 +173,12 @@ int Config::load_config() {
         cur_setting = "type";
         object_settings.insert(cur_setting);
 #ifdef CLANG
+#ifdef GCC_4_9
+        const char* obj_type;
+#else
         std::string obj_type;
-        simulation.lookupValue(cur_setting, obj_type);
+#endif
+        object.lookupValue(cur_setting, obj_type);
 #else
         const std::string obj_type = object[cur_setting];
 #endif
@@ -171,7 +186,11 @@ int Config::load_config() {
 
         cur_setting = "ammo";
         object_settings.insert(cur_setting);
+#ifdef GCC_4_9
+        const char* obj_ammo = "";
+#else
         std::string obj_ammo = "";
+#endif
         if (object.exists(cur_setting)) {
           obj_ammo = static_cast<const char*>(object[cur_setting]);
           obj_new.add(cur_setting, Setting::TypeString) = obj_ammo;
@@ -219,7 +238,11 @@ int Config::load_config() {
 
         cur_setting = "cmp_t";
         object_settings.insert(cur_setting);
+#ifdef GCC_4_9
+        const char* obj_cmp_t = "armor";
+#else
         std::string obj_cmp_t = "armor";
+#endif
         if (object.exists(cur_setting)) {
           obj_cmp_t = static_cast<const char*>(object[cur_setting]);
           obj_new.add(cur_setting, Setting::TypeString) = obj_cmp_t;
@@ -255,7 +278,11 @@ int Config::load_config() {
 
         cur_setting = "repair_mode";
         object_settings.insert(cur_setting);
+#ifdef GCC_4_9
+        const char* obj_repair_mode = RepairModeString[0].c_str();
+#else
         std::string obj_repair_mode = RepairModeString[0];
+#endif
         if (object.exists(cur_setting)) {
           obj_repair_mode = static_cast<const char*>(object[cur_setting]);
           obj_new.add(cur_setting, Setting::TypeString) = obj_repair_mode;
@@ -263,7 +290,11 @@ int Config::load_config() {
 
         cur_setting = "ext_mode";
         object_settings.insert(cur_setting);
+#ifdef GCC_4_9
+        const char* obj_ext_mode = ExtinguishModeString[0].c_str();
+#else
         std::string obj_ext_mode = ExtinguishModeString[0];
+#endif
         if (object.exists(cur_setting)) {
           obj_ext_mode = static_cast<const char*>(object[cur_setting]);
           obj_new.add(cur_setting, Setting::TypeString) = obj_ext_mode;
@@ -280,8 +311,16 @@ int Config::load_config() {
 
         Object* obj;
         bool processed = false;
+#ifdef GCC_4_9
+        if (strcmp(obj_type, "GoioObj") == 0) {
+#else
         if (obj_type == "GoioObj") {
+#endif
+#ifdef GCC_4_9
+          CmpType cmp_type = CmpType::ARMOR;
+#else
           CmpType cmp_type;
+#endif
           if (!get_cmp_type(obj_cmp_t, cmp_type)) {
             std::cerr << "Invalid component type: " << obj_cmp_t << std::endl;
             return 1;
@@ -292,14 +331,26 @@ int Config::load_config() {
                                       Health(obj_health),
                                       Health(obj_hull_health));
           processed = true;
+#ifdef GCC_4_9
+        } else if (strncmp(obj_type, "Engineer_", 9) == 0) {
+#else
         } else if (obj_type.substr(0, 9) == "Engineer_") {
+#endif
+#ifdef GCC_4_9
+          RepairMode mode = RepairMode::CONSTANT_DMG_NO_WAIT;
+#else
           RepairMode mode;
+#endif
           if (!get_repair_mode(obj_repair_mode, mode)) {
             std::cerr << "Invalid repair mode: "
                       << obj_repair_mode << std::endl;
             return 1;
           }
+#ifdef GCC_4_9
+          ExtinguishMode extmode = ExtinguishMode::THRESHOLD;
+#else
           ExtinguishMode extmode;
+#endif
           if (!get_extinguish_mode(obj_ext_mode, extmode)) {
             std::cerr << "Invalid extinguish mode: "
                       << obj_ext_mode << std::endl;
@@ -332,7 +383,11 @@ int Config::load_config() {
             if (obj_fire_immunity >= 0)
               goioobj->add_fire(0, Time(obj_fire_immunity));
 
+#ifdef GCC_4_9
+            if (strcmp(obj_ammo, "") != 0) {
+#else
             if (obj_ammo != "") {
+#endif
               if (auto gun = dynamic_cast<Gun*>(obj)) {
                 auto it = factory_objects.find(obj_ammo);
                 Object* ammo_obj;
@@ -377,8 +432,12 @@ int Config::load_config() {
         cur_setting = "name";
         actor_settings.insert(cur_setting);
 #ifdef CLANG
+#ifdef GCC_4_9
+        const char* act_name;
+#else
         std::string act_name;
-        simulation.lookupValue(cur_setting, act_name);
+#endif
+        actor.lookupValue(cur_setting, act_name);
 #else
         const std::string act_name = actor[cur_setting];
 #endif
@@ -387,8 +446,12 @@ int Config::load_config() {
         cur_setting = "recipient";
         actor_settings.insert(cur_setting);
 #ifdef CLANG
+#ifdef GCC_4_9
+        const char* act_recipient;
+#else
         std::string act_recipient;
-        simulation.lookupValue(cur_setting, act_recipient);
+#endif
+        actor.lookupValue(cur_setting, act_recipient);
 #else
         const std::string act_recipient = actor[cur_setting];
 #endif
@@ -397,8 +460,12 @@ int Config::load_config() {
         cur_setting = "action";
         actor_settings.insert(cur_setting);
 #ifdef CLANG
+#ifdef GCC_4_9
+        const char* act_action;
+#else
         std::string act_action;
-        simulation.lookupValue(cur_setting, act_action);
+#endif
+        actor.lookupValue(cur_setting, act_action);
 #else
         const std::string act_action = actor[cur_setting];
 #endif
@@ -452,7 +519,11 @@ int Config::load_config() {
         if (act_start > 0)
           reg_start = act_start;
 
+#ifdef GCC_4_9
+        if (strcmp(act_action, "shoot") == 0) {
+#else
         if (act_action == "shoot") {
+#endif
           if (auto shoot_actor = dynamic_cast<ShootActor*>(actor_obj)) {
             timeobj->register_shoot_event(shoot_actor,
                                           recipient_obj,
@@ -462,7 +533,11 @@ int Config::load_config() {
                       << act_name << std::endl;
             return 1;
           }
+#ifdef GCC_4_9
+        } else if (strcmp(act_action, "repair") == 0) {
+#else
         } else if (act_action == "repair") {
+#endif
           if (auto repair_actor = dynamic_cast<RepairActor*>(actor_obj)) {
             timeobj->register_repair_event(repair_actor,
                                            recipient_obj,
@@ -549,10 +624,20 @@ int Config::load_config() {
     if (find_unknown_setting(toplevel_settings, root))
       return 1;
   } catch (const SettingNotFoundException& nfex) {
+#ifndef CLANG
     std::cerr << "No '" << nfex.getPath() << "' setting in configuration file."
               << std::endl;
+#else
+    std::cerr << "Unknown setting: " << cur_setting << std::endl;
+#endif
   } catch (const SettingTypeException& ste) {
-    std::cerr << "'" << ste.getPath() << "' setting has wrong type." << std::endl;
+    std::cerr << "'" <<
+#ifndef CLANG
+                       ste.getPath()
+#else
+                       cur_setting
+#endif
+              << "' setting has wrong type." << std::endl;
   }
 
   return 0;
@@ -604,7 +689,7 @@ bool Config::simulate_all() {
 int Config::write() {
   try {
     cfg_new->writeFile(filename.c_str());
-    std::cerr << "New configuration successfully written to: " << filename
+    std::cout << "New configuration successfully written to: " << filename
               << std::endl;
   } catch(const libconfig::FileIOException& fioex) {
     std::cerr << "I/O error while writing file: " << filename << std::endl;
