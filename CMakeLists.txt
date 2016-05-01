@@ -32,7 +32,7 @@ configure_file(
 option(Coverage "Enable gcov support." OFF)
 
 include(FindPkgConfig)
-pkg_check_modules(libconfig REQUIRED "libconfig++>=1.5")
+pkg_check_modules(libconfig REQUIRED "libconfig++>=1.4.9")
 
 file(GLOB sources "${PROJECT_SOURCE_DIR}/src/*.cpp")
 include_directories("${PROJECT_SOURCE_DIR}/src")
@@ -48,6 +48,13 @@ target_compile_options(goiovalues PUBLIC
   -Wsign-conversion -Wsign-promo -Wswitch-default
   -Wundef -Weffc++
 )
+
+if("${libconfig_VERSION}" VERSION_LESS 1.5)
+  target_compile_options(goiovalues PUBLIC
+    -DLIBCONFIG_COMP
+  )
+endif()
+
 if(CMAKE_COMPILER_IS_GNUCC)
   if("${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 4.9.3)
     message(FATAL_ERROR "GCC version must be at least 4.9.3!")
