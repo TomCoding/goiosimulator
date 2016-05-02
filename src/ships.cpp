@@ -41,7 +41,7 @@ inline Acceleration Ship::get_longitudinal_acceleration() const {
 }
 
 double Ship::get_longitudinal_drag() const {
-  return 2*get_longitudinal_acceleration() /
+  return 2_m*get_longitudinal_acceleration() /
          (get_longitudinal_top_speed()*get_longitudinal_top_speed());
 }
 
@@ -50,7 +50,7 @@ inline Acceleration Ship::get_vertical_acceleration() const {
 }
 
 double Ship::get_vertical_drag() const {
-  return 2*get_vertical_acceleration() /
+  return 2_m*get_vertical_acceleration() /
          (get_vertical_top_speed()*get_vertical_top_speed());
 }
 

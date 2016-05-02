@@ -36,7 +36,7 @@ class Ship : public GoioObj {
     const int    heavy_engines;
     const Thrust heavy_engines_thrust;
     const Speed  longitudinal_top_speed;
-    const Speed  angular_top_speed;
+    const Angular_Speed angular_top_speed;
     const Angular_Acceleration angular_acceleration;
     const Force  lift_force;
     const Speed  vertical_top_speed;
@@ -47,7 +47,7 @@ class Ship : public GoioObj {
          int light_engines, Thrust light_engines_thrust,
          int heavy_engines, Thrust heavy_engines_thrust,
          Speed longitudinal_top_speed,
-         Speed angular_top_speed, Angular_Acceleration angular_acceleration,
+         Angular_Speed angular_top_speed, Angular_Acceleration angular_acceleration,
          Force lift_force, Speed vertical_top_speed) :
               GoioObj(name, CmpType::ARMOR, 1, max_health, hull_max_health),
               mass(mass),
@@ -72,7 +72,7 @@ class Ship : public GoioObj {
     inline Speed  get_longitudinal_top_speed() const {
       return longitudinal_top_speed;
     }
-    inline Speed  get_angular_top_speed() const { return angular_top_speed; }
+    inline Angular_Speed get_angular_top_speed() const { return angular_top_speed; }
     inline Angular_Acceleration get_angular_acceleration() const {
       return angular_acceleration;
     }
