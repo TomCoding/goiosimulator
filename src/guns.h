@@ -238,7 +238,7 @@ class Gun : public GunInfo, public ShootActor {
                         range, projectile_speed, shell_drop, jitter,
                         turn_left, turn_right, turn_up, turn_down,
                         turn_horizontal, turn_vertical),
-                ShootActor(name, CmpType::COMPONENTS, 2.33, max_health),
+                ShootActor(name, CmpType::COMPONENTS, 2.333333, max_health),
                 cur_clipsize(clipsize),
                 cur_rof(rof),
                 cur_reload(reload),
@@ -334,6 +334,34 @@ class LightGun : public Gun {
     ~LightGun() {}
 };
 
+class HeavyGun : public Gun {
+ protected:
+    HeavyGun(const std::string& name, GunType type, GunCategory category,
+             int clipsize, P_Time rof, Time reload,
+             Health direct_dmg, DmgType direct_dmg_type,
+             Health aoe_dmg, DmgType aoe_dmg_type,
+             Distance aoe_radius, Time arming_time,
+             double direct_ign_chance, int direct_ign_stacks,
+             double aoe_ign_chance, int aoe_ign_stacks,
+             Distance range, Speed projectile_speed,
+             Acceleration shell_drop = 0_m_s2, Angle jitter = 0_deg,
+             Angle turn_left = 0_deg, Angle turn_right = 0_deg,
+             Angle turn_up = 0_deg, Angle turn_down = 0_deg,
+             Angular_Speed turn_horizontal = 0_deg/1_s,
+             Angular_Speed turn_vertical = 0_deg/1_s) :
+                Gun(name, 425_hp, type, category, clipsize, rof, reload,
+                    direct_dmg, direct_dmg_type,
+                    aoe_dmg, aoe_dmg_type, aoe_radius, arming_time,
+                    direct_ign_chance, direct_ign_stacks,
+                    aoe_ign_chance, aoe_ign_stacks,
+                    range, projectile_speed, shell_drop, jitter,
+                    turn_left, turn_right, turn_up, turn_down,
+                    turn_horizontal, turn_vertical) {}
+
+ public:
+    ~HeavyGun() {}
+};
+
 class Artemis : public LightGun {
  public:
     explicit Artemis(const std::string& name) : LightGun(
@@ -356,7 +384,13 @@ class Artemis : public LightGun {
                 1334_m,                  // range
                 575_m/1_s,               // projectile speed
                 0_m_s2,                  // shell_drop
-                0_deg                    // jitter
+                0_deg,                   // jitter
+                65_deg,                  // left turn angle
+                65_deg,                  // right turn angle
+                10_deg,                  // upwards turn angle
+                35_deg,                  // downwards turn angle
+                25_deg/1_s,              // horizontal turn speed
+                80_deg/1_s               // vertical turn speed
     ) {}
 };
 
@@ -382,7 +416,13 @@ class Banshee : public LightGun {
                 1334_m,                  // range
                 450_m/1_s,               // projectile speed
                 0_m_s2,                  // shell_drop
-                2_deg                    // jitter
+                2_deg,                   // jitter
+                60_deg,                  // left turn angle
+                60_deg,                  // right turn angle
+                35_deg,                  // upwards turn angle
+                35_deg,                  // downwards turn angle
+                130_deg/1_s,             // horizontal turn speed
+                140_deg/1_s              // vertical turn speed
     ) {}
 };
 
@@ -408,7 +448,13 @@ class LightCaro : public LightGun {
                 325_m,                   // range
                 600_m/1_s,               // projectile speed
                 6_m_s2,                  // shell_drop
-                5_deg                    // jitter
+                5_deg,                   // jitter
+                55_deg,                  // left turn angle
+                55_deg,                  // right turn angle
+                30_deg,                  // upwards turn angle
+                15_deg,                  // downwards turn angle
+                100_deg/1_s,             // horizontal turn speed
+                80_deg/1_s               // vertical turn speed
     ) {}
 };
 
@@ -427,14 +473,20 @@ class Flare : public LightGun {
                 DmgType::FIRE,           // sec dmg type
                 3_m,                     // aoe radius
                 0.6666_s,                // arming time
-                0,                       // prim ign chance
-                1,                       // prim ign stacks
+                1,                       // prim ign chance
+                15,                      // prim ign stacks
                 0,                       // sec ign chance
                 1,                       // sec ign stacks
                 750_m,                   // range
                 300_m/1_s,               // projectile speed
                 3_m_s2,                  // shell_drop
-                5_deg                    // jitter
+                5_deg,                   // jitter
+                80_deg,                  // left turn angle
+                80_deg,                  // right turn angle
+                50_deg,                  // upwards turn angle
+                50_deg,                  // downwards turn angle
+                190_deg/1_s,             // horizontal turn speed
+                150_deg/1_s              // vertical turn speed
     ) {}
 };
 
@@ -460,7 +512,205 @@ class Flamethrower : public LightGun {
                 200_m,                   // range
                 180_m/1_s,               // projectile speed
                 0_m_s2,                  // shell_drop
-                6_deg                    // jitter
+                6_deg,                   // jitter
+                60_deg,                  // left turn angle
+                60_deg,                  // right turn angle
+                35_deg,                  // upwards turn angle
+                35_deg,                  // downwards turn angle
+                40_deg/1_s,              // horizontal turn speed
+                50_deg/1_s               // vertical turn speed
+    ) {}
+};
+
+class LightFlak : public LightGun {
+ public:
+    explicit LightFlak(const std::string& name) : LightGun(
+                name,
+                GunType::PROJECTILE,     // gun type
+                GunCategory::FLAKS,      // gun category
+                6,                       // magazine size
+                2.857/1_s,               // rof
+                4_s,                     // reload
+                50_hp,                   // prim dmg
+                DmgType::EXPLOSIVE,      // prim dmg type
+                30_hp,                   // sec dmg
+                DmgType::EXPLOSIVE,      // sec dmg type
+                4_m,                     // aoe radius
+                0.4285_s,                // arming time
+                0,                       // prim ign chance
+                1,                       // prim ign stacks
+                0,                       // sec ign chance
+                1,                       // sec ign stacks
+                999.95_m,                // range
+                350_m/1_s,               // projectile speed
+                5_m_s2,                  // shell_drop
+                1_deg,                   // jitter
+                50_deg,                  // left turn angle
+                50_deg,                  // right turn angle
+                35_deg,                  // upwards turn angle
+                35_deg,                  // downwards turn angle
+                50_deg/1_s,              // horizontal turn speed
+                50_deg/1_s               // vertical turn speed
+    ) {}
+};
+
+class Hades : public LightGun {
+ public:
+    explicit Hades(const std::string& name) : LightGun(
+                name,
+                GunType::PROJECTILE,     // gun type
+                GunCategory::OTHERS,     // gun category
+                8,                       // magazine size
+                1.25/1_s,                // rof
+                5.5_s,                   // reload
+                30_hp,                   // prim dmg
+                DmgType::FIRE,           // prim dmg type
+                45_hp,                   // sec dmg
+                DmgType::PIERCING,       // sec dmg type
+                5_m,                     // aoe radius
+                0.6_s,                   // arming time
+                0.25,                    // prim ign chance
+                1,                       // prim ign stacks
+                0.4,                     // sec ign chance
+                1,                       // sec ign stacks
+                1400_m,                  // range
+                250_m/1_s,               // projectile speed
+                15_m_s2,                 // shell_drop
+                0_deg,                   // jitter
+                35_deg,                  // left turn angle
+                35_deg,                  // right turn angle
+                40_deg,                  // upwards turn angle
+                50_deg,                  // downwards turn angle
+                50_deg/1_s,              // horizontal turn speed
+                70_deg/1_s               // vertical turn speed
+    ) {}
+};
+
+class Harpoon : public LightGun {
+ public:
+    explicit Harpoon(const std::string& name) : LightGun(
+                name,
+                GunType::PROJECTILE,     // gun type
+                GunCategory::UTILITY,    // gun category
+                1,                       // magazine size
+                0.83/1_s,                // rof
+                16_s,                    // reload
+                70_hp,                   // prim dmg
+                DmgType::FLECHETTE,      // prim dmg type
+                60_hp,                   // sec dmg
+                DmgType::PIERCING,       // sec dmg type
+                1_m,                     // aoe radius
+                0_s,                     // arming time
+                0,                       // prim ign chance
+                1,                       // prim ign stacks
+                0,                       // sec ign chance
+                1,                       // sec ign stacks
+                800_m,                   // range
+                120_m/1_s,               // projectile speed
+                6_m_s2,                  // shell_drop
+                0_deg,                   // jitter
+                60_deg,                  // left turn angle
+                60_deg,                  // right turn angle
+                25_deg,                  // upwards turn angle
+                40_deg,                  // downwards turn angle
+                80_deg/1_s,              // horizontal turn speed
+                60_deg/1_s               // vertical turn speed
+    ) {}
+};
+
+class Mercury : public LightGun {
+ public:
+    explicit Mercury(const std::string& name) : LightGun(
+                name,
+                GunType::PROJECTILE,     // gun type
+                GunCategory::OTHERS,     // gun category
+                2,                       // magazine size
+                0.5/1_s,                 // rof
+                6_s,                     // reload
+                75_hp,                   // prim dmg
+                DmgType::PIERCING,       // prim dmg type
+                300_hp,                  // sec dmg
+                DmgType::SHATTER,        // sec dmg type
+                1.25_m,                  // aoe radius
+                0_s,                     // arming time
+                0,                       // prim ign chance
+                1,                       // prim ign stacks
+                0,                       // sec ign chance
+                1,                       // sec ign stacks
+                2250_m,                  // range
+                750_m/1_s,               // projectile speed
+                15_m_s2,                 // shell_drop
+                0_deg,                   // jitter
+                15_deg,                  // left turn angle
+                15_deg,                  // right turn angle
+                15_deg,                  // upwards turn angle
+                5_deg,                   // downwards turn angle
+                35_deg/1_s,              // horizontal turn speed
+                35_deg/1_s               // vertical turn speed
+    ) {}
+};
+
+class MineLauncher : public LightGun {
+ public:
+    explicit MineLauncher(const std::string& name) : LightGun(
+                name,
+                GunType::PROJECTILE,     // gun type
+                GunCategory::OTHERS,     // gun category
+                1,                       // magazine size
+                0.25/1_s,                // rof
+                4_s,                     // reload
+                125_hp,                  // prim dmg
+                DmgType::PIERCING,       // prim dmg type
+                100_hp,                  // sec dmg
+                DmgType::IMPACT,         // sec dmg type
+                60_m,                    // aoe radius
+                3_s,                     // arming time
+                0,                       // prim ign chance
+                1,                       // prim ign stacks
+                0.25,                    // sec ign chance
+                5,                       // sec ign stacks
+                165_m,                   // range
+                55_m/1_s,                // projectile speed
+                13_m_s2,                 // shell_drop
+                1_deg,                   // jitter
+                60_deg,                  // left turn angle
+                60_deg,                  // right turn angle
+                45_deg,                  // upwards turn angle
+                15_deg,                  // downwards turn angle
+                30_deg/1_s,              // horizontal turn speed
+                25_deg/1_s               // vertical turn speed
+    ) {}
+};
+
+class Mortar : public LightGun {
+ public:
+    explicit Mortar(const std::string& name) : LightGun(
+                name,
+                GunType::PROJECTILE,     // gun type
+                GunCategory::MORTARS,    // gun category
+                12,                      // magazine size
+                1.82/1_s,                // rof
+                6_s,                     // reload
+                30_hp,                   // prim dmg
+                DmgType::EXPLOSIVE,       // prim dmg type
+                60_hp,                   // sec dmg
+                DmgType::EXPLOSIVE,      // sec dmg type
+                8_m,                     // aoe radius
+                0_s,                     // arming time
+                0,                       // prim ign chance
+                1,                       // prim ign stacks
+                0,                       // sec ign chance
+                1,                       // sec ign stacks
+                400_m,                   // range
+                125_m/1_s,               // projectile speed
+                7_m_s2,                  // shell_drop
+                3_deg,                   // jitter
+                40_deg,                  // left turn angle
+                40_deg,                  // right turn angle
+                30_deg,                  // upwards turn angle
+                50_deg,                  // downwards turn angle
+                30_deg/1_s,              // horizontal turn speed
+                60_deg/1_s               // vertical turn speed
     ) {}
 };
 
@@ -486,7 +736,173 @@ class Gatling : public LightGun {
                 450_m,                   // range
                 500_m/1_s,               // projectile speed
                 0_m_s2,                  // shell_drop
-                2.25_deg                 // jitter
+                2.25_deg,                // jitter
+                50_deg,                  // left turn angle
+                50_deg,                  // right turn angle
+                25_deg,                  // upwards turn angle
+                50_deg,                  // downwards turn angle
+                90_deg/1_s,              // horizontal turn speed
+                100_deg/1_s              // vertical turn speed
+    ) {}
+};
+
+class HeavyCaro : public HeavyGun {
+ public:
+    explicit HeavyCaro(const std::string& name) : HeavyGun(
+                name,
+                GunType::RAYCAST,        // gun type
+                GunCategory::CARRONADES,  // gun category
+                2,                       // magazine size
+                0.83/1_s,                // rof
+                7.5_s,                   // reload
+                350_hp,                  // prim dmg
+                DmgType::FLECHETTE,      // prim dmg type
+                200_hp,                  // sec dmg
+                DmgType::SHATTER,        // sec dmg type
+                0_m,                     // aoe radius
+                0_s,                     // arming time
+                0,                       // prim ign chance
+                1,                       // prim ign stacks
+                0,                       // sec ign chance
+                1,                       // sec ign stacks
+                400_m,                   // range
+                800_m/1_s,               // projectile speed
+                0_m_s2,                  // shell_drop
+                6_deg,                   // jitter
+                25_deg,                  // left turn angle
+                25_deg,                  // right turn angle
+                20_deg,                  // upwards turn angle
+                10_deg,                  // downwards turn angle
+                60_deg/1_s,              // horizontal turn speed
+                50_deg/1_s               // vertical turn speed
+    ) {}
+};
+
+class Hwacha : public HeavyGun {
+ public:
+    explicit Hwacha(const std::string& name) : HeavyGun(
+                name,
+                GunType::PROJECTILE,     // gun type
+                GunCategory::ROCKET_LAUNCHERS,  // gun category
+                20,                      // magazine size
+                8.33/1_s,                // rof
+                14_s,                    // reload
+                25_hp,                   // prim dmg
+                DmgType::EXPLOSIVE,      // prim dmg type
+                45_hp,                   // sec dmg
+                DmgType::SHATTER,        // sec dmg type
+                7_m,                     // aoe radius
+                0_s,                     // arming time
+                0,                       // prim ign chance
+                1,                       // prim ign stacks
+                0,                       // sec ign chance
+                1,                       // sec ign stacks
+                1200_m,                  // range
+                250_m/1_s,               // projectile speed
+                0_m_s2,                  // shell_drop
+                4_deg,                   // jitter
+                30_deg,                  // left turn angle
+                30_deg,                  // right turn angle
+                20_deg,                  // upwards turn angle
+                20_deg,                  // downwards turn angle
+                55_deg/1_s,              // horizontal turn speed
+                35_deg/1_s               // vertical turn speed
+    ) {}
+};
+
+class Lumberjack : public HeavyGun {
+ public:
+    explicit Lumberjack(const std::string& name) : HeavyGun(
+                name,
+                GunType::PROJECTILE,     // gun type
+                GunCategory::MORTARS,    // gun category
+                6,                       // magazine size
+                0.8/1_s,                 // rof
+                8_s,                     // reload
+                50_hp,                   // prim dmg
+                DmgType::SHATTER,        // prim dmg type
+                300_hp,                  // sec dmg
+                DmgType::FLECHETTE,      // sec dmg type
+                12_m,                    // aoe radius
+                0.8_s,                   // arming time
+                0,                       // prim ign chance
+                1,                       // prim ign stacks
+                0,                       // sec ign chance
+                1,                       // sec ign stacks
+                1650_m,                  // range
+                275_m/1_s,               // projectile speed
+                20_m_s2,                 // shell_drop
+                0_deg,                   // jitter
+                15_deg,                  // left turn angle
+                15_deg,                  // right turn angle
+                65_deg,                  // upwards turn angle
+                25_deg,                  // downwards turn angle
+                15_deg/1_s,              // horizontal turn speed
+                25_deg/1_s               // vertical turn speed
+    ) {}
+};
+
+class HeavyFlak : public HeavyGun {
+ public:
+    explicit HeavyFlak(const std::string& name) : HeavyGun(
+                name,
+                GunType::PROJECTILE,     // gun type
+                GunCategory::FLAKS,      // gun category
+                4,                       // magazine size
+                2/1_s,                   // rof
+                4.5_s,                   // reload
+                115_hp,                  // prim dmg
+                DmgType::EXPLOSIVE,      // prim dmg type
+                50_hp,                   // sec dmg
+                DmgType::EXPLOSIVE,      // sec dmg type
+                7_m,                     // aoe radius
+                1.25_s,                  // arming time
+                0,                       // prim ign chance
+                1,                       // prim ign stacks
+                0.2,                     // sec ign chance
+                4,                       // sec ign stacks
+                1680_m,                  // range
+                240_m/1_s,               // projectile speed
+                6_m_s2,                  // shell_drop
+                0_deg,                   // jitter
+                30_deg,                  // left turn angle
+                30_deg,                  // right turn angle
+                30_deg,                  // upwards turn angle
+                40_deg,                  // downwards turn angle
+                30_deg/1_s,              // horizontal turn speed
+                20_deg/1_s               // vertical turn speed
+    ) {}
+};
+
+class Minotaur : public HeavyGun {
+ public:
+    explicit Minotaur(const std::string& name) : HeavyGun(
+                name,
+                GunType::RAYCAST,        // gun type
+                GunCategory::OTHERS,     // gun category
+                4,                       // magazine size
+                0.33/1_s,                // rof
+                10_s,                    // reload
+                90_hp,                   // prim dmg
+                DmgType::PIERCING,       // prim dmg type
+                225_hp,                  // sec dmg
+                DmgType::SHATTER,        // sec dmg type
+                0_m,                     // aoe radius
+                0_s,                     // arming time
+                0,                       // prim ign chance
+                1,                       // prim ign stacks
+                0,                       // sec ign chance
+                1,                       // sec ign stacks
+                1800_m,                  // range
+                550_m/1_s,               // projectile speed
+                0_m_s2,                  // shell_drop
+                3.5_deg,                 // jitter
+                30_deg,                  // left turn angle
+                30_deg,                  // right turn angle
+                30_deg,                  // upwards turn angle
+                30_deg,                  // downwards turn angle
+                20_deg/1_s,              // horizontal turn speed
+                20_deg/1_s               // vertical turn speed
     ) {}
 };
 

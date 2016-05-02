@@ -20,7 +20,6 @@
 
 #include "./config.h"
 
-#include <stdint.h>
 #if defined(GCC_4_9) || defined(LIBCONFIG_COMP)
 #include <string.h>
 #endif

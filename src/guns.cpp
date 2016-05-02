@@ -37,7 +37,19 @@ REGISTER_TYPE(Banshee, "Banshee");
 REGISTER_TYPE(LightCaro, "LightCaro");
 REGISTER_TYPE(Flare, "Flare");
 REGISTER_TYPE(Flamethrower, "Flamethrower");
+REGISTER_TYPE(LightFlak, "LightFlak");
+REGISTER_TYPE(Hades, "Hades");
+REGISTER_TYPE(Harpoon, "Harpoon");
+REGISTER_TYPE(Mercury, "Mercury");
+REGISTER_TYPE(MineLauncher, "MineLauncher");
+REGISTER_TYPE(Mortar, "Mortar");
 REGISTER_TYPE(Gatling, "Gatling");
+
+REGISTER_TYPE(HeavyCaro, "HeavyCaro");
+REGISTER_TYPE(Hwacha, "Hwacha");
+REGISTER_TYPE(Lumberjack, "Lumberjack");
+REGISTER_TYPE(HeavyFlak, "HeavyFlak");
+REGISTER_TYPE(Minotaur, "Minotaur");
 
 void Gun::set_clipsize(int clipsize) {
   if (clipsize < 0)

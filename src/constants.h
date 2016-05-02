@@ -319,6 +319,7 @@ constexpr double operator"" _deg(unsigned long long d) {
   return d;
 }
 #endif
+typedef Force Thrust;
 
 }  // namespace goio
 
