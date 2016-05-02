@@ -200,12 +200,14 @@ class GoioObj : public Object {
 
     bool temporary_immunity;
 
+    bool connected;
+
     explicit GoioObj(Health max_health) : name(""), cmp_type(CmpType::HULL),
                 max_health(max_health), health(max_health),
                 fire_stacks(-1), rebuild_state(-1),
                 part_type_multiplier(-1),
                 hull(nullptr), cooldown_end(0), immunity_end(0),
-                temporary_immunity(false) {}
+                temporary_immunity(false), connected(false) {}
     GoioObj(const GoioObj& obj);
     GoioObj& operator=(const GoioObj& obj);
 
@@ -219,7 +221,8 @@ class GoioObj : public Object {
             health(max_health), fire_stacks(-1), rebuild_state(-1),
             part_type_multiplier(part_type_multiplier),
             hull(new GoioObj(hull_max_health)),
-            cooldown_end(0_s), immunity_end(0_s), temporary_immunity(false) {}
+            cooldown_end(0_s), immunity_end(0_s), temporary_immunity(false),
+            connected(false) {}
     virtual ~GoioObj();
 
     static const     int    max_fire_stacks           = 20;
@@ -266,6 +269,9 @@ class GoioObj : public Object {
     inline void set_temporary_immunity(bool temporary_immunity) {
       this->temporary_immunity = temporary_immunity;
     }
+
+    // Set obj as underlying hull component.
+    void set_hull(GoioObj* obj);
 
     virtual void reset(bool hull = true);
 };

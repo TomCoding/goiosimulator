@@ -34,7 +34,7 @@ class EngineInfo {
     const Thrust thrust;
 
  protected:
-    EngineInfo(Thrust thrust) : thrust(thrust) {}
+    explicit EngineInfo(Thrust thrust) : thrust(thrust) {}
     virtual ~EngineInfo() {}
 
  public:

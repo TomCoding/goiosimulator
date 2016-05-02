@@ -30,7 +30,8 @@ namespace goio {
 REGISTER_TYPE_FULL(GoioObj, "GoioObj");
 
 GoioObj::~GoioObj() {
-  delete hull;
+  if (!connected)
+    delete hull;
 }
 
 bool GoioObj::add_health(Health health, Time cooldown_end) {
@@ -124,6 +125,12 @@ void GoioObj::set_fire(int fire) {
   else
     fire_stacks = fire;
   immunity_end = 0_s;
+}
+
+void GoioObj::set_hull(GoioObj* obj) {
+  connected = true;
+  delete hull;
+  hull = obj;
 }
 
 void GoioObj::reset(bool hull) {

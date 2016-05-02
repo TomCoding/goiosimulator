@@ -22,8 +22,12 @@
 #define SHIPS_H_
 
 #include <string>
+#include <set>
 
 #include "./goioobj.h"
+#include "./balloon.h"
+#include "./engines.h"
+#include "./guns.h"
 
 
 namespace goio {
@@ -32,14 +36,22 @@ class Ship : public GoioObj {
  private:
     const Weight mass;
     const int    light_engines;
-    const Thrust light_engines_thrust;
+    const Thrust light_engine_thrust;
     const int    heavy_engines;
-    const Thrust heavy_engines_thrust;
+    const Thrust heavy_engine_thrust;
     const Speed  longitudinal_top_speed;
     const Angular_Speed angular_top_speed;
     const Angular_Acceleration angular_acceleration;
     const Force  lift_force;
     const Speed  vertical_top_speed;
+
+    Balloon* balloon;
+    std::set<LightEngine*> engines_l;
+    std::set<HeavyEngine*> engines_h;
+    std::set<Gun*> guns;
+
+    Ship(const Ship& obj);
+    Ship& operator=(const Ship& obj);
 
  protected:
     Ship(const std::string& name, Health max_health, Health hull_max_health,
@@ -48,27 +60,16 @@ class Ship : public GoioObj {
          int heavy_engines, Thrust heavy_engines_thrust,
          Speed longitudinal_top_speed,
          Angular_Speed angular_top_speed, Angular_Acceleration angular_acceleration,
-         Force lift_force, Speed vertical_top_speed) :
-              GoioObj(name, CmpType::ARMOR, 1, max_health, hull_max_health),
-              mass(mass),
-              light_engines(light_engines),
-              light_engines_thrust(light_engines_thrust),
-              heavy_engines(heavy_engines),
-              heavy_engines_thrust(heavy_engines_thrust),
-              longitudinal_top_speed(longitudinal_top_speed),
-              angular_top_speed(angular_top_speed),
-              angular_acceleration(angular_acceleration),
-              lift_force(lift_force),
-              vertical_top_speed(vertical_top_speed) {}
+         Force lift_force, Speed vertical_top_speed);
 
  public:
-    virtual ~Ship() {}
+    virtual ~Ship();
 
     inline Weight get_mass() const { return mass; }
-    inline int    get_light_engines() const { return light_engines; }
-    inline Thrust get_light_engines_thrust() const { return light_engines_thrust; }
-    inline int    get_heavy_engines() const { return heavy_engines; }
-    inline Thrust get_heavy_engines_thrust() const { return heavy_engines_thrust; }
+    inline int    get_light_engines_count() const { return light_engines; }
+    inline Thrust get_light_engine_thrust() const { return light_engine_thrust; }
+    inline int    get_heavy_engines_count() const { return heavy_engines; }
+    inline Thrust get_heavy_engine_thrust() const { return heavy_engine_thrust; }
     inline Speed  get_longitudinal_top_speed() const {
       return longitudinal_top_speed;
     }
@@ -84,6 +85,13 @@ class Ship : public GoioObj {
     double        get_longitudinal_drag() const;
     Acceleration  get_vertical_acceleration() const;
     double        get_vertical_drag() const;
+
+    inline Balloon* get_balloon() const { return balloon; }
+    inline std::set<LightEngine*> get_light_engines() const { return engines_l; }
+    inline std::set<HeavyEngine*> get_heavy_engines() const { return engines_h; }
+    inline std::set<Gun*> get_guns() const { return guns; }
+
+    void add_gun(Gun* gun);
 };
 
 class Pyramidion : public Ship {
