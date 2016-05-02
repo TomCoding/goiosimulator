@@ -167,6 +167,7 @@ using Weight        = Value<Unit<0, 1,  0, 0, 0>>;
 using Force         = Value<Unit<1, 1, -2, 0, 0>>;
 using Angle         = Value<Unit<0, 0,  0, 0, 1>>;
 using Angular_Speed = Value<Unit<0, 0, -1, 0, 1>>;
+using Angular_Acceleration = Value<Unit<0, 0, -2, 0, 1>>;
 
 // a f-p literal suffixed by '_s'
 inline Time operator"" _s(long double d) {
@@ -217,6 +218,12 @@ inline Angle operator"" _deg(long double d) {
 }
 inline Angle operator"" _deg(unsigned long long d) {
   return Angle(d);
+}
+inline Angular_Acceleration operator"" _deg_s2(long double d) {
+  return Angular_Acceleration(d);
+}
+inline Angular_Acceleration operator"" _deg_s2(unsigned long long d) {
+  return Angular_Acceleration(d);
 }
 
 template<int m1, int k1, int s1, int h1, int a1,
@@ -275,6 +282,7 @@ typedef double Weight;
 typedef double Force;
 typedef double Angle;
 typedef double Angular_Speed;
+typedef double Angular_Acceleration;
 
 constexpr double operator"" _s(long double d) {
   return d;
@@ -316,6 +324,12 @@ constexpr double operator"" _deg(long double d) {
   return d;
 }
 constexpr double operator"" _deg(unsigned long long d) {
+  return d;
+}
+constexpr double operator"" _deg_s2(long double d) {
+  return d;
+}
+constexpr double operator"" _deg_s2(unsigned long long d) {
   return d;
 }
 #endif

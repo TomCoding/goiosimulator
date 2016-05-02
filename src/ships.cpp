@@ -31,4 +31,27 @@ REGISTER_TYPE(Squid, "Squid");
 REGISTER_TYPE(Spire, "Spire");
 REGISTER_TYPE(Mobula, "Mobula");
 
+inline Thrust Ship::get_thrust() const {
+  return light_engines*light_engines_thrust +
+         heavy_engines*heavy_engines_thrust;
+}
+
+inline Acceleration Ship::get_longitudinal_acceleration() const {
+  return get_thrust()/get_mass();
+}
+
+double Ship::get_longitudinal_drag() const {
+  return 2*get_longitudinal_acceleration() /
+         (get_longitudinal_top_speed()*get_longitudinal_top_speed());
+}
+
+inline Acceleration Ship::get_vertical_acceleration() const {
+  return get_lift_force()/get_mass();
+}
+
+double Ship::get_vertical_drag() const {
+  return 2*get_vertical_acceleration() /
+         (get_vertical_top_speed()*get_vertical_top_speed());
+}
+
 }  // namespace goio
