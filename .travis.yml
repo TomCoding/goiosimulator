@@ -6,17 +6,17 @@ dist: trusty
 matrix:
   # allow_failures:
   #   - compiler: clang
-  # fast_finish: true
+  fast_finish: true
   include:
     - compiler: gcc
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - george-edison55-cmake-3.x
+            # - george-edison55-cmake-3.x
           packages:
-            - cmake
-            - cmake-data
+            # - cmake
+            # - cmake-data
             - g++-4.9
             - libconfig++-dev
             - valgrind
@@ -26,10 +26,10 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - george-edison55-cmake-3.x
+            # - george-edison55-cmake-3.x
           packages:
-            - cmake
-            - cmake-data
+            # - cmake
+            # - cmake-data
             - g++-4.9
             - libconfig++-dev
             - valgrind
@@ -39,10 +39,10 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - george-edison55-cmake-3.x
+            # - george-edison55-cmake-3.x
           packages:
-            - cmake
-            - cmake-data
+            # - cmake
+            # - cmake-data
             - g++-5
             - libconfig++-dev
             - valgrind
@@ -52,39 +52,49 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - george-edison55-cmake-3.x
+            # - george-edison55-cmake-3.x
           packages:
-            - cmake
-            - cmake-data
+            # - cmake
+            # - cmake-data
             - g++-5
             - libconfig++-dev
             - valgrind
       env: CXX_COMPILER=g++-5 C_COMPILER=gcc-5 BUILD_TYPE=Debug
     - compiler: clang
+      before_script:
+        - curl http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -
+        - echo "deb http://llvm.org/apt/trusty/ llvm-toolchain-trusty-3.7 main" | sudo tee -a /etc/apt/sources.list
+        - sudo apt-get update -qq
+        - sudo apt-get install clang-3.7
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-3.7
-            - george-edison55-cmake-3.x
+            # - llvm-toolchain-trusty-3.7
+            # - george-edison55-cmake-3.x
           packages:
-            - cmake
-            - cmake-data
-            - clang-3.7
+            # - cmake
+            # - cmake-data
+            # - clang-3.7
             - libconfig++-dev
             - valgrind
       env: CXX_COMPILER=clang++-3.7 C_COMPILER=clang-3.7 BUILD_TYPE=Release
     - compiler: clang
+      before_script:
+        - curl http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -
+        - echo "deb http://llvm.org/apt/trusty/ llvm-toolchain-trusty-3.7 main" | sudo tee -a /etc/apt/sources.list
+        - sudo apt-get update -qq
+        - sudo apt-get install clang-3.7
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-3.7
-            - george-edison55-precise-backports
+            # - llvm-toolchain-trusty-3.7
+            # - george-edison55-precise-backports
           packages:
-            - cmake
-            - cmake-data
-            - clang-3.7
+            # - cmake
+            # - cmake-data
+            # - clang-3.7
             - libconfig++-dev
             - valgrind
       env: CXX_COMPILER=clang++-3.7 C_COMPILER=clang-3.7 BUILD_TYPE=Debug
