@@ -258,12 +258,11 @@ DmgState::State Gun::shoot(GoioObj* obj, Time time,
     return DmgState::NONE;
   }
 
-  GoioObj* tmpobj;
-  if (obj->get_health() > 0_hp) {
-    tmpobj = obj;
-  } else {
-    tmpobj = obj->get_hull();
-    if (tmpobj->get_health() == 0_hp) {
+  GoioObj* tmpobj = obj;
+  while (tmpobj->get_health() == 0_hp) {
+    if (tmpobj->get_hull() != nullptr) {
+      tmpobj = tmpobj->get_hull();
+    } else {
       std::cout << "                            ";
       return DmgState::NONE;
     }
