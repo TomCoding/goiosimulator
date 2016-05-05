@@ -46,12 +46,52 @@ add_executable(goiovalues "${sources}")
 target_link_libraries(goiovalues goiovalues_lib)
 
 if(TESTS)
+  include(ExternalProject)
+
+  set_directory_properties(PROPERTIES EP_PREFIX ${CMAKE_BINARY_DIR}/googletest)
+  ExternalProject_Add(
+    googletest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG release-1.7.0
+    TIMEOUT 10
+    # Force separate output paths for debug and release builds to allow easy
+    # identification of correct lib in subsequent TARGET_LINK_LIBRARIES commands
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+               -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG:PATH=DebugLibs
+               -Dgtest_force_shared_crt=ON
+    # Disable install step
+    INSTALL_COMMAND ""
+    # Wrap download, configure and build steps in a script to log output
+    LOG_DOWNLOAD ON
+    LOG_CONFIGURE ON
+    LOG_BUILD ON
+  )
+
   file(GLOB sources_tests "${PROJECT_SOURCE_DIR}/tests/*.cpp")
   add_executable(goiovalues_tests "${sources_tests}")
-  target_link_libraries(goiovalues_tests goiovalues_lib)
+  add_dependencies(goiovalues_tests googletest)
+
+  ExternalProject_Get_Property(googletest source_dir)
+  target_include_directories(goiovalues_tests SYSTEM PUBLIC "${source_dir}/include")
+
+  if(MSVC)
+    set(Suffix ".lib")
+  else()
+    set(Suffix ".a")
+    set(Pthread "-pthread")
+  endif()
+  ExternalProject_Get_Property(googletest binary_dir)
+  target_link_libraries(goiovalues_tests goiovalues_lib
+    debug "${binary_dir}/DebugLibs/${CMAKE_FIND_LIBRARY_PREFIXES}gtest${Suffix}"
+    optimized "${binary_dir}/${CMAKE_FIND_LIBRARY_PREFIXES}gtest${Suffix}"
+    ${Pthread}
+  )
+  add_test(GTest goiovalues_tests)
+  # GTEST_ADD_TESTS(goiovalues_tests "" "${PROJECT_SOURCE_DIR}/tests/tests.cpp")
 endif()
 
-add_definitions(
+set(CXX_FLAGS "")
+list(APPEND CXX_FLAGS
   -std=c++1y -O3 -ffast-math -pedantic -Wall -Wextra -Wcast-align
   -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2
   -Winit-self -Wmissing-declarations -Wmissing-include-dirs
@@ -61,7 +101,7 @@ add_definitions(
 )
 
 if("${libconfig_VERSION}" VERSION_LESS 1.5)
-  add_definitions(
+  list(APPEND CXX_FLAGS
     -DLIBCONFIG_COMP
   )
 endif()
@@ -70,12 +110,12 @@ if(CMAKE_COMPILER_IS_GNUCC)
   if("${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 4.9.3)
     message(FATAL_ERROR "GCC version must be at least 4.9.3!")
   elseif("${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 5)
-    add_definitions(
+    list(APPEND CXX_FLAGS
       -DGCC_4_9
     )
   endif()
 
-  add_definitions(
+  list(APPEND CXX_FLAGS
     -Wlogical-op
     -Wnoexcept
     -Wstrict-null-sentinel
@@ -83,7 +123,7 @@ if(CMAKE_COMPILER_IS_GNUCC)
   )
 
   if(NOT "${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 5)
-    add_definitions(
+    list(APPEND CXX_FLAGS
       -Wswitch-bool
       -Wlogical-not-parentheses
       -Wsizeof-array-argument
@@ -94,20 +134,20 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   if("${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 3.4)
     message(FATAL_ERROR "Clang version must be at least 3.4!")
   endif()
-  add_definitions(
+  list(APPEND CXX_FLAGS
     -DCLANG
   )
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR COVERAGE)
-  add_definitions(
+  list(APPEND CXX_FLAGS
     -g
     -DSTRONG_TYPE_COMPILE
   )
   if(COVERAGE)
     list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
     include(CodeCoverage)
-    add_definitions(
+    list(APPEND CXX_FLAGS
       -O0 -fprofile-arcs -ftest-coverage
       --coverage
       -fno-inline -fno-inline-small-functions -fno-default-inline
@@ -115,8 +155,13 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR COVERAGE)
     target_link_libraries(goiovalues_lib gcov)
     setup_target_for_coverage(goiovalues_coverage goiovalues_tests
                               "${PROJECT_BINARY_DIR}/coverage")
+    target_compile_options(goiovalues_coverage PUBLIC ${CXX_FLAGS})
   endif()
 endif()
+
+target_compile_options(goiovalues_lib PUBLIC ${CXX_FLAGS})
+target_compile_options(goiovalues PUBLIC ${CXX_FLAGS})
+target_compile_options(goiovalues_tests PUBLIC ${CXX_FLAGS})
 
 
 find_program(MEMORYCHECK_COMMAND valgrind)
