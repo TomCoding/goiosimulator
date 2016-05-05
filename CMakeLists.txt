@@ -98,6 +98,7 @@ if(TESTS)
 
   add_test(Ammunitions goiovalues_tests --gtest_filter=Ammunitions.*)
   add_test(Balloon goiovalues_tests --gtest_filter=Balloon.*)
+  add_test(DmgTypes goiovalues_tests --gtest_filter=DmgTypes.*)
 endif()
 
 set(CXX_FLAGS "")
@@ -151,7 +152,7 @@ endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR COVERAGE)
   list(APPEND CXX_FLAGS
-    -g
+    -g -O0
     -DSTRONG_TYPE_COMPILE
   )
   if(COVERAGE)
@@ -165,7 +166,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR COVERAGE)
     target_link_libraries(goiovalues_lib gcov)
     setup_target_for_coverage(goiovalues_coverage goiovalues_tests
                               "${PROJECT_BINARY_DIR}/coverage")
-    target_compile_options(goiovalues_coverage PUBLIC ${CXX_FLAGS})
   endif()
 endif()
 

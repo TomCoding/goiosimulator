@@ -38,35 +38,35 @@ TEST(Balloon, create) {
   Health max_health = 200_hp;
 
   auto balloon1 = new Balloon(name, lift_force);
-  EXPECT_NE(balloon1, nullptr);
+  EXPECT_NE(nullptr, balloon1);
   delete balloon1;
 
   auto balloon2 = new Balloon(name, lift_force, max_health);
-  EXPECT_NE(balloon2, nullptr);
+  EXPECT_NE(nullptr, balloon2);
   delete balloon2;
 }
 
 TEST(Balloon, createFactory) {
   auto balloon = ObjectFactory::create("Balloon");
-  EXPECT_EQ(balloon, nullptr);
+  EXPECT_EQ(nullptr, balloon);
   delete balloon;
 }
 
 void test_const_values(Balloon& b, std::string& name, Force lift_force,
                        Health max_health) {
-  EXPECT_EQ(b.get_name(), name);
-  EXPECT_EQ(b.get_max_health(), max_health);
-  EXPECT_EQ(b.get_orig_lift_force(), lift_force);
-  EXPECT_EQ(b.get_orig_descent_force(), lift_force);
+  EXPECT_EQ(name, b.get_name());
+  EXPECT_EQ(max_health, b.get_max_health());
+  EXPECT_EQ(lift_force, b.get_orig_lift_force());
+  EXPECT_EQ(lift_force, b.get_orig_descent_force());
 }
 void test_variable_values(Balloon& b, Force lift_force, Force descent_force,
                           Health max_health, bool all) {
-  EXPECT_EQ(b.get_lift_force(), lift_force);
-  EXPECT_EQ(b.get_descent_force(), descent_force);
+  EXPECT_EQ(lift_force, b.get_lift_force());
+  EXPECT_EQ(descent_force, b.get_descent_force());
   if (all) {
-    EXPECT_EQ(b.get_health(), max_health);
-    EXPECT_EQ(b.get_lift_force_changed(), lift_force);
-    EXPECT_EQ(b.get_descent_force_changed(), descent_force);
+    EXPECT_EQ(max_health, b.get_health());
+    EXPECT_EQ(lift_force, b.get_lift_force_changed());
+    EXPECT_EQ(descent_force, b.get_descent_force_changed());
   }
 }
 
@@ -93,6 +93,11 @@ TEST(Balloon, valuesSet) {
   b.set_descent_force(descent_force_new);
   test_const_values(b, name, lift_force, max_health);
   test_variable_values(b, lift_force_new, descent_force_new, max_health);
+
+  b.set_lift_force(-lift_force_new);
+  b.set_descent_force(-descent_force_new);
+  test_const_values(b, name, lift_force, max_health);
+  test_variable_values(b, 0_N, 0_N, max_health);
 }
 
 TEST(Balloon, healthSet) {
@@ -110,11 +115,11 @@ TEST(Balloon, healthSet) {
   b.add_health(added_health);
   test_const_values(b, name, lift_force, max_health);
   test_variable_values(b, lift_force_new, descent_force_new, max_health, false);
-  EXPECT_EQ(b.get_health(), max_health+added_health);
+  EXPECT_EQ(max_health+added_health, b.get_health());
 
   auto health_mod = b.get_health()/max_health;
-  EXPECT_EQ(b.get_lift_force_changed(), health_mod*lift_force_new);
-  EXPECT_EQ(b.get_descent_force_changed(), health_mod*descent_force_new);
+  EXPECT_EQ(health_mod*lift_force_new, b.get_lift_force_changed());
+  EXPECT_EQ(health_mod*descent_force_new, b.get_descent_force_changed());
 }
 
 TEST(Balloon, reset) {

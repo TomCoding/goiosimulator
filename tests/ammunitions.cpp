@@ -30,35 +30,35 @@ using namespace goio;
 
 TEST(Ammunitions, create) {
   auto loch = new Lochnagar();
-  EXPECT_NE(loch, nullptr);
+  EXPECT_NE(nullptr, loch);
   delete loch;
 
   auto inc = new Incendiary();
-  EXPECT_NE(inc, nullptr);
+  EXPECT_NE(nullptr, inc);
   delete inc;
 
   auto heatsink = new Heatsink();
-  EXPECT_NE(heatsink, nullptr);
+  EXPECT_NE(nullptr, heatsink);
   delete heatsink;
 
   auto greased = new Greased();
-  EXPECT_NE(greased, nullptr);
+  EXPECT_NE(nullptr, greased);
   delete greased;
 
   auto charged = new Charged();
-  EXPECT_NE(charged, nullptr);
+  EXPECT_NE(nullptr, charged);
   delete charged;
 
   auto lesmok = new Lesmok();
-  EXPECT_NE(lesmok, nullptr);
+  EXPECT_NE(nullptr, lesmok);
   delete lesmok;
 
   auto burst = new Burst();
-  EXPECT_NE(burst, nullptr);
+  EXPECT_NE(nullptr, burst);
   delete burst;
 
   auto heavy = new Heavy();
-  EXPECT_NE(heavy, nullptr);
+  EXPECT_NE(nullptr, heavy);
   delete heavy;
 }
 
@@ -69,8 +69,8 @@ TEST(Ammunitions, createFactory) {
                                      "Heavy"};
   for (int i = 0; i < ammos_length; ++i) {
     auto ammo = ObjectFactory::create(ammos[i]);
-    EXPECT_NE(ammo, nullptr);
-    EXPECT_NE(dynamic_cast<Ammunition*>(ammo), nullptr);
+    EXPECT_NE(nullptr, ammo);
+    EXPECT_NE(nullptr, dynamic_cast<Ammunition*>(ammo));
     delete ammo;
   }
 }
@@ -96,17 +96,17 @@ class TestAmmo : public Ammunition {
 
 TEST(Ammunitions, values) {
   TestAmmo ta;
-  EXPECT_EQ(ta.get_clipsize(), 0.4);
-  EXPECT_EQ(ta.get_damage(), 2.25);
-  EXPECT_EQ(ta.get_rof(), 1);
-  EXPECT_EQ(ta.get_aoe_radius(), 0.5);
-  EXPECT_EQ(ta.get_arming_time(), 0.43);
-  EXPECT_EQ(ta.get_ign_chance(), 0);
-  EXPECT_EQ(ta.get_projectile_speed(), 1.2);
-  EXPECT_EQ(ta.get_shell_drop(), 1.1);
-  EXPECT_EQ(ta.get_jitter(), 0.45);
-  EXPECT_EQ(ta.get_turn_speed(), 0.2);
-  EXPECT_EQ(ta.get_fire_stacks(), -3);
-  EXPECT_EQ(ta.get_proportional_self_damage(), true);
-  EXPECT_EQ(ta.get_immune(), false);
+  EXPECT_EQ(0.4, ta.get_clipsize());
+  EXPECT_EQ(2.25, ta.get_damage());
+  EXPECT_EQ(1, ta.get_rof());
+  EXPECT_EQ(0.5, ta.get_aoe_radius());
+  EXPECT_EQ(0.43, ta.get_arming_time());
+  EXPECT_EQ(0, ta.get_ign_chance());
+  EXPECT_EQ(1.2, ta.get_projectile_speed());
+  EXPECT_EQ(1.1, ta.get_shell_drop());
+  EXPECT_EQ(0.45, ta.get_jitter());
+  EXPECT_EQ(0.2, ta.get_turn_speed());
+  EXPECT_EQ(-3, ta.get_fire_stacks());
+  EXPECT_EQ(true, ta.get_proportional_self_damage());
+  EXPECT_EQ(false, ta.get_immune());
 }
