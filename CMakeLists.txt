@@ -20,8 +20,8 @@
 
 cmake_minimum_required(VERSION 3.0)
 project(goiovalues)
-# set(goiovalues_VERSION_MAJOR 0)
-# set(goiovalues_VERSION_MINOR 1)
+set(goiovalues_VERSION_MAJOR 0)
+set(goiovalues_VERSION_MINOR 1)
 
 configure_file(
   "${PROJECT_SOURCE_DIR}/goiovalues.cfg"
@@ -29,18 +29,29 @@ configure_file(
   COPYONLY
 )
 
-option(Coverage "Enable gcov support." OFF)
+option(COVERAGE "Enable gcov support." OFF)
+option(TESTS "Disable tests." ON)
 
 include(FindPkgConfig)
 pkg_check_modules(libconfig REQUIRED "libconfig++>=1.4.9")
 
+file(GLOB sources_lib "${PROJECT_SOURCE_DIR}/lib/*.cpp")
+include_directories("${PROJECT_SOURCE_DIR}/include")
+
+add_library(goiovalues_lib "${sources_lib}")
+target_link_libraries(goiovalues_lib ${libconfig_LIBRARIES})
+
 file(GLOB sources "${PROJECT_SOURCE_DIR}/src/*.cpp")
-include_directories("${PROJECT_SOURCE_DIR}/src")
-
 add_executable(goiovalues "${sources}")
-target_link_libraries(goiovalues ${libconfig_LIBRARIES})
+target_link_libraries(goiovalues goiovalues_lib)
 
-target_compile_options(goiovalues PUBLIC
+if(TESTS)
+  file(GLOB sources_tests "${PROJECT_SOURCE_DIR}/tests/*.cpp")
+  add_executable(goiovalues_tests "${sources_tests}")
+  target_link_libraries(goiovalues_tests goiovalues_lib)
+endif()
+
+add_definitions(
   -std=c++1y -O3 -ffast-math -pedantic -Wall -Wextra -Wcast-align
   -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2
   -Winit-self -Wmissing-declarations -Wmissing-include-dirs
@@ -50,7 +61,7 @@ target_compile_options(goiovalues PUBLIC
 )
 
 if("${libconfig_VERSION}" VERSION_LESS 1.5)
-  target_compile_options(goiovalues PUBLIC
+  add_definitions(
     -DLIBCONFIG_COMP
   )
 endif()
@@ -59,12 +70,12 @@ if(CMAKE_COMPILER_IS_GNUCC)
   if("${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 4.9.3)
     message(FATAL_ERROR "GCC version must be at least 4.9.3!")
   elseif("${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 5)
-    target_compile_options(goiovalues PUBLIC
+    add_definitions(
       -DGCC_4_9
     )
   endif()
 
-  target_compile_options(goiovalues PUBLIC
+  add_definitions(
     -Wlogical-op
     -Wnoexcept
     -Wstrict-null-sentinel
@@ -72,7 +83,7 @@ if(CMAKE_COMPILER_IS_GNUCC)
   )
 
   if(NOT "${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 5)
-    target_compile_options(goiovalues PUBLIC
+    add_definitions(
       -Wswitch-bool
       -Wlogical-not-parentheses
       -Wsizeof-array-argument
@@ -83,26 +94,26 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   if("${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 3.4)
     message(FATAL_ERROR "Clang version must be at least 3.4!")
   endif()
-  target_compile_options(goiovalues PUBLIC
+  add_definitions(
     -DCLANG
   )
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR COVERAGE)
-  target_compile_options(goiovalues PUBLIC
+  add_definitions(
     -g
     -DSTRONG_TYPE_COMPILE
   )
   if(COVERAGE)
     list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
     include(CodeCoverage)
-    target_compile_options(goiovalues PUBLIC
+    add_definitions(
       -O0 -fprofile-arcs -ftest-coverage
       --coverage
       -fno-inline -fno-inline-small-functions -fno-default-inline
     )
-    target_link_libraries(goiovalues gcov)
-    setup_target_for_coverage(goiovalues_coverage goiovalues
+    target_link_libraries(goiovalues_lib gcov)
+    setup_target_for_coverage(goiovalues_coverage goiovalues_tests
                               "${PROJECT_BINARY_DIR}/coverage")
   endif()
 endif()

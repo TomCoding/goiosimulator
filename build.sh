@@ -39,8 +39,9 @@ Options:
   --lcov              Run lcov.
   --lcovopen          Same as --lcov, additionally open report in browser.
   -n, --no-debug      Compile without debug flags.
+  -nut, --no-unit-tests  Disable unit tests.
   --doc               Create documentation.
-  --no-tests          Don't run tests.
+  -nt, --no-tests     Don't run tests.
   -r, --run           Run program after compilation.
   -v, --valgrind      Run program after compilation with valgrind.
   -c, --clean         Use clean build environment.
@@ -69,6 +70,7 @@ CPPLINT=0
 LCOV=0
 LCOV_OPEN=0
 NO_DEBUG=0
+NO_UNIT_TESTS=0
 DOC=0
 WAIT=0
 CLEAN=0
@@ -115,7 +117,7 @@ for i in "$@"; do
       VALGRIND=1
       shift
       ;;
-    "--no-tests")
+    "-nt"|"--no-tests")
       NO_TESTS=1
       shift
       ;;
@@ -150,6 +152,10 @@ for i in "$@"; do
       NO_DEBUG=1
       shift
       ;;
+    "--no-unit-tests"|"-nut")
+      NO_UNIT_TESTS=1
+      shift
+      ;;
     "-w"|"--wait")
       WAIT=1
       if [ "$VALGRIND" == 0 ]; then
@@ -181,6 +187,9 @@ fi
 CMAKE_OPTIONS=
 if [ "$NO_DEBUG" == 0 ]; then
   CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Debug"
+fi
+if [ "$NO_UNIT_TESTS" == 1 ]; then
+  CMAKE_OPTIONS="-DTESTS=OFF"
 fi
 if [ "$LCOV" == 1 ]; then
   CMAKE_OPTIONS="$CMAKE_OPTIONS -DCOVERAGE=ON"
@@ -262,7 +271,7 @@ if [ "$CPPCHECK" == 1 ]; then
   cppcheck -i "$BUILD_DIR" --enable=all --suppress=missingIncludeSystem --xml . \
                                                2>"$CPPCHECK_DIR/report.xml" &&
   cppcheck-htmlreport --title="$BIN_NAME" --file "$CPPCHECK_DIR/report.xml" \
-                      --report-dir "$CPPCHECK_DIR" --source-dir "src" &&
+                      --report-dir "$CPPCHECK_DIR" --source-dir . &&
   if [ "$CPPCHECK_OPEN" == 1 ]; then
     xdg-open "$CPPCHECK_DIR/index.html"
   fi
@@ -278,7 +287,13 @@ fi
 
 if [ "$CPPLINT" == 1 ]; then
   echo
+  cpplint.py --linelength=84 --root=include include/*.h
+  echo
+  cpplint.py --linelength=84 --root=lib lib/*.cpp
+  echo
   cpplint.py --linelength=84 --root=src src/*.h src/*.cpp
+  echo
+  cpplint.py --linelength=84 --root=tests tests/*.h tests/*.cpp
 fi
 
 if [ "$LCOV" == 1 ]; then
