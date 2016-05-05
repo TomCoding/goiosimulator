@@ -99,6 +99,7 @@ if(TESTS)
   add_test(Ammunitions goiovalues_tests --gtest_filter=Ammunitions.*)
   add_test(Balloon goiovalues_tests --gtest_filter=Balloon.*)
   add_test(DmgTypes goiovalues_tests --gtest_filter=DmgTypes.*)
+  add_test(Constants goiovalues_tests --gtest_filter=Constants.*)
 endif()
 
 set(CXX_FLAGS "")
