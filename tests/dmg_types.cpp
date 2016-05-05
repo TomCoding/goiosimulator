@@ -72,6 +72,8 @@ TEST(DmgTypes, valuesCmpType) {
 }
 
 TEST(DmgTypes, valuesDmgMatrix) {
+  EXPECT_EQ(0, get_dmg_modifier(DmgType::FLECHETTE, CmpType::COMPONENTS));
+
   EXPECT_EQ(dmg_types[3][2], get_dmg_modifier(DmgType::PIERCING,
                                               CmpType::ARMOR));
   EXPECT_EQ(dmg_types[4][0], get_dmg_modifier(DmgType::EXPLOSIVE,

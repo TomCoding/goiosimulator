@@ -18,36 +18,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "./fire.h"
+#include "gtest/gtest.h"
 
-#include <iostream>
-
-#include "./dmg_types.h"
+#include "./rng.h"
 
 
-namespace goio {
+using namespace goio;
 
-Health Fire::get_fire_dmg(GoioObj* obj, Time time) {
-  if (obj->get_fire_stacks() > 0)
-    return get_dmg_modifier(DmgType::FIRE,
-                            obj->get_cmp_type()) *
-           (2*obj->get_fire_stacks()+8)/1_s *
-           time*1_hp;
-  else
-    return 0_hp;
+TEST(Rng, Randomness) {
+  EXPECT_EQ(nullptr, random_percentage);
+  init();
+  ASSERT_NE(nullptr, random_percentage);
+  for (int i = 0; i < 1000; ++i)
+    ASSERT_NE(random_percentage(), random_percentage());
 }
-
-DmgState::State Fire::burn(GoioObj* obj, Time) {
-  if (obj->get_fire_stacks() < 1)
-    return DmgState::NONE;
-  obj->add_health(-get_fire_dmg(obj, get_firetick()));
-  return DmgState::TARGET;
-}
-
-TimeFunc Fire::get_time_func(const GoioObj* obj, Time, bool&) {
-  if (obj->get_fire_stacks() > 0)
-    return &Fire::get_firetick;
-  return nullptr;
-}
-
-}  // namespace goio
