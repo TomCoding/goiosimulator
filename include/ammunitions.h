@@ -42,17 +42,19 @@ class Ammunition : public Object {
     const bool   proportional_self_damage;
     const bool   immune;
 
-    Ammunition(double clipsize, double damage, double rof, double aoe_radius,
-               double arming_time, double ign_chance, double projectile_speed,
-               double shell_drop, double jitter, double turn_speed,
-               int fire_stacks, bool proportional_self_damage, bool immune) :
-                      clipsize(clipsize), damage(damage), rof(rof),
-                      aoe_radius(aoe_radius), arming_time(arming_time),
-                      ign_chance(ign_chance), projectile_speed(projectile_speed),
-                      shell_drop(shell_drop), jitter(jitter),
-                      turn_speed(turn_speed), fire_stacks(fire_stacks),
-                      proportional_self_damage(proportional_self_damage),
-                      immune(immune) {}
+    Ammunition(double clipsize,
+               double damage,
+               double rof,
+               double aoe_radius,
+               double arming_time,
+               double ign_chance,
+               double projectile_speed,
+               double shell_drop,
+               double jitter,
+               double turn_speed,
+               int fire_stacks,
+               bool proportional_self_damage,
+               bool immune);
 
  public:
     virtual ~Ammunition() {}
