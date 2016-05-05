@@ -255,7 +255,7 @@ if [ "$?" == 0 ]; then
   SUCCESS=0
   if [ "$NO_TESTS" == 0 ]; then
     echo
-    ctest --output-on-failure -R run -D ExperimentalMemCheck
+    ctest --output-on-failure -D ExperimentalMemCheck
     # ctest -V -R api_sanity_checker
   fi
 fi

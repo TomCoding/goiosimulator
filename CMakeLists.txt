@@ -45,6 +45,15 @@ file(GLOB sources "${PROJECT_SOURCE_DIR}/src/*.cpp")
 add_executable(goiovalues "${sources}")
 target_link_libraries(goiovalues goiovalues_lib)
 
+include(CTest)
+# add_test(run goiovalues)
+# add_test(api_sanity_checker
+#   api-sanity-checker -l "${CMAKE_PROJECT_NAME}"
+#                      -d "${PROJECT_SOURCE_DIR}/api-sanity-checks.xml"
+#                      -relpath "${PROJECT_SOURCE_DIR}"
+#                      -gen -build -run
+# )
+
 if(TESTS)
   include(ExternalProject)
 
@@ -86,8 +95,9 @@ if(TESTS)
     optimized "${binary_dir}/${CMAKE_FIND_LIBRARY_PREFIXES}gtest${Suffix}"
     ${Pthread}
   )
-  add_test(GTest goiovalues_tests)
-  # GTEST_ADD_TESTS(goiovalues_tests "" "${PROJECT_SOURCE_DIR}/tests/tests.cpp")
+
+  add_test(Ammunitions goiovalues_tests --gtest_filter=Ammunitions.*)
+  add_test(Balloon goiovalues_tests --gtest_filter=Balloon.*)
 endif()
 
 set(CXX_FLAGS "")
@@ -178,12 +188,3 @@ if(DOXYGEN_FOUND)
     COMMENT "Generating API documentation with Doxygen." VERBATIM
   )
 endif()
-
-include(CTest)
-add_test(run goiovalues)
-# add_test(api_sanity_checker
-#   api-sanity-checker -l "${CMAKE_PROJECT_NAME}"
-#                      -d "${PROJECT_SOURCE_DIR}/api-sanity-checks.xml"
-#                      -relpath "${PROJECT_SOURCE_DIR}"
-#                      -gen -build -run
-# )

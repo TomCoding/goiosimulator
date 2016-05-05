@@ -23,6 +23,13 @@
 
 namespace goio {
 
+Balloon::Balloon(const std::string& name, Force lift_force, Health max_health) :
+                 BalloonInfo(lift_force),
+                 GoioObj(name, CmpType::BALLOON, 0.666666, max_health),
+                 cur_lift_force(lift_force),
+                 cur_descent_force(lift_force) {
+}
+
 void Balloon::set_lift_force(Force lift_force) {
   if (lift_force < 0_N)
     cur_lift_force = 0_N;
@@ -36,10 +43,10 @@ void Balloon::set_descent_force(Force descent_force) {
     cur_descent_force = descent_force;
 }
 
-inline Force Balloon::get_lift_force_changed() const {
+Force Balloon::get_lift_force_changed() const {
   return (get_health()/get_max_health())*get_lift_force();
 }
-inline Force Balloon::get_descent_force_changed() const {
+Force Balloon::get_descent_force_changed() const {
   return (get_health()/get_max_health())*get_descent_force();
 }
 

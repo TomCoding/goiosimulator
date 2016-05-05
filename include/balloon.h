@@ -50,20 +50,16 @@ class Balloon : public BalloonInfo, public GoioObj {
     Balloon(const Balloon& obj);
     Balloon& operator=(const Balloon& obj);
 
-    void set_lift_force(Force lift_force);
-    void set_descent_force(Force descent_force);
-
  public:
     Balloon(const std::string& name, Force lift_force,
-            Health max_health = 1800_hp) :
-              BalloonInfo(lift_force),
-              GoioObj(name, CmpType::BALLOON, 0.666666, max_health),
-              cur_lift_force(lift_force),
-              cur_descent_force(lift_force) {}
+            Health max_health = 1800_hp);
     virtual ~Balloon() {}
 
     inline Force get_lift_force() const { return cur_lift_force; }
     inline Force get_descent_force() const { return cur_descent_force; }
+
+    void set_lift_force(Force lift_force);
+    void set_descent_force(Force descent_force);
 
     Force get_lift_force_changed() const;
     Force get_descent_force_changed() const;
