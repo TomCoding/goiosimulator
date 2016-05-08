@@ -48,8 +48,6 @@ class Engine : public EngineInfo, public GoioObj {
     Engine(const Engine& obj);
     Engine& operator=(const Engine& obj);
 
-    void set_thrust(Thrust thrust);
-
  protected:
     Engine(const std::string& name, Health max_health, Thrust thrust) :
               EngineInfo(thrust),
@@ -59,6 +57,8 @@ class Engine : public EngineInfo, public GoioObj {
 
  public:
     inline Thrust get_thrust() const { return cur_thrust; }
+
+    void set_thrust(Thrust thrust);
 
     Thrust get_thrust_changed() const;
 

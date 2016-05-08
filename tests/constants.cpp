@@ -174,3 +174,10 @@ TEST(Constants, UnitCalcs) {
   EXPECT_EQ(3_m_s2, 3_N/1_kg);
 }
 #endif
+
+TEST(Constants, Regressions) {
+  // operator-() assignment instead of copy
+  auto dist = 1_m;
+  EXPECT_EQ(-1_m, -dist);
+  EXPECT_EQ(1_m, dist);
+}

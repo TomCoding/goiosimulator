@@ -30,7 +30,7 @@ void Engine::set_thrust(Thrust thrust) {
     cur_thrust = thrust;
 }
 
-inline Thrust Engine::get_thrust_changed() const {
+Thrust Engine::get_thrust_changed() const {
   return (get_health()/get_max_health())*get_thrust();
 }
 

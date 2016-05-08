@@ -102,6 +102,7 @@ if(TESTS)
   add_test(Constants goiovalues_tests --gtest_filter=Constants.*)
   add_test(Rng goiovalues_tests --gtest_filter=Rng.*)
   add_test(Fire goiovalues_tests --gtest_filter=Fire.*)
+  add_test(Engines goiovalues_tests --gtest_filter=Engines.*)
 endif()
 
 set(CXX_FLAGS "")
