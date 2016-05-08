@@ -24,6 +24,8 @@
 #include <string>
 #include <algorithm>
 
+#include "./utils.h"
+
 
 namespace goio {
 
@@ -35,6 +37,9 @@ enum class DmgType {
   EXPLOSIVE,
   IMPACT
 };
+typedef Iterator<DmgType,
+                 DmgType::FIRE,
+                 DmgType::IMPACT> DmgTypeIterator;
 static const std::string DmgTypeString[] {"fire",
                                           "flechette",
                                           "shatter",
@@ -63,6 +68,9 @@ enum class CmpType {
   ARMOR,
   COMPONENTS
 };
+typedef Iterator<CmpType,
+                 CmpType::BALLOON,
+                 CmpType::COMPONENTS> CmpTypeIterator;
 static const std::string CmpTypeString[] {"balloon",
                                           "hull",
                                           "armor",

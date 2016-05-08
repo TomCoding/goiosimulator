@@ -28,22 +28,19 @@
 using namespace goio;
 
 TEST(DmgTypes, valuesDmgType) {
-  const int dmg_types_count = 6;
-  DmgType dmg_types[dmg_types_count] = {DmgType::FIRE, DmgType::FLECHETTE,
-                                        DmgType::SHATTER, DmgType::PIERCING,
-                                        DmgType::EXPLOSIVE, DmgType::IMPACT};
-  std::string dmg_types_string[dmg_types_count] = {"fire", "flechette",
-                                                   "shatter", "piercing",
-                                                   "explosive", "impact"};
   DmgType dmg_type;
   bool ret;
 
-  for (int i = 0; i < dmg_types_count; ++i) {
-    EXPECT_EQ(dmg_types_string[i], get_dmg_type_string(dmg_types[i]));
+  {
+  int i = 0;
+  for (DmgType type : DmgTypeIterator()) {
+    EXPECT_EQ(DmgTypeString[i], get_dmg_type_string(type));
 
-    ret = get_dmg_type(dmg_types_string[i], dmg_type);
+    ret = get_dmg_type(DmgTypeString[i], dmg_type);
     EXPECT_EQ(true, ret);
-    EXPECT_EQ(dmg_types[i], dmg_type);
+    EXPECT_EQ(type, dmg_type);
+    ++i;
+  }
   }
 
   ret = get_dmg_type("", dmg_type);
@@ -51,20 +48,19 @@ TEST(DmgTypes, valuesDmgType) {
 }
 
 TEST(DmgTypes, valuesCmpType) {
-  const int cmp_types_count = 4;
-  CmpType cmp_types[cmp_types_count] = {CmpType::BALLOON, CmpType::HULL,
-                                        CmpType::ARMOR, CmpType::COMPONENTS};
-  std::string cmp_types_string[cmp_types_count] = {"balloon", "hull",
-                                                   "armor", "component"};
   CmpType cmp_type;
   bool ret;
 
-  for (int i = 0; i < cmp_types_count; ++i) {
-    EXPECT_EQ(cmp_types_string[i], get_cmp_type_string(cmp_types[i]));
+  {
+  int i = 0;
+  for (CmpType type : CmpTypeIterator()) {
+    EXPECT_EQ(CmpTypeString[i], get_cmp_type_string(type));
 
-    ret = get_cmp_type(cmp_types_string[i], cmp_type);
+    ret = get_cmp_type(CmpTypeString[i], cmp_type);
     EXPECT_EQ(true, ret);
-    EXPECT_EQ(cmp_types[i], cmp_type);
+    EXPECT_EQ(type, cmp_type);
+    ++i;
+  }
   }
 
   ret = get_cmp_type("", cmp_type);

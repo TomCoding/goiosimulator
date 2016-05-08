@@ -96,6 +96,7 @@ if(TESTS)
     ${Pthread}
   )
 
+  add_test(Utils goiovalues_tests --gtest_filter=Utils.*)
   add_test(Ammunitions goiovalues_tests --gtest_filter=Ammunitions.*)
   add_test(Balloon goiovalues_tests --gtest_filter=Balloon.*)
   add_test(DmgTypes goiovalues_tests --gtest_filter=DmgTypes.*)
@@ -103,6 +104,7 @@ if(TESTS)
   add_test(Rng goiovalues_tests --gtest_filter=Rng.*)
   add_test(Fire goiovalues_tests --gtest_filter=Fire.*)
   add_test(Engines goiovalues_tests --gtest_filter=Engines.*)
+  add_test(AIBehavior goiovalues_tests --gtest_filter=AIBehavior.*)
 endif()
 
 set(CXX_FLAGS "")

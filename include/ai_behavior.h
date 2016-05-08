@@ -24,6 +24,8 @@
 #include <string>
 #include <algorithm>
 
+#include "./utils.h"
+
 
 namespace goio {
 
@@ -33,6 +35,9 @@ enum class RepairMode {
   // CONSTANT_DMG_WAIT   // anticipate incoming damage and repair accordingly
   // MIXED               // fastest heal during damage pauses
 };
+typedef Iterator<RepairMode,
+                 RepairMode::CONSTANT_DMG_NO_WAIT,
+                 RepairMode::FASTEST_HEAL> RepairModeIterator;
 static const std::string RepairModeString[] {"constant_dmg_no_wait",
                                              "fastest_heal"};
 inline const std::string get_repair_mode_string(RepairMode val) {
@@ -69,6 +74,9 @@ enum class ExtinguishMode {
   // ANTICIPATE,  // anticipate incoming fire and extinguish if over threshold
   // MIXED        // instant extinguish during damage pauses
 };
+typedef Iterator<ExtinguishMode,
+                 ExtinguishMode::THRESHOLD,
+                 ExtinguishMode::INSTANT> ExtinguishModeIterator;
 static const std::string ExtinguishModeString[] {"threshold",
                                                  "instant"};
 inline const std::string get_extinguish_mode_string(ExtinguishMode val) {
