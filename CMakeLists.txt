@@ -145,6 +145,14 @@ if(CMAKE_COMPILER_IS_GNUCC)
       -Wbool-compare
     )
   endif()
+  if(NOT "${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 6)
+    list(APPEND CXX_FLAGS
+      -Wshift-negative-value
+      -Wshift-overflow=2
+      -Wnull-dereference
+      -Wduplicated-cond
+    )
+  endif()
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   if("${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 3.4)
     message(FATAL_ERROR "Clang version must be at least 3.4!")

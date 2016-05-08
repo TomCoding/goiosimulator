@@ -28,6 +28,8 @@ SOURCE_DIR="$(pwd)"
 function help() {
   echo "Usage: $0 [options]
 Options:
+  --cxx_compiler=X    Set c++ compiler to X.
+  --c_compiler=Y      Set c compiler to Y.
   --gcc, --g++        Use gcc/g++ compiler.
   --clang, --clang++  Use clang/clang++ compiler.
   --clangcheck,       Use clang/clang++ compiler and static analyzer.
@@ -76,6 +78,14 @@ WAIT=0
 CLEAN=0
 for i in "$@"; do
   case "$i" in
+    --cxx_compiler=*)
+      CXX_COMPILER="${i#*=}"
+      shift
+      ;;
+    --c_compiler=*)
+      C_COMPILER="${i#*=}"
+      shift
+      ;;
     "--gcc"|"--g++")
       CXX_COMPILER="g++"
       C_COMPILER="gcc"
