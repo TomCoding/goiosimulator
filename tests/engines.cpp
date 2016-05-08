@@ -56,6 +56,14 @@ TEST(Engines, createFactory) {
   delete he;
 }
 
+TEST(Engines, GoioObj) {
+  LightEngine le("", 0_N);
+  EXPECT_EQ(40, le.get_rebuild_value());
+
+  HeavyEngine he("", 0_N);
+  EXPECT_EQ(59, he.get_rebuild_value());
+}
+
 void test_const_values(Engine& e, std::string& name, Thrust thrust) {
   EXPECT_EQ(name, e.get_name());
   EXPECT_EQ(thrust, e.get_orig_thrust());

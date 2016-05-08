@@ -52,6 +52,11 @@ TEST(Balloon, createFactory) {
   delete balloon;
 }
 
+TEST(Balloon, GoioObj) {
+  Balloon b("", 0_N, 1200_hp);
+  EXPECT_EQ(46, b.get_rebuild_value());
+}
+
 void test_const_values(Balloon& b, std::string& name, Force lift_force,
                        Health max_health) {
   EXPECT_EQ(name, b.get_name());

@@ -51,7 +51,7 @@ class Engine : public EngineInfo, public GoioObj {
  protected:
     Engine(const std::string& name, Health max_health, Thrust thrust) :
               EngineInfo(thrust),
-              GoioObj(name, CmpType::COMPONENTS, 1.333333, max_health),
+              GoioObj(name, CmpType::COMPONENTS, 1.666666, max_health),
               cur_thrust(thrust) {}
     virtual ~Engine() {}
 
