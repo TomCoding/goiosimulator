@@ -109,7 +109,7 @@ endif()
 
 set(CXX_FLAGS "")
 list(APPEND CXX_FLAGS
-  -std=c++1y -O3 -ffast-math -pedantic -Wall -Wextra -Wcast-align
+  -std=c++1y -O3 -Wl,-O3 -ffast-math -pedantic -Wall -Wextra -Wcast-align
   -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2
   -Winit-self -Wmissing-declarations -Wmissing-include-dirs
   -Wold-style-cast -Woverloaded-virtual -Wredundant-decls
@@ -166,14 +166,14 @@ endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR COVERAGE)
   list(APPEND CXX_FLAGS
-    -g -O0
+    -g -O0 -Wl,-O0
     -DSTRONG_TYPE_COMPILE
   )
   if(COVERAGE)
     list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
     include(CodeCoverage)
     list(APPEND CXX_FLAGS
-      -O0 -fprofile-arcs -ftest-coverage
+      -O0 -Wl,-O3 -fprofile-arcs -ftest-coverage
       --coverage
       -fno-inline -fno-inline-small-functions -fno-default-inline
     )

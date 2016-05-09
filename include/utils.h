@@ -34,7 +34,7 @@ class Iterator {
  public:
     Iterator(const C& f) : val(static_cast<val_t>(f)) {}
     Iterator() : val(static_cast<val_t>(beginVal)) {
-      static_assert(beginVal <= endVal, "requirement beginVal <= endVal not met");
+      static_assert(beginVal <= endVal, "requirement 'beginVal <= endVal' not met");
     }
     Iterator& operator++() {
       ++val;
