@@ -18,29 +18,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "./monitor.h"
+#ifndef EXCEPTIONS_H_
+#define EXCEPTIONS_H_
 
-#include <iostream>
+#include <exception>
+#include <sstream>
 
-#include "./dmg_types.h"
+#include "./constants.h"
 
 
 namespace goio {
 
-Monitor::Monitor(Time tick) : GoioActor("", CmpType::HULL), tick(tick) {
-  if (tick <= 0_s)
-    throw NonPositiveTime(tick);
-}
+class NonPositiveTime : public std::exception {
+ private:
+    Time time;
 
-DmgState::State Monitor::monitor(GoioObj*, Time) {
-  std::cout << "                            ";
-  return DmgState::NONE;
-}
+ public:
+    explicit NonPositiveTime(Time time) : time(time) {}
 
-TimeFunc Monitor::get_time_func(const GoioObj* obj, Time, bool&) {
-  if (obj->get_health() == 0_hp && obj->get_hull()->get_health() == 0_hp)
-    return nullptr;
-  return std::bind(&Monitor::get_tick, this);
-}
+    virtual const char* what() const throw() {
+      std::stringstream ss;
+      ss << "Non positive time: " << time;
+      return ss.str().c_str();
+    }
+};
 
 }  // namespace goio
+
+#endif // EXCEPTIONS_H_

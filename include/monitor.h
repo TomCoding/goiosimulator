@@ -22,6 +22,7 @@
 #define MONITOR_H_
 
 #include "./goioactor.h"
+#include "./exceptions.h"
 
 
 namespace goio {
@@ -31,7 +32,7 @@ class Monitor : public GoioActor {
     Time tick;
 
  public:
-    explicit Monitor(Time tick) : GoioActor("", CmpType::HULL), tick(tick) {}
+    explicit Monitor(Time tick);  // throws NonPositiveTime
 
     DmgState::State monitor(GoioObj*, Time);
     inline Time get_tick() const { return tick; }
