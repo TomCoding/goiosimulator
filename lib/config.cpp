@@ -330,38 +330,45 @@ int Config::load_config() {
                                       Health(obj_health),
                                       Health(obj_hull_health));
           processed = true;
-#if defined(GCC_4_9) || defined(LIBCONFIG_COMP)
-        } else if (strncmp(obj_type, "Engineer_", 9) == 0) {
-#else
-        } else if (obj_type.substr(0, 9) == "Engineer_") {
-#endif
-#ifdef GCC_4_9
-          RepairMode mode = RepairMode::CONSTANT_DMG_NO_WAIT;
-#else
-          RepairMode mode;
-#endif
-          if (!get_repair_mode(obj_repair_mode, mode)) {
-            std::cerr << "Invalid repair mode: "
-                      << obj_repair_mode << std::endl;
-            return 1;
-          }
-#ifdef GCC_4_9
-          ExtinguishMode extmode = ExtinguishMode::THRESHOLD;
-#else
-          ExtinguishMode extmode;
-#endif
-          if (!get_extinguish_mode(obj_ext_mode, extmode)) {
-            std::cerr << "Invalid extinguish mode: "
-                      << obj_ext_mode << std::endl;
-            return 1;
-          }
-          obj = ObjectFactory::create(obj_type, obj_name,
-                                      obj_extinguisher,
-                                      mode,
-                                      extmode);
-          processed = true;
         } else {
-          obj = ObjectFactory::create(obj_type, obj_name);
+          auto length =
+#if defined(GCC_4_9) || defined(LIBCONFIG_COMP)
+                        strlen(obj_type);
+          if (length >= 8 && strncmp(obj_type+(length-8)*sizeof(char),
+                                     "Engineer", 8) == 0) {
+#else
+                        obj_type.length();
+          if (length >= 8 && obj_type.substr(length-8,
+                                             length-1) == "Engineer") {
+#endif
+#ifdef GCC_4_9
+            RepairMode mode = RepairMode::CONSTANT_DMG_NO_WAIT;
+#else
+            RepairMode mode;
+#endif
+            if (!get_repair_mode(obj_repair_mode, mode)) {
+              std::cerr << "Invalid repair mode: "
+                        << obj_repair_mode << std::endl;
+              return 1;
+            }
+#ifdef GCC_4_9
+            ExtinguishMode extmode = ExtinguishMode::THRESHOLD;
+#else
+            ExtinguishMode extmode;
+#endif
+            if (!get_extinguish_mode(obj_ext_mode, extmode)) {
+              std::cerr << "Invalid extinguish mode: "
+                        << obj_ext_mode << std::endl;
+              return 1;
+            }
+            obj = ObjectFactory::create(obj_type, obj_name,
+                                        obj_extinguisher,
+                                        mode,
+                                        extmode);
+            processed = true;
+          } else {
+            obj = ObjectFactory::create(obj_type, obj_name);
+          }
         }
         if (obj == nullptr) {
           std::cerr << "Unknown type: " << obj_type << std::endl;

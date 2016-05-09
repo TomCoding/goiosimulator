@@ -27,6 +27,7 @@
 #include <map>
 
 #include "./constants.h"
+#include "./utils.h"
 
 
 namespace goio {
@@ -167,22 +168,22 @@ struct ObjectFactory {
     }
 };
 
-#define REGISTER_TYPE_FULL(T, STR) \
+#define REGISTER_TYPE_FULL(T) \
   template<> \
   ObjectFactory::CreatorFull_t* ObjectFactory::Register<T>::creator_full = \
-                            ObjectFactory::Register<T>::init_creator_full(STR)
-#define REGISTER_TYPE_FULLREP(T, STR) \
+                            ObjectFactory::Register<T>::init_creator_full(STR(T))
+#define REGISTER_TYPE_FULLREP(T) \
   template<> \
   ObjectFactory::CreatorFullRep_t* ObjectFactory::Register<T>::creator_fullrep = \
-                            ObjectFactory::Register<T>::init_creator_fullrep(STR)
-#define REGISTER_TYPE(T, STR) \
+                            ObjectFactory::Register<T>::init_creator_fullrep(STR(T))
+#define REGISTER_TYPE(T) \
   template<> \
   ObjectFactory::Creator_t* ObjectFactory::Register<T>::creator = \
-                            ObjectFactory::Register<T>::init_creator(STR)
-#define REGISTER_TYPE_SHORT(T, STR) \
+                            ObjectFactory::Register<T>::init_creator(STR(T))
+#define REGISTER_TYPE_SHORT(T) \
   template<> \
   ObjectFactory::CreatorShort_t* ObjectFactory::Register<T>::creator_short = \
-                            ObjectFactory::Register<T>::init_creator_short(STR)
+                            ObjectFactory::Register<T>::init_creator_short(STR(T))
 
 
 class GoioObj : public Object {

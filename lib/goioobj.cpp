@@ -27,7 +27,7 @@
 
 namespace goio {
 
-REGISTER_TYPE_FULL(GoioObj, "GoioObj");
+REGISTER_TYPE_FULL(GoioObj);
 
 GoioObj::~GoioObj() {
   if (!connected)

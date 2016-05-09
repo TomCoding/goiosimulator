@@ -72,7 +72,11 @@ TEST(Monitor, monitor) {
 
 TEST(Monitor, timefunc) {
   Monitor m(1_s);
+#ifdef GCC_4_9
+  Time t = 0_s;
+#else
   Time t;
+#endif
   bool b;
 
   auto obj1 = new GoioObj("", CmpType::BALLOON);

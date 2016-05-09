@@ -46,7 +46,7 @@ add_executable(goiovalues "${sources}")
 target_link_libraries(goiovalues goiovalues_lib)
 
 include(CTest)
-# add_test(run goiovalues)
+add_test(run goiovalues)
 # add_test(api_sanity_checker
 #   api-sanity-checker -l "${CMAKE_PROJECT_NAME}"
 #                      -d "${PROJECT_SOURCE_DIR}/api-sanity-checks.xml"
@@ -180,12 +180,15 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR COVERAGE)
     target_link_libraries(goiovalues_lib gcov)
     setup_target_for_coverage(goiovalues_coverage goiovalues_tests
                               "${PROJECT_BINARY_DIR}/coverage")
+    # add_dependencies(goiovalues_coverage goiovalues_tests)
   endif()
 endif()
 
 target_compile_options(goiovalues_lib PUBLIC ${CXX_FLAGS})
 target_compile_options(goiovalues PUBLIC ${CXX_FLAGS})
-target_compile_options(goiovalues_tests PUBLIC ${CXX_FLAGS})
+if(TESTS)
+  target_compile_options(goiovalues_tests PUBLIC ${CXX_FLAGS})
+endif()
 
 
 find_program(MEMORYCHECK_COMMAND valgrind)

@@ -268,6 +268,8 @@ if [ "$?" == 0 ]; then
     ctest --output-on-failure -D ExperimentalMemCheck
     # ctest -V -R api_sanity_checker
   fi
+else
+  SUCCESS=1
 fi
 cd ..
 
@@ -306,7 +308,7 @@ if [ "$CPPLINT" == 1 ]; then
   cpplint.py --linelength=84 --root=tests tests/*.h tests/*.cpp
 fi
 
-if [ "$LCOV" == 1 ]; then
+if [ "$LCOV" == 1 -a "$SUCCESS" == 0 ]; then
   echo
   cd "$BUILD_DIR"
   make "${BIN_NAME}_coverage"

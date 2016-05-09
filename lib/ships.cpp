@@ -26,13 +26,13 @@
 
 namespace goio {
 
-REGISTER_TYPE(Pyramidion, "Pyramidion");
-REGISTER_TYPE(Goldfish, "Goldfish");
-REGISTER_TYPE(Junker, "Junker");
-REGISTER_TYPE(Galleon, "Galleon");
-REGISTER_TYPE(Squid, "Squid");
-REGISTER_TYPE(Spire, "Spire");
-REGISTER_TYPE(Mobula, "Mobula");
+REGISTER_TYPE(Pyramidion);
+REGISTER_TYPE(Goldfish);
+REGISTER_TYPE(Junker);
+REGISTER_TYPE(Galleon);
+REGISTER_TYPE(Squid);
+REGISTER_TYPE(Spire);
+REGISTER_TYPE(Mobula);
 
 Ship::Ship(const std::string& name, Health max_health, Health hull_max_health,
            Weight mass, int light_engines, Thrust light_engine_thrust,

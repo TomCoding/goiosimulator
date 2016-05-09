@@ -31,8 +31,8 @@
 
 namespace goio {
 
-REGISTER_TYPE_FULLREP(MainEngineer, "Engineer_Main");
-REGISTER_TYPE_FULLREP(BuffEngineer, "Engineer_Buff");
+REGISTER_TYPE_FULLREP(MainEngineer);
+REGISTER_TYPE_FULLREP(BuffEngineer);
 
 Engineer::Engineer(const std::string& name, RepairTool* tool1,
                    RepairTool* tool2, RepairTool* tool3,

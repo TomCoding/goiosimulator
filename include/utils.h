@@ -49,4 +49,6 @@ class Iterator {
     bool operator!=(const Iterator& i) { return val != i.val; }
 };
 
+#define STR(s) #s
+
 #endif  // UNTILS_H_

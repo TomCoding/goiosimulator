@@ -23,14 +23,14 @@
 
 namespace goio {
 
-REGISTER_TYPE_SHORT(Lochnagar, "Lochnagar");
-REGISTER_TYPE_SHORT(Incendiary, "Incendiary");
-REGISTER_TYPE_SHORT(Heatsink, "Heatsink");
-REGISTER_TYPE_SHORT(Greased, "Greased");
-REGISTER_TYPE_SHORT(Charged, "Charged");
-REGISTER_TYPE_SHORT(Lesmok, "Lesmok");
-REGISTER_TYPE_SHORT(Burst, "Burst");
-REGISTER_TYPE_SHORT(Heavy, "Heavy");
+REGISTER_TYPE_SHORT(Lochnagar);
+REGISTER_TYPE_SHORT(Incendiary);
+REGISTER_TYPE_SHORT(Heatsink);
+REGISTER_TYPE_SHORT(Greased);
+REGISTER_TYPE_SHORT(Charged);
+REGISTER_TYPE_SHORT(Lesmok);
+REGISTER_TYPE_SHORT(Burst);
+REGISTER_TYPE_SHORT(Heavy);
 
 Ammunition::Ammunition(double clipsize, double damage, double rof,
                        double aoe_radius, double arming_time,
