@@ -28,6 +28,8 @@ Balloon::Balloon(const std::string& name, Force lift_force, Health max_health) :
                  GoioObj(name, CmpType::BALLOON, 0.666666, max_health),
                  cur_lift_force(lift_force),
                  cur_descent_force(lift_force) {
+  if (max_health <= 0_hp)
+    throw NonPositiveHealth(max_health);
 }
 
 void Balloon::set_lift_force(Force lift_force) {

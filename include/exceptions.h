@@ -43,6 +43,20 @@ class NonPositiveTime : public std::exception {
     }
 };
 
+class NonPositiveHealth : public std::exception {
+ private:
+    Health health;
+
+ public:
+    explicit NonPositiveHealth(Health health) : health(health) {}
+
+    virtual const char* what() const throw() {
+      std::stringstream ss;
+      ss << "Non positive time: " << health;
+      return ss.str().c_str();
+    }
+};
+
 }  // namespace goio
 
 #endif // EXCEPTIONS_H_

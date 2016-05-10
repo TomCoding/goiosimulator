@@ -133,14 +133,23 @@ void GoioObj::set_hull(GoioObj* obj) {
   hull = obj;
 }
 
+bool GoioObj::dead() const {
+  auto tmpobj = this;
+  do {
+    if (tmpobj->get_health() != 0_hp)
+      return false;
+  } while ((tmpobj = tmpobj->get_hull()) != nullptr);
+  return true;
+}
+
 void GoioObj::reset(bool hull) {
   health = max_health;
   if (fire_stacks > 0)
     fire_stacks = 0;
   cooldown_end = 0_s;
   immunity_end = 0_s;
-  if (hull)
-    this->hull->health = this->hull->max_health;
+  if (hull && this->hull != nullptr)
+    this->hull->reset(true);
 }
 
 }  // namespace goio

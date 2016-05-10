@@ -25,6 +25,7 @@
 
 #include "./goioobj.h"
 #include "./dmg_types.h"
+#include "./exceptions.h"
 
 
 namespace goio {
@@ -52,7 +53,7 @@ class Balloon : public BalloonInfo, public GoioObj {
 
  public:
     Balloon(const std::string& name, Force lift_force,
-            Health max_health = 1800_hp);
+            Health max_health = 1800_hp);  // throws NonPositiveHealth
     virtual ~Balloon() {}
 
     inline Force get_lift_force() const { return cur_lift_force; }

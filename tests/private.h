@@ -18,38 +18,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "./fire.h"
+#ifndef PRIVATE_H_
+#define PRIVATE_H_
 
-#include <iostream>
-
-#include "./dmg_types.h"
+#include "./repairtools.h"
 
 
 namespace goio {
 
-Health Fire::get_fire_dmg(GoioObj* obj, Time time) {
-  if (time < 0_s)
-    throw NonPositiveTime(time);
-  if (obj->get_fire_stacks() > 0)
-    return get_dmg_modifier(DmgType::FIRE,
-                            obj->get_cmp_type()) *
-           (2*obj->get_fire_stacks()+8)/1_s *
-           time*1_hp;
-  else
-    return 0_hp;
-}
+/*
+ * Access private members. Solution from:
+ * http://bloglitb.blogspot.de/2011/12/access-to-private-members-safer.html
+ */
+template<typename Tag, typename Tag::type M>
+struct Rob {
+  friend typename Tag::type get(Tag) {
+    return M;
+  }
+};
 
-DmgState::State Fire::burn(GoioObj* obj, Time) {
-  if (obj->get_fire_stacks() < 1)
-    return DmgState::NONE;
-  obj->add_health(-get_fire_dmg(obj, get_firetick()));
-  return DmgState::TARGET;
-}
+struct RepairTool_f {
+  typedef int RepairTool::*type;
+  friend type get(RepairTool_f);
+};
 
-TimeFunc Fire::get_time_func(const GoioObj* obj, Time, bool&) {
-  if (obj->get_fire_stacks() > 0)
-    return &Fire::get_firetick;
-  return nullptr;
-}
+template struct Rob<RepairTool_f, &RepairTool::done>;
 
 }  // namespace goio
+
+#endif  // PRIVATE_H_

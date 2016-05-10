@@ -207,7 +207,7 @@ class GoioObj : public Object {
                 max_health(max_health), health(max_health),
                 fire_stacks(-1), rebuild_state(-1),
                 part_type_multiplier(-1),
-                hull(nullptr), cooldown_end(0), immunity_end(0),
+                hull(nullptr), cooldown_end(0_s), immunity_end(0_s),
                 temporary_immunity(false), connected(false) {}
     GoioObj(const GoioObj& obj);
     GoioObj& operator=(const GoioObj& obj);
@@ -273,6 +273,8 @@ class GoioObj : public Object {
 
     // Set obj as underlying hull component.
     void set_hull(GoioObj* obj);
+
+    bool dead() const;
 
     virtual void reset(bool hull = true);
 };

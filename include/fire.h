@@ -22,6 +22,7 @@
 #define FIRE_H_
 
 #include "./goioactor.h"
+#include "./exceptions.h"
 
 
 namespace goio {
@@ -33,7 +34,7 @@ class Fire : public GoioActor {
  public:
     Fire() : GoioActor("", CmpType::HULL) {}
 
-    static Health get_fire_dmg(GoioObj* obj, Time time);
+    static Health get_fire_dmg(GoioObj* obj, Time time);  // throws NonPositiveTime
     DmgState::State burn(GoioObj* obj, Time);
     static inline Time get_firetick() { return Time(firetick); }
 

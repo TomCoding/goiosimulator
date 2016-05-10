@@ -67,6 +67,8 @@ class RepairTool : public RepairInfo, public RepairActor {
     Time cur_swing;
     Time repair_wait;
 
+    bool action_possible(const GoioObj* const obj) const;
+
  protected:
     RepairTool(const std::string& name, Time swing, Health heal,
                int rebuild_power, int extinguish, Time fire_immune,
@@ -94,41 +96,84 @@ class RepairTool : public RepairInfo, public RepairActor {
     inline int get_done() const { return done; }
 };
 
-class Spanner : public RepairTool {
- public:
-    explicit Spanner(const std::string& name) :
-                        RepairTool(name, 0.7_s, 40_hp, 5, 0, 0_s, 2_s) {}
-};
+//TODO: Use template instead, keep static_assert
+#define NEW_REPAIRTOOL(TOOL, \
+                       swing, \
+                       heal, \
+                       rebuild_power, \
+                       extinguish, \
+                       fire_immune, \
+                       cooldown) \
+  class TOOL : public RepairTool { \
+   public: \
+      explicit TOOL(const std::string& name) : \
+                    RepairTool(name, \
+                               swing, \
+                               heal, \
+                               rebuild_power, \
+                               extinguish, \
+                               fire_immune, \
+                               cooldown \
+                    ) { \
+        static_assert(swing >= 0_s, "requirement 'swing >= 0' not met"); \
+        static_assert(fire_immune >= 0_s, "requirement 'fire_immune >= 0' not met"); \
+        static_assert(cooldown >= 0_s, "requirement 'cooldown >= 0' not met"); \
+      } \
+  }
 
-class Mallet : public RepairTool {
- public:
-    explicit Mallet(const std::string& name) :
-                        RepairTool(name, 0.65_s, 250_hp, 2, 0, 0_s, 9_s) {}
-};
+NEW_REPAIRTOOL(Spanner,
+               0.7_s,         // swing
+               40_hp,         // heal
+               5,             // rebuild power
+               0,             // fire stacks extinguished
+               0_s,           // fire immunity
+               2_s            // cooldown
+);
 
-class PipeWrench : public RepairTool {
- public:
-    explicit PipeWrench(const std::string& name) :
-                        RepairTool(name, 0.667_s, 120_hp, 4, 0, 0_s, 5_s) {}
-};
+NEW_REPAIRTOOL(Mallet,
+               0.65_s,        // swing
+               250_hp,        // heal
+               2,             // rebuild power
+               0,             // fire stacks extinguished
+               0_s,           // fire immunity
+               9_s            // cooldown
+);
 
-class FireExtinguisher : public RepairTool {
- public:
-    explicit FireExtinguisher(const std::string& name) :
-                        RepairTool(name, 0.667_s, 0_hp, 0, 50, 5_s, 3_s) {}
-};
+NEW_REPAIRTOOL(PipeWrench,
+               0.667_s,       // swing
+               120_hp,        // heal
+               4,             // rebuild power
+               0,             // fire stacks extinguished
+               0_s,           // fire immunity
+               5_s            // cooldown
+);
 
-class ChemicalSpray : public RepairTool {
- public:
-    explicit ChemicalSpray(const std::string& name) :
-                        RepairTool(name, 0.667_s, 0_hp, 0, 3, 25_s, 5_s) {}
-};
+NEW_REPAIRTOOL(FireExtinguisher,
+               0.667_s,       // swing
+               0_hp,          // heal
+               0,             // rebuild power
+               50,            // fire stacks extinguished
+               5_s,           // fire immunity
+               3_s            // cooldown
+);
 
-class BuffHammer : public RepairTool {
- public:
-    explicit BuffHammer(const std::string& name) :
-                        RepairTool(name, 0.667_s, 0_hp, 0, 0, 0_s, 0.667_s) {}
-};
+NEW_REPAIRTOOL(ChemicalSpray,
+               0.667_s,       // swing
+               0_hp,          // heal
+               0,             // rebuild power
+               3,             // fire stacks extinguished
+               25_s,          // fire immunity
+               5_s            // cooldown
+);
+
+NEW_REPAIRTOOL(BuffHammer,
+               0.667_s,       // swing
+               0_hp,          // heal
+               0,             // rebuild power
+               0,             // fire stacks extinguished
+               0_s,           // fire immunity
+               0_s            // cooldown
+);
 
 }  // namespace goio
 

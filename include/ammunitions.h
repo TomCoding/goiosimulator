@@ -75,7 +75,7 @@ class Ammunition : public Object {
     inline bool   get_immune() const { return immune; }
 };
 
-//FIXME: Use template instead, keep static_assert.
+//TODO: Use template instead, keep static_assert.
 #define NEW_AMMUNITION(AMMO, \
                        magazine, \
                        damage, \

@@ -105,6 +105,7 @@ if(TESTS)
   add_test(Fire goiovalues_tests --gtest_filter=Fire.*)
   add_test(Engines goiovalues_tests --gtest_filter=Engines.*)
   add_test(AIBehavior goiovalues_tests --gtest_filter=AIBehavior.*)
+  add_test(RepairTools goiovalues_tests --gtest_filter=RepairTools.*)
 endif()
 
 set(CXX_FLAGS "")

@@ -27,10 +27,15 @@
 
 using namespace goio;
 
+void create_balloon(Health health);
 void test_const_values(Balloon& b, std::string& name, Force lift_force,
                        Health max_health);
 void test_variable_values(Balloon& b, Force lift_force, Force descent_force,
                        Health max_health, bool all = true);
+
+void create_balloon(Health health) {  // throws NonPositiveHealth
+  Balloon b("", 100_N, health);
+}
 
 TEST(Balloon, create) {
   std::string name = "test balloon";
@@ -44,6 +49,9 @@ TEST(Balloon, create) {
   auto balloon2 = new Balloon(name, lift_force, max_health);
   EXPECT_NE(nullptr, balloon2);
   delete balloon2;
+
+  EXPECT_THROW(create_balloon(-1_hp), NonPositiveHealth);
+  EXPECT_THROW(create_balloon(0_hp), NonPositiveHealth);
 }
 
 TEST(Balloon, createFactory) {

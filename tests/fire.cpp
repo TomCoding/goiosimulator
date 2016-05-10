@@ -47,6 +47,9 @@ TEST(Fire, dmg) {
   auto obj1 = new GoioObj("", CmpType::BALLOON);
   obj1->set_fire(6);
   EXPECT_EQ(30_hp, Fire::get_fire_dmg(obj1, 1_s));
+
+  EXPECT_THROW(Fire::get_fire_dmg(obj1, -1_s), NonPositiveTime);
+  EXPECT_EQ(0_hp, Fire::get_fire_dmg(obj1, 0_s));
   delete obj1;
 
   auto obj2 = new GoioObj("", CmpType::HULL);

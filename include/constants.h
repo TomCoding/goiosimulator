@@ -167,59 +167,59 @@ using Angular_Speed = Value<Unit<0, 0, -1, 0, 1>>;
 using Angular_Acceleration = Value<Unit<0, 0, -2, 0, 1>>;
 
 // a f-p literal suffixed by '_s'
-inline Time operator"" _s(long double d) {
+constexpr Time operator"" _s(long double d) {
   return Time(d);
 }
 // an integral literal suffixed by'_s'
-inline Time operator"" _s(unsigned long long d) {
+constexpr Time operator"" _s(unsigned long long d) {
   return Time(d);
 }
-inline Time operator"" _min(long double d) {
+constexpr Time operator"" _min(long double d) {
   return Time(d*60);
 }
-inline Time operator"" _min(unsigned long long d) {
+constexpr Time operator"" _min(unsigned long long d) {
   return Time(d*60);
 }
-inline Distance operator"" _m(long double d) {
+constexpr Distance operator"" _m(long double d) {
   return Distance(d);
 }
-inline Distance operator"" _m(unsigned long long d) {
+constexpr Distance operator"" _m(unsigned long long d) {
   return Distance(d);
 }
-inline Health operator"" _hp(long double d) {
+constexpr Health operator"" _hp(long double d) {
   return Health(d);
 }
-inline Health operator"" _hp(unsigned long long d) {
+constexpr Health operator"" _hp(unsigned long long d) {
   return Health(d);
 }
-inline Acceleration operator"" _m_s2(long double d) {
+constexpr Acceleration operator"" _m_s2(long double d) {
   return Acceleration(d);
 }
-inline Acceleration operator"" _m_s2(unsigned long long d) {
+constexpr Acceleration operator"" _m_s2(unsigned long long d) {
   return Acceleration(d);
 }
-inline Weight operator"" _kg(long double d) {
+constexpr Weight operator"" _kg(long double d) {
   return Weight(d);
 }
-inline Weight operator"" _kg(unsigned long long d) {
+constexpr Weight operator"" _kg(unsigned long long d) {
   return Weight(d);
 }
-inline Force operator"" _N(long double d) {
+constexpr Force operator"" _N(long double d) {
   return Force(d);
 }
-inline Force operator"" _N(unsigned long long d) {
+constexpr Force operator"" _N(unsigned long long d) {
   return Force(d);
 }
-inline Angle operator"" _deg(long double d) {
+constexpr Angle operator"" _deg(long double d) {
   return Angle(d);
 }
-inline Angle operator"" _deg(unsigned long long d) {
+constexpr Angle operator"" _deg(unsigned long long d) {
   return Angle(d);
 }
-inline Angular_Acceleration operator"" _deg_s2(long double d) {
+constexpr Angular_Acceleration operator"" _deg_s2(long double d) {
   return Angular_Acceleration(d);
 }
-inline Angular_Acceleration operator"" _deg_s2(unsigned long long d) {
+constexpr Angular_Acceleration operator"" _deg_s2(unsigned long long d) {
   return Angular_Acceleration(d);
 }
 

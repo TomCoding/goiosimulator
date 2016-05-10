@@ -46,20 +46,23 @@ void RepairTool::set_cur_swing(Time swing) {
     cur_swing = swing;
 }
 
+bool RepairTool::action_possible(const GoioObj* const obj) const {
+  return !(((get_heal() > 0_hp && obj->get_health() == obj->get_max_health()) ||
+              get_heal() == 0_hp) &&
+           (get_extinguish() == 0 ||
+              (get_extinguish() > 0 && obj->get_fire_stacks() <= 0)));
+}
+
 DmgState::State RepairTool::repair(GoioObj* obj, Time time) {
   cur_swing = get_swing();
 
-  if (obj->get_health() == 0_hp && obj->get_hull()->get_health() == 0_hp) {
+  if (obj->dead()) {
     done = 2;
     std::cout << "                            ";
     return DmgState::NONE;
   }
 
-  auto valid = true;
-  if (get_heal() > 0_hp && obj->get_health() == obj->get_max_health())
-    valid = false;
-  if ((!valid || get_heal() == 0_hp) && (get_extinguish() == 0 ||
-                    (get_extinguish() > 0 && obj->get_fire_stacks() <= 0))) {
+  if (!action_possible(obj)) {
     done = 2;
     std::cout << "                            ";
     return DmgState::NONE;
@@ -100,16 +103,12 @@ DmgState::State RepairTool::repair(GoioObj* obj, Time time) {
     obj->add_health(get_heal(), time + get_cooldown());
     if (get_heal() > 0_hp)
       ret |= DmgState::TARGET;
-    Time immunity_end;
-    auto start_immunity = obj->get_immunity_end() < time;
-    if (time + get_fire_immune() > obj->get_immunity_end()) {
-      immunity_end = time + get_fire_immune();
-      if (start_immunity)
+    auto immunity_end = time + get_fire_immune();
+    if (get_fire_immune() > 0_s && immunity_end > obj->get_immunity_end()) {
+      if (obj->get_immunity_end() <= time)
         ret |= DmgState::START_IMMUNITY;
       else
         ret |= DmgState::IMMUNITY;
-    } else {
-      immunity_end = -1_s;
     }
     obj->add_fire(-get_extinguish(), immunity_end);
     if (get_extinguish() > 0)
@@ -142,19 +141,11 @@ TimeFunc RepairTool::get_time_func(const GoioObj* obj, Time time, bool& force) {
     case 1:
       return std::bind(&RepairTool::get_cur_swing, this);
     case 2:
-      {
-      auto valid = true;
-      if (get_heal() > 0_hp && obj->get_health() == obj->get_max_health())
-        valid = false;
-      if ((!valid || get_heal() == 0_hp) && (get_extinguish() == 0 ||
-                      (get_extinguish() > 0 && obj->get_fire_stacks() <= 0)))
-          return nullptr;
-      }
+      if (!action_possible(obj))
+        return nullptr;
 
       if (obj->get_health() == 0_hp) {
-        if (obj->get_hull()->get_health() == 0_hp)
-          return nullptr;
-        if (get_rebuild_power() == 0)
+        if (obj->get_hull()->dead())
           return nullptr;
         cur_swing = Time(swing_foreshadowing_delay);
         force = true;
