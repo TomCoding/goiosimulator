@@ -37,14 +37,14 @@ TEST(DmgTypes, valuesDmgType) {
     EXPECT_EQ(DmgTypeString[i], get_dmg_type_string(type));
 
     ret = get_dmg_type(DmgTypeString[i], dmg_type);
-    EXPECT_EQ(true, ret);
+    EXPECT_TRUE(ret);
     EXPECT_EQ(type, dmg_type);
     ++i;
   }
   }
 
   ret = get_dmg_type("", dmg_type);
-  EXPECT_EQ(false, ret);
+  EXPECT_FALSE(ret);
 }
 
 TEST(DmgTypes, valuesCmpType) {
@@ -57,14 +57,14 @@ TEST(DmgTypes, valuesCmpType) {
     EXPECT_EQ(CmpTypeString[i], get_cmp_type_string(type));
 
     ret = get_cmp_type(CmpTypeString[i], cmp_type);
-    EXPECT_EQ(true, ret);
+    EXPECT_TRUE(ret);
     EXPECT_EQ(type, cmp_type);
     ++i;
   }
   }
 
   ret = get_cmp_type("", cmp_type);
-  EXPECT_EQ(false, ret);
+  EXPECT_FALSE(ret);
 }
 
 TEST(DmgTypes, valuesDmgMatrix) {

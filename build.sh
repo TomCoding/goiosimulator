@@ -217,8 +217,14 @@ fi
 cd "$BUILD_DIR"
 if [ "$CLANGCHECK" == 1 ]; then
   analyzer_dir="$(dirname $(readlink -f $(which scan-build)))"
-  CXX_COMPILER="$analyzer_dir/c++-analyzer"
-  C_COMPILER="$analyzer_dir/ccc-analyzer"
+  clang_version="$(clang --version | grep -Po '(?<=version )[.0-9]+')"
+  if [ "3.8" = "$(echo -e "3.8\n$clang_version" | sort -V | head -n1)" ]; then
+    CXX_COMPILER="$analyzer_dir/../libexec/c++-analyzer"
+    C_COMPILER="$analyzer_dir/../libexec/ccc-analyzer"
+  else
+    CXX_COMPILER="$analyzer_dir/c++-analyzer"
+    C_COMPILER="$analyzer_dir/ccc-analyzer"
+  fi
   scan-build -o "../$CLANGCHECK_DIR" cmake $CMAKE_OPTIONS \
                      -DCMAKE_CXX_COMPILER="$CXX_COMPILER" \
                      -DCMAKE_C_COMPILER="$C_COMPILER" ..
@@ -265,7 +271,10 @@ if [ "$?" == 0 ]; then
   SUCCESS=0
   if [ "$NO_TESTS" == 0 ]; then
     echo
-    ctest --output-on-failure -D ExperimentalMemCheck
+    ctest --output-on-failure -E "Asserts" -D ExperimentalMemCheck
+    echo
+    echo
+    ctest --output-on-failure -R "Asserts"
     # ctest -V -R api_sanity_checker
   fi
 else

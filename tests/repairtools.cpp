@@ -309,6 +309,8 @@ TEST(RepairTools, repair) {
   EXPECT_EQ(5, obj->get_fire_stacks());
   EXPECT_EQ(0, sp.get_done());
   EXPECT_EQ(2_s, sp.wait_cooldown());
+
+  delete obj;
 }
 
 TEST(RepairTools, extinguish) {
@@ -395,6 +397,8 @@ TEST(RepairTools, rebuild) {
   EXPECT_EQ(500_hp, obj->get_hull()->get_health());
   EXPECT_EQ(0, sp.get_done());
   EXPECT_EQ(2_s, sp.wait_cooldown());
+
+  delete obj;
 }
 
 class TestToolRepair : public RepairTool {
@@ -422,7 +426,7 @@ TEST(RepairTools, timefunc_0) {
   EXPECT_NE(nullptr, timefunc);
   if (timefunc != nullptr)
     EXPECT_EQ(5_s, timefunc());
-  EXPECT_EQ(false, force);
+  EXPECT_FALSE(force);
 
   obj->add_health(-700_hp, 5_s);
   EXPECT_EQ(DmgState::NONE, tr.repair(obj, 3_s));
@@ -433,7 +437,7 @@ TEST(RepairTools, timefunc_0) {
   EXPECT_NE(nullptr, timefunc);
   if (timefunc != nullptr)
     EXPECT_EQ(2_s, timefunc());
-  EXPECT_EQ(false, force);
+  EXPECT_FALSE(force);
 
 
   // object destroyed
@@ -444,7 +448,7 @@ TEST(RepairTools, timefunc_0) {
   if (timefunc != nullptr) {
     EXPECT_EQ(1_s, timefunc());
     EXPECT_EQ(0_s, tr.wait_cooldown());
-    EXPECT_EQ(true, force);
+    EXPECT_TRUE(force);
   }
 
   EXPECT_EQ(0, tr.get_done());
@@ -453,7 +457,7 @@ TEST(RepairTools, timefunc_0) {
   if (timefunc != nullptr) {
     EXPECT_EQ(Time(RepairTool::swing_foreshadowing_delay), timefunc());
     EXPECT_EQ(0_s, tr.wait_cooldown());
-    EXPECT_EQ(true, force);
+    EXPECT_TRUE(force);
   }
 
   delete obj;
@@ -473,13 +477,13 @@ TEST(RepairTools, timefunc_1) {
   EXPECT_NE(nullptr, timefunc);
   if (timefunc != nullptr)
     EXPECT_EQ(1_s, timefunc());
-  EXPECT_EQ(false, force);
+  EXPECT_FALSE(force);
 
   tr.set_cur_swing(0.2_s);
   EXPECT_NE(nullptr, timefunc);
   if (timefunc != nullptr)
     EXPECT_EQ(0.2_s, timefunc());
-  EXPECT_EQ(false, force);
+  EXPECT_FALSE(force);
 
   delete obj;
 }
@@ -513,14 +517,14 @@ TEST(RepairTools, timefunc_2) {
   force = false;
   timefunc = tr.get_time_func(obj, 0_s, force);
   EXPECT_EQ(nullptr, timefunc);
-  EXPECT_EQ(false, force);
+  EXPECT_FALSE(force);
   EXPECT_EQ(2, tr.get_done());
 
   force = false;
   obj->set_fire(10);
   timefunc = tr.get_time_func(obj, 0_s, force);
   EXPECT_EQ(nullptr, timefunc);
-  EXPECT_EQ(false, force);
+  EXPECT_FALSE(force);
   EXPECT_EQ(2, tr.get_done());
 
   force = false;
@@ -528,7 +532,7 @@ TEST(RepairTools, timefunc_2) {
   obj->set_health(1000_hp);
   timefunc = te.get_time_func(obj, 0_s, force);
   EXPECT_EQ(nullptr, timefunc);
-  EXPECT_EQ(false, force);
+  EXPECT_FALSE(force);
   EXPECT_EQ(2, te.get_done());
 
   // normal
@@ -537,7 +541,7 @@ TEST(RepairTools, timefunc_2) {
   EXPECT_NE(nullptr, timefunc);
   if (timefunc != nullptr) {
     EXPECT_EQ(5_s, timefunc());
-    EXPECT_EQ(false, force);
+    EXPECT_FALSE(force);
   }
   EXPECT_EQ(2, tr.get_done());
 
@@ -548,7 +552,7 @@ TEST(RepairTools, timefunc_2) {
   EXPECT_NE(nullptr, timefunc);
   if (timefunc != nullptr) {
     EXPECT_EQ(Time(RepairTool::swing_foreshadowing_delay), timefunc());
-    EXPECT_EQ(true, force);
+    EXPECT_TRUE(force);
   }
   EXPECT_EQ(2, tr.get_done());
 
@@ -557,13 +561,13 @@ TEST(RepairTools, timefunc_2) {
   obj->set_hull_health(0_hp);
   timefunc = tr.get_time_func(obj, 0_s, force);
   EXPECT_EQ(nullptr, timefunc);
-  EXPECT_EQ(false, force);
+  EXPECT_FALSE(force);
   EXPECT_EQ(2, tr.get_done());
 
   delete obj;
 }
 
-TEST(RepairTools, assert) {
+TEST(Asserts, RepairToolassert) {
   TestToolRepair tr("assert");
   bool force = false;
   TimeFunc timefunc;
@@ -573,5 +577,8 @@ TEST(RepairTools, assert) {
   EXPECT_EQ(3, tr.get_done());
 
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
-  EXPECT_DEATH(tr.get_time_func(obj, 0_s, force)(), ".*Assertion.*");
+  // Should just check for ".*Assertion.*" but valgrind removes the output.
+  EXPECT_DEATH(tr.get_time_func(obj, 0_s, force)(), ".*Assertion.*|");
+
+  delete obj;
 }

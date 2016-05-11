@@ -123,7 +123,7 @@ struct Value {
   double val;
   constexpr Value() : val() {}
   constexpr explicit Value(double d) : val(d) {}
-  Value(const Value& obj) : val(obj.val) {}
+  constexpr Value(const Value& obj) : val(obj.val) {}
 #ifndef GCC_4_9
   constexpr
 #endif

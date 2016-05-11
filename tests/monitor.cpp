@@ -59,7 +59,7 @@ TEST(Monitor, value) {
 
 TEST(Monitor, monitor) {
   auto obj = new GoioObj("", CmpType::HULL);
-  Time t;
+  Time t = 0_s;
 
   Monitor m(1_s);
   EXPECT_EQ(DmgState::NONE, m.monitor(obj, t));

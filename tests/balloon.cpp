@@ -131,7 +131,7 @@ TEST(Balloon, healthSet) {
   EXPECT_EQ(max_health+added_health, b.get_health());
 
   auto health_mod = b.get_health()/max_health;
-  EXPECT_EQ(health_mod*lift_force_new, b.get_lift_force_changed());
+  EXPECT_DOUBLE_EQ(health_mod*lift_force_new/1_N, b.get_lift_force_changed()/1_N);
   EXPECT_EQ(health_mod*descent_force_new, b.get_descent_force_changed());
 }
 

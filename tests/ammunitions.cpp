@@ -107,6 +107,6 @@ TEST(Ammunitions, values) {
   EXPECT_EQ(0.45, ta.get_jitter());
   EXPECT_EQ(0.2, ta.get_turn_speed());
   EXPECT_EQ(-3, ta.get_fire_stacks());
-  EXPECT_EQ(true, ta.get_proportional_self_damage());
-  EXPECT_EQ(false, ta.get_immune());
+  EXPECT_TRUE(ta.get_proportional_self_damage());
+  EXPECT_FALSE(ta.get_immune());
 }

@@ -37,14 +37,14 @@ TEST(AIBehavior, valuesRepairMode) {
     EXPECT_EQ(RepairModeString[i], get_repair_mode_string(mode));
 
     ret = get_repair_mode(RepairModeString[i], repair_mode);
-    EXPECT_EQ(true, ret);
+    EXPECT_TRUE(ret);
     EXPECT_EQ(mode, repair_mode);
     ++i;
   }
   }
 
   ret = get_repair_mode("", repair_mode);
-  EXPECT_EQ(false, ret);
+  EXPECT_FALSE(ret);
 }
 
 TEST(AIBehavior, valuesExtinguishMode) {
@@ -57,12 +57,12 @@ TEST(AIBehavior, valuesExtinguishMode) {
     EXPECT_EQ(ExtinguishModeString[i], get_extinguish_mode_string(mode));
 
     ret = get_extinguish_mode(ExtinguishModeString[i], ext_mode);
-    EXPECT_EQ(true, ret);
+    EXPECT_TRUE(ret);
     EXPECT_EQ(mode, ext_mode);
     ++i;
   }
   }
 
   ret = get_extinguish_mode("", ext_mode);
-  EXPECT_EQ(false, ret);
+  EXPECT_FALSE(ret);
 }

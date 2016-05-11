@@ -43,7 +43,7 @@ target_link_libraries(goiovalues_lib ${libconfig_LIBRARIES})
 
 file(GLOB sources "${PROJECT_SOURCE_DIR}/src/*.cpp")
 add_executable(goiovalues "${sources}")
-target_link_libraries(goiovalues goiovalues_lib)
+target_link_libraries(goiovalues goiovalues_lib -Wl,-O3)
 
 include(CTest)
 add_test(run goiovalues)
@@ -68,6 +68,8 @@ if(TESTS)
     CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG:PATH=DebugLibs
                -Dgtest_force_shared_crt=ON
+               -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+               -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
     # Disable install step
     INSTALL_COMMAND ""
     # Wrap download, configure and build steps in a script to log output
@@ -90,7 +92,7 @@ if(TESTS)
     set(Pthread "-pthread")
   endif()
   ExternalProject_Get_Property(googletest binary_dir)
-  target_link_libraries(goiovalues_tests goiovalues_lib
+  target_link_libraries(goiovalues_tests goiovalues_lib -Wl,-O3
     debug "${binary_dir}/DebugLibs/${CMAKE_FIND_LIBRARY_PREFIXES}gtest${Suffix}"
     optimized "${binary_dir}/${CMAKE_FIND_LIBRARY_PREFIXES}gtest${Suffix}"
     ${Pthread}
@@ -106,11 +108,12 @@ if(TESTS)
   add_test(Engines goiovalues_tests --gtest_filter=Engines.*)
   add_test(AIBehavior goiovalues_tests --gtest_filter=AIBehavior.*)
   add_test(RepairTools goiovalues_tests --gtest_filter=RepairTools.*)
+  add_test(Asserts goiovalues_tests --gtest_filter=Asserts.*)
 endif()
 
 set(CXX_FLAGS "")
 list(APPEND CXX_FLAGS
-  -std=c++1y -O3 -Wl,-O3 -ffast-math -pedantic -Wall -Wextra -Wcast-align
+  -std=c++1y -O3 -ffast-math -pedantic -Wall -Wextra -Wcast-align
   -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2
   -Winit-self -Wmissing-declarations -Wmissing-include-dirs
   -Wold-style-cast -Woverloaded-virtual -Wredundant-decls
@@ -167,18 +170,22 @@ endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR COVERAGE)
   list(APPEND CXX_FLAGS
-    -g -O0 -Wl,-O0
+    -g -O0
     -DSTRONG_TYPE_COMPILE
   )
   if(COVERAGE)
     list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
     include(CodeCoverage)
     list(APPEND CXX_FLAGS
-      -O0 -Wl,-O3 -fprofile-arcs -ftest-coverage
-      --coverage
-      -fno-inline -fno-inline-small-functions -fno-default-inline
+      -O0 -fprofile-arcs -ftest-coverage
+      # --coverage
     )
-    target_link_libraries(goiovalues_lib gcov)
+    if(CMAKE_COMPILER_IS_GNUCC)
+      list(APPEND CXX_FLAGS
+        -fno-inline -fno-inline-small-functions -fno-default-inline
+      )
+    endif()
+    target_link_libraries(goiovalues_lib gcov --coverage)
     setup_target_for_coverage(goiovalues_coverage goiovalues_tests
                               "${PROJECT_BINARY_DIR}/coverage")
     # add_dependencies(goiovalues_coverage goiovalues_tests)
