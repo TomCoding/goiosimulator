@@ -18,19 +18,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "gtest/gtest.h"
+#include "./balloon.h"
 
 #include <string>
 
-#include "./balloon.h"
+#include "gtest/gtest.h"
 
 
 using namespace goio;
 
 void create_balloon(Health health);
-void test_const_values(Balloon& b, std::string& name, Force lift_force,
+void test_const_values(const Balloon& b, const std::string& name, Force lift_force,
                        Health max_health);
-void test_variable_values(Balloon& b, Force lift_force, Force descent_force,
+void test_variable_values(const Balloon& b, Force lift_force, Force descent_force,
                        Health max_health, bool all = true);
 
 void create_balloon(Health health) {  // throws NonPositiveHealth
@@ -65,14 +65,14 @@ TEST(Balloon, GoioObj) {
   EXPECT_EQ(46, b.get_rebuild_value());
 }
 
-void test_const_values(Balloon& b, std::string& name, Force lift_force,
+void test_const_values(const Balloon& b, const std::string& name, Force lift_force,
                        Health max_health) {
   EXPECT_EQ(name, b.get_name());
   EXPECT_EQ(max_health, b.get_max_health());
   EXPECT_EQ(lift_force, b.get_orig_lift_force());
   EXPECT_EQ(lift_force, b.get_orig_descent_force());
 }
-void test_variable_values(Balloon& b, Force lift_force, Force descent_force,
+void test_variable_values(const Balloon& b, Force lift_force, Force descent_force,
                           Health max_health, bool all) {
   EXPECT_EQ(lift_force, b.get_lift_force());
   EXPECT_EQ(descent_force, b.get_descent_force());

@@ -18,11 +18,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "gtest/gtest.h"
+#include "./repairtools.h"
 
 #include <string>
 
-#include "./repairtools.h"
+#include "gtest/gtest.h"
 #include "./private.h"
 
 
@@ -91,7 +91,7 @@ TEST(RepairTools, createFactory) {
 
 class TestTool : public RepairTool {
  public:
-    TestTool(const std::string& name) : RepairTool(
+    explicit TestTool(const std::string& name) : RepairTool(
               name,
               14.49_s,    // swing duration
               200_hp,     // heal
@@ -403,7 +403,7 @@ TEST(RepairTools, rebuild) {
 
 class TestToolRepair : public RepairTool {
  public:
-    TestToolRepair(const std::string& name) : RepairTool(
+    explicit TestToolRepair(const std::string& name) : RepairTool(
               name,
               1_s,        // swing duration
               200_hp,     // heal
@@ -490,7 +490,7 @@ TEST(RepairTools, timefunc_1) {
 
 class TestToolExtinguish : public RepairTool {
  public:
-    TestToolExtinguish(const std::string& name) : RepairTool(
+    explicit TestToolExtinguish(const std::string& name) : RepairTool(
               name,
               1_s,        // swing duration
               0_hp,       // heal

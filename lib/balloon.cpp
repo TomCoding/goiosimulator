@@ -20,6 +20,8 @@
 
 #include "./balloon.h"
 
+#include <string>
+
 
 namespace goio {
 

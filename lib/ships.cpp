@@ -126,7 +126,6 @@ Ship::Ship(const std::string& name, Health max_health, Health hull_max_health,
               cur_vertical_top_speed(vertical_top_speed),
               balloon(new Balloon("", lift_force)),
               engines_l(), engines_h(), guns() {
-
   balloon->set_hull(this);
   for (int i = 0; i < light_engines; ++i) {
     auto engine = new LightEngine("", light_engine_thrust);
@@ -208,7 +207,7 @@ inline Thrust Ship::get_thrust() const {
                         get_heavy_engine_thrust());
 }
 inline Acceleration Ship::get_longitudinal_acceleration() const {
-  return get_longitudinal_acceleration_int(get_thrust(),get_mass());
+  return get_longitudinal_acceleration_int(get_thrust(), get_mass());
 }
 inline double Ship::get_longitudinal_drag() const {
   return get_longitudinal_drag_int(get_longitudinal_acceleration(),

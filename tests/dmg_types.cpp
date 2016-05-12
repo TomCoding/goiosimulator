@@ -18,11 +18,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "gtest/gtest.h"
+#include "./dmg_types.h"
 
 #include <string>
 
-#include "./dmg_types.h"
+#include "gtest/gtest.h"
 
 
 using namespace goio;

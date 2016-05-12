@@ -18,11 +18,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "gtest/gtest.h"
+#include "./utils.h"
 
 #include <string>
 
-#include "./utils.h"
+#include "gtest/gtest.h"
 
 
 enum class TestEnum {

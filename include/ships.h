@@ -150,7 +150,7 @@ class Ship : public Shipinfo, public GoioObj {
     virtual ~Ship();
 
     inline Weight get_mass() const { return cur_mass; }
-    inline Thrust get_light_engine_thrust() const { 
+    inline Thrust get_light_engine_thrust() const {
       return cur_light_engine_thrust;
     }
     inline Thrust get_heavy_engine_thrust() const {

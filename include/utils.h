@@ -18,8 +18,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef UNTILS_H_
-#define UNTILS_H_
+#ifndef UTILS_H_
+#define UTILS_H_
 
 #include <type_traits>
 
@@ -32,7 +32,7 @@ class Iterator {
     int val;
 
  public:
-    Iterator(const C& f) : val(static_cast<val_t>(f)) {}
+    explicit Iterator(const C& f) : val(static_cast<val_t>(f)) {}
     Iterator() : val(static_cast<val_t>(beginVal)) {
       static_assert(beginVal <= endVal, "requirement 'beginVal <= endVal' not met");
     }
@@ -51,4 +51,4 @@ class Iterator {
 
 #define STR(s) #s
 
-#endif  // UNTILS_H_
+#endif  // UTILS_H_

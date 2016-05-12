@@ -18,11 +18,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "gtest/gtest.h"
+#include "./ammunitions.h"
 
 #include <string>
 
-#include "./ammunitions.h"
+#include "gtest/gtest.h"
 #include "./goioobj.h"
 
 
@@ -77,7 +77,7 @@ TEST(Ammunitions, createFactory) {
 
 class TestAmmo : public Ammunition {
  public:
-    TestAmmo() : Ammunition (
+    TestAmmo() : Ammunition(
             0.4,           // magazine
             2.25,          // damage
             1,             // rof

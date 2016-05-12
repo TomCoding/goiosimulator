@@ -18,18 +18,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "gtest/gtest.h"
+#include "./engines.h"
 
 #include <string>
 
-#include "./engines.h"
+#include "gtest/gtest.h"
 
 
 using namespace goio;
 
-void test_const_values(Engine& e, std::string& name, Thrust thrust);
-void test_variable_values(Engine& e, Thrust thrust, bool all = true);
-void test_changed_health(Engine& e, std::string& name,
+void test_const_values(const Engine& e, const std::string& name, Thrust thrust);
+void test_variable_values(const Engine& e, Thrust thrust, bool all = true);
+void test_changed_health(Engine& e, const std::string& name,
                          Thrust thrust, Thrust thrust_new,
                          Health max_health, Health added_health);
 
@@ -64,11 +64,11 @@ TEST(Engines, GoioObj) {
   EXPECT_EQ(59, he.get_rebuild_value());
 }
 
-void test_const_values(Engine& e, std::string& name, Thrust thrust) {
+void test_const_values(const Engine& e, const std::string& name, Thrust thrust) {
   EXPECT_EQ(name, e.get_name());
   EXPECT_EQ(thrust, e.get_orig_thrust());
 }
-void test_variable_values(Engine& e, Thrust thrust, bool all) {
+void test_variable_values(const Engine& e, Thrust thrust, bool all) {
   EXPECT_EQ(thrust, e.get_thrust());
   if (all)
     EXPECT_EQ(thrust, e.get_thrust_changed());
@@ -112,7 +112,7 @@ TEST(Engines, valuesSet) {
   test_variable_values(he, 0_N);
 }
 
-void test_changed_health(Engine& e, std::string& name,
+void test_changed_health(Engine& e, const std::string& name,
                          Thrust thrust, Thrust thrust_new,
                          Health max_health, Health added_health) {
   e.set_thrust(thrust_new);

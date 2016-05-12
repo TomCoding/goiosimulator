@@ -59,4 +59,4 @@ class NonPositiveHealth : public std::exception {
 
 }  // namespace goio
 
-#endif // EXCEPTIONS_H_
+#endif  // EXCEPTIONS_H_

@@ -18,12 +18,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "gtest/gtest.h"
+#include "./constants.h"
 
 #include <string>
 #include <sstream>
 
-#include "./constants.h"
+#include "gtest/gtest.h"
 
 
 using namespace goio;
@@ -168,7 +168,7 @@ TEST(Constants, UnitCalcs) {
   EXPECT_EQ(2_m, 6_m/3);
   EXPECT_EQ(3/1_m, 6.0/2_m);
 
-  EXPECT_EQ(1, double(3_m/3_m));
+  EXPECT_EQ(1, static_cast<double>(3_m/3_m));
 
   EXPECT_EQ(9_m/1_s, 3_m_s2*3_s);
   EXPECT_EQ(3_m_s2, 3_N/1_kg);
