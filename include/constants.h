@@ -225,7 +225,7 @@ constexpr Angular_Acceleration operator"" _deg_s2(unsigned long long d) {
 
 template<int m1, int k1, int s1, int h1, int a1,
          int m2, int k2, int s2, int h2, int a2>
-Value<Unit<m1 - m2, k1 - k2, s1 - s2, h1 - h2, a1 - a2>> operator/
+constexpr Value<Unit<m1 - m2, k1 - k2, s1 - s2, h1 - h2, a1 - a2>> operator/
                                       (Value<Unit<m1, k1, s1, h1, a1>> a,
                                        Value<Unit<m2, k2, s2, h2, a2>> b) {
   return Value<Unit<m1 - m2,
@@ -236,7 +236,7 @@ Value<Unit<m1 - m2, k1 - k2, s1 - s2, h1 - h2, a1 - a2>> operator/
 }
 template<int m1, int k1, int s1, int h1, int a1,
          int m2, int k2, int s2, int h2, int a2>
-Value<Unit<m1 + m2, k1 + k2, s1 + s2, h1 + h2, a1 + a2>> operator*
+constexpr Value<Unit<m1 + m2, k1 + k2, s1 + s2, h1 + h2, a1 + a2>> operator*
                                       (Value<Unit<m1, k1, s1, h1, a1>> a,
                                        Value<Unit<m2, k2, s2, h2, a2>> b) {
   return Value<Unit<m1 + m2,

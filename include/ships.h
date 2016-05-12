@@ -94,138 +94,165 @@ class Ship : public GoioObj {
     void add_gun(Gun* gun);
 };
 
-class Pyramidion : public Ship {
- public:
-    explicit Pyramidion(const std::string& name) : Ship(
-                          name,
-                          650_hp,             // armor
-                          700_hp,             // hull health
-                          300000_kg,          // mass
-                          2,                  // number of light engines
-                          187002.7_N,         // thrust of light engine
-                          1,                  // number of heavy engines
-                          299744.4_N,         // thrust of heavy engine
-                          30.36_m/1_s,        // top speed
-                          11.05_deg/1_s,      // angular top speed
-                          6.25_deg_s2,        // angular acceleration
-                          825000_N,           // lift force
-                          17.03_m/1_s         // vertical top speed
-    ) {}
-};
+//TODO: Use template instead, keep static_assert
+#define NEW_SHIP(SHIP, \
+                 max_health, \
+                 hull_max_health, \
+                 mass, \
+                 light_engines, \
+                 light_engine_thrust, \
+                 heavy_engines, \
+                 heavy_engine_thrust, \
+                 longitudinal_top_speed, \
+                 angular_top_speed, \
+                 angular_acceleration, \
+                 lift_force, \
+                 vertical_top_speed) \
+  class SHIP : public Ship { \
+   public: \
+      explicit SHIP(const std::string& name) : \
+                    Ship(name, \
+                         max_health, \
+                         hull_max_health, \
+                         mass, \
+                         light_engines, \
+                         light_engine_thrust, \
+                         heavy_engines, \
+                         heavy_engine_thrust, \
+                         longitudinal_top_speed, \
+                         angular_top_speed, \
+                         angular_acceleration, \
+                         lift_force, \
+                         vertical_top_speed \
+                    ) { \
+        static_assert(max_health > 0_hp, "requirement 'max_health > 0' not met"); \
+        static_assert(hull_max_health > 0_hp, \
+                      "requirement 'hull_max_health > 0' not met"); \
+        static_assert(light_engines >= 0, \
+                      "requirement 'light_engines >= 0' not met"); \
+        static_assert(light_engine_thrust >= 0_N, \
+                      "requirement 'light_engine_thrust >= 0' not met"); \
+        static_assert(heavy_engines >= 0, \
+                      "requirement 'heavy_engines >= 0' not met"); \
+        static_assert(heavy_engine_thrust >= 0_N, \
+                      "requirement 'heavy_engine_thrust >= 0' not met"); \
+        static_assert(longitudinal_top_speed > 0_m/1_s, \
+                      "requirement 'longitudinal_top_speed > 0' not met"); \
+        static_assert(angular_top_speed > 0_deg/1_s, \
+                      "requirement 'angular_top_speed > 0' not met"); \
+        static_assert(angular_acceleration > 0_deg_s2, \
+                      "requirement 'angular_acceleration > 0' not met"); \
+        static_assert(lift_force >= 0_N, \
+                      "requirement 'lift_force >= 0' not met"); \
+        static_assert(vertical_top_speed > 0_m/1_s, \
+                      "requirement 'vertical_top_speed > 0' not met"); \
+      } \
+  }
 
-class Goldfish : public Ship {
- public:
-    explicit Goldfish(const std::string& name) : Ship(
-                          name,
-                          400_hp,             // armor
-                          1100_hp,            // hull health
-                          150000_kg,          // mass
-                          2,                  // number of light engines
-                          183750_N,           // thrust of light engine
-                          1,                  // number of heavy engines
-                          157500_N,           // thrust of heavy engine
-                          40.11_m/1_s,        // top speed
-                          13.99_deg/1_s,      // angular top speed
-                          12.99_deg_s2,       // angular acceleration
-                          487500_N,           // lift force
-                          16.99_m/1_s         // vertical top speed
-    ) {}
-};
+NEW_SHIP(Pyramidion,
+         650_hp,             // armor
+         700_hp,             // hull health
+         300000_kg,          // mass
+         2,                  // number of light engines
+         187002.7_N,         // thrust of light engine
+         1,                  // number of heavy engines
+         299744.4_N,         // thrust of heavy engine
+         30.36_m/1_s,        // top speed
+         11.05_deg/1_s,      // angular top speed
+         6.25_deg_s2,        // angular acceleration
+         825000_N,           // lift force
+         17.03_m/1_s         // vertical top speed
+);
 
-class Junker : public Ship {
- public:
-    explicit Junker(const std::string& name) : Ship(
-                          name,
-                          700_hp,             // armor
-                          500_hp,             // hull health
-                          125000_kg,          // mass
-                          2,                  // number of light engines
-                          179166.666666_N,    // thrust of light engine
-                          1,                  // number of heavy engines
-                          179166.666666_N,    // thrust of heavy engine
-                          26.01_m/1_s,        // top speed
-                          16.18_deg/1_s,      // angular top speed
-                          15.24_deg_s2,       // angular acceleration
-                          375000_N,           // lift force
-                          17.06_m/1_s         // vertical top speed
-    ) {}
-};
+NEW_SHIP(Goldfish,
+         400_hp,             // armor
+         1100_hp,            // hull health
+         150000_kg,          // mass
+         2,                  // number of light engines
+         183750_N,           // thrust of light engine
+         1,                  // number of heavy engines
+         157500_N,           // thrust of heavy engine
+         40.11_m/1_s,        // top speed
+         13.99_deg/1_s,      // angular top speed
+         12.99_deg_s2,       // angular acceleration
+         487500_N,           // lift force
+         16.99_m/1_s         // vertical top speed
+);
 
-class Galleon : public Ship {
- public:
-    explicit Galleon(const std::string& name) : Ship(
-                          name,
-                          800_hp,             // armor
-                          1400_hp,            // hull health
-                          320000_kg,          // mass
-                          2,                  // number of light engines
-                          134400.2_N,         // thrust of light engine
-                          1,                  // number of heavy engines
-                          403200.6_N,         // thrust of heavy engine
-                          30.02_m/1_s,        // top speed
-                          5.06_deg/1_s,       // angular top speed
-                          8.02_deg_s2,        // angular acceleration
-                          720000_N,           // lift force
-                          17.01_m/1_s         // vertical top speed
-    ) {}
-};
+NEW_SHIP(Junker,
+         700_hp,             // armor
+         500_hp,             // hull health
+         125000_kg,          // mass
+         2,                  // number of light engines
+         179166.666666_N,    // thrust of light engine
+         1,                  // number of heavy engines
+         179166.666666_N,    // thrust of heavy engine
+         26.01_m/1_s,        // top speed
+         16.18_deg/1_s,      // angular top speed
+         15.24_deg_s2,       // angular acceleration
+         375000_N,           // lift force
+         17.06_m/1_s         // vertical top speed
+);
 
-class Squid : public Ship {
- public:
-    explicit Squid(const std::string& name) : Ship(
-                          name,
-                          230_hp,             // armor
-                          950_hp,             // hull health
-                          95000_kg,           // mass
-                          4,                  // number of light engines
-                          190000_N,           // thrust of light engine
-                          0,                  // number of heavy engines
-                          0_N,                // thrust of heavy engine
-                          47.00_m/1_s,        // top speed
-                          19.11_deg/1_s,      // angular top speed
-                          20.01_deg_s2,       // angular acceleration
-                          380000_N,           // lift force
-                          17.00_m/1_s         // vertical top speed
-    ) {}
-};
+NEW_SHIP(Galleon,
+         800_hp,             // armor
+         1400_hp,            // hull health
+         320000_kg,          // mass
+         2,                  // number of light engines
+         134400.2_N,         // thrust of light engine
+         1,                  // number of heavy engines
+         403200.6_N,         // thrust of heavy engine
+         30.02_m/1_s,        // top speed
+         5.06_deg/1_s,       // angular top speed
+         8.02_deg_s2,        // angular acceleration
+         720000_N,           // lift force
+         17.01_m/1_s         // vertical top speed
+);
 
-class Spire : public Ship {
- public:
-    explicit Spire(const std::string& name) : Ship(
-                          name,
-                          400_hp,             // armor
-                          950_hp,             // hull health
-                          150000_kg,          // mass
-                          2,                  // number of light engines
-                          112050_N,         // thrust of light engine
-                          1,                  // number of heavy engines
-                          449550_N,         // thrust of heavy engine
-                          28.01_m/1_s,        // top speed
-                          12.08_deg/1_s,      // angular top speed
-                          15.06_deg_s2,        // angular acceleration
-                          562500_N,           // lift force
-                          17.00_m/1_s         // vertical top speed
-    ) {}
-};
+NEW_SHIP(Squid,
+         230_hp,             // armor
+         950_hp,             // hull health
+         95000_kg,           // mass
+         4,                  // number of light engines
+         190000_N,           // thrust of light engine
+         0,                  // number of heavy engines
+         0_N,                // thrust of heavy engine
+         47.00_m/1_s,        // top speed
+         19.11_deg/1_s,      // angular top speed
+         20.01_deg_s2,       // angular acceleration
+         380000_N,           // lift force
+         17.00_m/1_s         // vertical top speed
+);
 
-class Mobula : public Ship {
- public:
-    explicit Mobula(const std::string& name) : Ship(
-                          name,
-                          600_hp,             // armor
-                          700_hp,             // hull health
-                          120000_kg,          // mass
-                          2,                  // number of light engines
-                          153000_N,           // thrust of light engine
-                          1,                  // number of heavy engines
-                          204000_N,           // thrust of heavy engine
-                          28.00_m/1_s,        // top speed
-                          14.02_deg/1_s,      // angular top speed
-                          3.5_deg_s2,         // angular acceleration
-                          900000_N,           // lift force
-                          17.01_m/1_s         // vertical top speed
-    ) {}
-};
+NEW_SHIP(Spire,
+         400_hp,             // armor
+         950_hp,             // hull health
+         150000_kg,          // mass
+         2,                  // number of light engines
+         112050_N,           // thrust of light engine
+         1,                  // number of heavy engines
+         449550_N,           // thrust of heavy engine
+         28.01_m/1_s,        // top speed
+         12.08_deg/1_s,      // angular top speed
+         15.06_deg_s2,       // angular acceleration
+         562500_N,           // lift force
+         17.00_m/1_s         // vertical top speed
+);
+
+NEW_SHIP(Mobula,
+         600_hp,             // armor
+         700_hp,             // hull health
+         120000_kg,          // mass
+         2,                  // number of light engines
+         153000_N,           // thrust of light engine
+         1,                  // number of heavy engines
+         204000_N,           // thrust of heavy engine
+         28.00_m/1_s,        // top speed
+         14.02_deg/1_s,      // angular top speed
+         3.5_deg_s2,         // angular acceleration
+         900000_N,           // lift force
+         17.01_m/1_s         // vertical top speed
+);
 
 }  // namespace goio
 
