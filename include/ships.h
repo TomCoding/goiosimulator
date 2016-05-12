@@ -32,7 +32,7 @@
 
 namespace goio {
 
-class Ship : public GoioObj {
+class Shipinfo {
  private:
     const Weight mass;
     const int    light_engines;
@@ -45,6 +45,73 @@ class Ship : public GoioObj {
     const Force  lift_force;
     const Speed  vertical_top_speed;
 
+ protected:
+    Shipinfo(Weight mass,
+             int light_engines,
+             Thrust light_engines_thrust,
+             int heavy_engines,
+             Thrust heavy_engines_thrust,
+             Speed longitudinal_top_speed,
+             Angular_Speed angular_top_speed,
+             Angular_Acceleration angular_acceleration,
+             Force lift_force,
+             Speed vertical_top_speed);
+
+    Thrust        get_thrust_int(Thrust light_engines_thrust,
+                                 Thrust heavy_engines_thrust) const;
+    Acceleration  get_longitudinal_acceleration_int(Thrust thrust,
+                                                    Weight mass) const;
+    double        get_longitudinal_drag_int(Acceleration longitudinal_acceleration,
+                                            Speed longitudinal_top_speed) const;
+    Acceleration  get_vertical_acceleration_int(Force lift_force,
+                                                Weight mass) const;
+    double        get_vertical_drag_int(Acceleration vertical_acceleration,
+                                        Speed vertical_top_speed) const;
+
+ public:
+    virtual ~Shipinfo() {}
+
+    inline Weight get_orig_mass() const { return mass; }
+    inline int    get_light_engines_count() const { return light_engines; }
+    inline Thrust get_orig_light_engine_thrust() const {
+      return light_engine_thrust;
+    }
+    inline int    get_heavy_engines_count() const { return heavy_engines; }
+    inline Thrust get_orig_heavy_engine_thrust() const {
+      return heavy_engine_thrust;
+    }
+    inline Speed  get_orig_longitudinal_top_speed() const {
+      return longitudinal_top_speed;
+    }
+    inline Angular_Speed get_orig_angular_top_speed() const {
+      return angular_top_speed;
+    }
+    inline Angular_Acceleration get_orig_angular_acceleration() const {
+      return angular_acceleration;
+    }
+    inline Force  get_orig_lift_force() const { return lift_force; }
+    inline Speed  get_orig_vertical_top_speed() const {
+      return vertical_top_speed;
+    }
+
+    Thrust        get_orig_thrust() const;
+    Acceleration  get_orig_longitudinal_acceleration() const;
+    double        get_orig_longitudinal_drag() const;
+    Acceleration  get_orig_vertical_acceleration() const;
+    double        get_orig_vertical_drag() const;
+};
+
+class Ship : public Shipinfo, public GoioObj {
+ private:
+    Weight cur_mass;
+    Thrust cur_light_engine_thrust;
+    Thrust cur_heavy_engine_thrust;
+    Speed  cur_longitudinal_top_speed;
+    Angular_Speed cur_angular_top_speed;
+    Angular_Acceleration cur_angular_acceleration;
+    Force  cur_lift_force;
+    Speed  cur_vertical_top_speed;
+
     Balloon* balloon;
     std::set<LightEngine*> engines_l;
     std::set<HeavyEngine*> engines_h;
@@ -54,31 +121,49 @@ class Ship : public GoioObj {
     Ship& operator=(const Ship& obj);
 
  protected:
-    Ship(const std::string& name, Health max_health, Health hull_max_health,
+    Ship(const std::string& name,
+         Health max_health, Health hull_max_health,
          Weight mass,
-         int light_engines, Thrust light_engines_thrust,
-         int heavy_engines, Thrust heavy_engines_thrust,
+         int light_engines, Thrust light_engine_thrust,
+         int heavy_engines, Thrust heavy_engine_thrust,
          Speed longitudinal_top_speed,
-         Angular_Speed angular_top_speed, Angular_Acceleration angular_acceleration,
-         Force lift_force, Speed vertical_top_speed);
+         Angular_Speed angular_top_speed,
+         Angular_Acceleration angular_acceleration,
+         Force lift_force,
+         Speed vertical_top_speed);
 
  public:
     virtual ~Ship();
 
-    inline Weight get_mass() const { return mass; }
-    inline int    get_light_engines_count() const { return light_engines; }
-    inline Thrust get_light_engine_thrust() const { return light_engine_thrust; }
-    inline int    get_heavy_engines_count() const { return heavy_engines; }
-    inline Thrust get_heavy_engine_thrust() const { return heavy_engine_thrust; }
+    inline Weight get_mass() const { return cur_mass; }
+    inline Thrust get_light_engine_thrust() const { 
+      return cur_light_engine_thrust;
+    }
+    inline Thrust get_heavy_engine_thrust() const {
+      return cur_heavy_engine_thrust;
+    }
     inline Speed  get_longitudinal_top_speed() const {
-      return longitudinal_top_speed;
+      return cur_longitudinal_top_speed;
     }
-    inline Angular_Speed get_angular_top_speed() const { return angular_top_speed; }
+    inline Angular_Speed get_angular_top_speed() const {
+      return cur_angular_top_speed;
+    }
     inline Angular_Acceleration get_angular_acceleration() const {
-      return angular_acceleration;
+      return cur_angular_acceleration;
     }
-    inline Force  get_lift_force() const { return lift_force; }
-    inline Speed  get_vertical_top_speed() const { return vertical_top_speed; }
+    inline Force  get_lift_force() const { return cur_lift_force; }
+    inline Speed  get_vertical_top_speed() const {
+      return cur_vertical_top_speed;
+    }
+
+    void set_mass(Weight mass);
+    void set_light_engine_thrust(Thrust thrust);
+    void set_heavy_engine_thrust(Thrust thrust);
+    void set_longitudinal_top_speed(Speed speed);
+    void set_angular_top_speed(Angular_Speed speed);
+    void set_angular_acceleration(Angular_Acceleration acceleration);
+    void set_lift_force(Force lift_force);
+    void set_vertical_top_speed(Speed speed);
 
     Thrust        get_thrust() const;
     Acceleration  get_longitudinal_acceleration() const;
@@ -92,6 +177,8 @@ class Ship : public GoioObj {
     inline std::set<Gun*> get_guns() const { return guns; }
 
     void add_gun(Gun* gun);
+
+    void reset(bool = true) override;
 };
 
 //TODO: Use template instead, keep static_assert
