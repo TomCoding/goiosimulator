@@ -122,6 +122,7 @@ Ship::Ship(const std::string& name, Health max_health, Health hull_max_health,
               cur_angular_top_speed(angular_top_speed),
               cur_angular_acceleration(angular_acceleration),
               cur_lift_force(lift_force),
+              cur_descent_force(lift_force),
               cur_vertical_top_speed(vertical_top_speed),
               balloon(new Balloon("", lift_force)),
               engines_l(), engines_h(), guns() {
@@ -189,6 +190,12 @@ void Ship::set_lift_force(Force lift_force) {
   else
     cur_lift_force = lift_force;
 }
+void Ship::set_descent_force(Force descent_force) {
+  if (descent_force < 0_N)
+    cur_descent_force = 0_N;
+  else
+    cur_descent_force = descent_force;
+}
 void Ship::set_vertical_top_speed(Speed speed) {
   if (speed < 0_m/1_s)
     cur_vertical_top_speed = 0_m/1_s;
@@ -207,11 +214,18 @@ inline double Ship::get_longitudinal_drag() const {
   return get_longitudinal_drag_int(get_longitudinal_acceleration(),
                                    get_longitudinal_top_speed());
 }
-inline Acceleration Ship::get_vertical_acceleration() const {
-  return get_vertical_acceleration_int(get_orig_lift_force(), get_orig_mass());
+inline Acceleration Ship::get_lift_acceleration() const {
+  return get_vertical_acceleration_int(get_lift_force(), get_mass());
 }
-inline double Ship::get_vertical_drag() const {
-  return get_vertical_drag_int(get_vertical_acceleration(),
+inline Acceleration Ship::get_descent_acceleration() const {
+  return get_vertical_acceleration_int(get_descent_force(), get_mass());
+}
+inline double Ship::get_lift_drag() const {
+  return get_vertical_drag_int(get_lift_acceleration(),
+                               get_vertical_top_speed());
+}
+inline double Ship::get_descent_drag() const {
+  return get_vertical_drag_int(get_descent_acceleration(),
                                get_vertical_top_speed());
 }
 
@@ -227,6 +241,7 @@ void Ship::reset(bool) {
   cur_angular_top_speed = get_orig_angular_top_speed();
   cur_angular_acceleration = get_orig_angular_acceleration();
   cur_lift_force = get_orig_lift_force();
+  cur_descent_force = get_orig_lift_force();
   cur_vertical_top_speed = get_orig_vertical_top_speed();
 }
 

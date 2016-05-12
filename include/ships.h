@@ -90,6 +90,7 @@ class Shipinfo {
       return angular_acceleration;
     }
     inline Force  get_orig_lift_force() const { return lift_force; }
+    inline Force  get_orig_descent_force() const { return lift_force; }
     inline Speed  get_orig_vertical_top_speed() const {
       return vertical_top_speed;
     }
@@ -110,6 +111,7 @@ class Ship : public Shipinfo, public GoioObj {
     Angular_Speed cur_angular_top_speed;
     Angular_Acceleration cur_angular_acceleration;
     Force  cur_lift_force;
+    Force  cur_descent_force;
     Speed  cur_vertical_top_speed;
 
     Balloon* balloon;
@@ -117,8 +119,20 @@ class Ship : public Shipinfo, public GoioObj {
     std::set<HeavyEngine*> engines_h;
     std::set<Gun*> guns;
 
+    // const HelmTool* cur_tool;
+
     Ship(const Ship& obj);
     Ship& operator=(const Ship& obj);
+
+    void set_mass(Weight mass);
+    void set_light_engine_thrust(Thrust thrust);
+    void set_heavy_engine_thrust(Thrust thrust);
+    void set_longitudinal_top_speed(Speed speed);
+    void set_angular_top_speed(Angular_Speed speed);
+    void set_angular_acceleration(Angular_Acceleration acceleration);
+    void set_lift_force(Force lift_force);
+    void set_descent_force(Force descent_force);
+    void set_vertical_top_speed(Speed speed);
 
  protected:
     Ship(const std::string& name,
@@ -152,24 +166,21 @@ class Ship : public Shipinfo, public GoioObj {
       return cur_angular_acceleration;
     }
     inline Force  get_lift_force() const { return cur_lift_force; }
+    inline Force  get_descent_force() const { return cur_descent_force; }
     inline Speed  get_vertical_top_speed() const {
       return cur_vertical_top_speed;
     }
+    // inline const HelmTool* get_tool() const { return cur_tool; }
 
-    void set_mass(Weight mass);
-    void set_light_engine_thrust(Thrust thrust);
-    void set_heavy_engine_thrust(Thrust thrust);
-    void set_longitudinal_top_speed(Speed speed);
-    void set_angular_top_speed(Angular_Speed speed);
-    void set_angular_acceleration(Angular_Acceleration acceleration);
-    void set_lift_force(Force lift_force);
-    void set_vertical_top_speed(Speed speed);
+    // bool apply_tool(const HelmTool* tool);
 
     Thrust        get_thrust() const;
     Acceleration  get_longitudinal_acceleration() const;
     double        get_longitudinal_drag() const;
-    Acceleration  get_vertical_acceleration() const;
-    double        get_vertical_drag() const;
+    Acceleration  get_lift_acceleration() const;
+    Acceleration  get_descent_acceleration() const;
+    double        get_lift_drag() const;
+    double        get_descent_drag() const;
 
     inline Balloon* get_balloon() const { return balloon; }
     inline std::set<LightEngine*> get_light_engines() const { return engines_l; }
