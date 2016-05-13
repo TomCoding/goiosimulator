@@ -91,3 +91,18 @@ TEST(Utils, EnumIterPartial) {
   // has to fail to compile
   // auto e_failed = TestEnum1_3Iterator();
 }
+
+#define VAR_MACRO(...) VFUNC(VAR_MACRO, __VA_ARGS__)
+#define VAR_MACRO1(a1) a1
+#define VAR_MACRO3(a1,a2,a3) a1 + a2 + a3
+#define VAR_MACRO9(a1,a2,a3,a4,a5,a6,a7,a8,a9) \
+  VAR_MACRO10(a1,a2,a3,a4,a5,a6,a7,a8,a9,10)
+#define VAR_MACRO10(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10) \
+  a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10
+
+TEST(Utils, VariadicMacro) {
+  EXPECT_EQ(1, VAR_MACRO(1));
+  EXPECT_EQ(6, VAR_MACRO(1, 2, 3));
+  EXPECT_EQ(55, VAR_MACRO(1, 2, 3, 4, 5, 6, 7, 8, 9));
+  EXPECT_EQ(55, VAR_MACRO(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
+}

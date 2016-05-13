@@ -28,6 +28,7 @@
 #include "./balloon.h"
 #include "./engines.h"
 #include "./guns.h"
+#include "./utils.h"
 
 
 namespace goio {
@@ -192,8 +193,11 @@ class Ship : public Shipinfo, public GoioObj {
     void reset(bool = true) override;
 };
 
+#define NEW_SHIP(...) VFUNC(NEW_SHIP, __VA_ARGS__)
+
 //TODO: Use template instead, keep static_assert
-#define NEW_SHIP(SHIP, \
+// default ship macro
+#define NEW_SHIP13(SHIP, \
                  max_health, \
                  hull_max_health, \
                  mass, \
@@ -206,6 +210,65 @@ class Ship : public Shipinfo, public GoioObj {
                  angular_acceleration, \
                  lift_force, \
                  vertical_top_speed) \
+  NEW_SHIP_BEGIN_BLOCK(SHIP, \
+                       max_health, \
+                       hull_max_health, \
+                       mass, \
+                       light_engines, \
+                       light_engine_thrust, \
+                       heavy_engines, \
+                       heavy_engine_thrust, \
+                       longitudinal_top_speed, \
+                       angular_top_speed, \
+                       angular_acceleration, \
+                       lift_force, \
+                       vertical_top_speed) \
+  }
+
+// manual rebuild value ship macro
+#define NEW_SHIP14(SHIP, \
+                 max_health, \
+                 hull_max_health, \
+                 mass, \
+                 light_engines, \
+                 light_engine_thrust, \
+                 heavy_engines, \
+                 heavy_engine_thrust, \
+                 longitudinal_top_speed, \
+                 angular_top_speed, \
+                 angular_acceleration, \
+                 lift_force, \
+                 vertical_top_speed, \
+                 manual_rebuild) \
+  NEW_SHIP_BEGIN_BLOCK(SHIP, \
+                       max_health, \
+                       hull_max_health, \
+                       mass, \
+                       light_engines, \
+                       light_engine_thrust, \
+                       heavy_engines, \
+                       heavy_engine_thrust, \
+                       longitudinal_top_speed, \
+                       angular_top_speed, \
+                       angular_acceleration, \
+                       lift_force, \
+                       vertical_top_speed) \
+  NEW_SHIP_MANUAL_REBUILD_BLOCK(manual_rebuild) \
+  }
+
+#define NEW_SHIP_BEGIN_BLOCK(SHIP, \
+                             max_health, \
+                             hull_max_health, \
+                             mass, \
+                             light_engines, \
+                             light_engine_thrust, \
+                             heavy_engines, \
+                             heavy_engine_thrust, \
+                             longitudinal_top_speed, \
+                             angular_top_speed, \
+                             angular_acceleration, \
+                             lift_force, \
+                             vertical_top_speed) \
   class SHIP : public Ship { \
    public: \
       explicit SHIP(const std::string& name) : \
@@ -244,8 +307,15 @@ class Ship : public Shipinfo, public GoioObj {
                       "requirement 'lift_force >= 0' not met"); \
         static_assert(vertical_top_speed > 0_m/1_s, \
                       "requirement 'vertical_top_speed > 0' not met"); \
-      } \
-  }
+      }
+
+#define NEW_SHIP_MANUAL_REBUILD_BLOCK(manual_rebuild) \
+    inline int get_rebuild_value() const override { \
+      static_assert(manual_rebuild > 0, \
+                    "requirement 'manual_rebuild > 0' not met"); \
+      return manual_rebuild; \
+    }
+
 
 NEW_SHIP(Pyramidion,
          650_hp,             // armor
@@ -319,7 +389,8 @@ NEW_SHIP(Squid,
          19.11_deg/1_s,      // angular top speed
          20.01_deg_s2,       // angular acceleration
          380000_N,           // lift force
-         17.00_m/1_s         // vertical top speed
+         17.00_m/1_s,        // vertical top speed
+         20                  // manual rebuild value
 );
 
 NEW_SHIP(Spire,
