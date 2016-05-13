@@ -125,7 +125,7 @@ Ship::Ship(const std::string& name, Health max_health, Health hull_max_health,
               cur_descent_force(lift_force),
               cur_vertical_top_speed(vertical_top_speed),
               balloon(new Balloon("", lift_force)),
-              engines_l(), engines_h(), guns() {
+              engines_l(), engines_h(), guns(), cur_tool(nullptr) {
   balloon->set_hull(this);
   for (int i = 0; i < light_engines; ++i) {
     auto engine = new LightEngine("", light_engine_thrust);

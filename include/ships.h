@@ -120,7 +120,7 @@ class Ship : public Shipinfo, public GoioObj {
     std::set<HeavyEngine*> engines_h;
     std::set<Gun*> guns;
 
-    // const HelmTool* cur_tool;
+    const HelmTool* cur_tool;
 
     Ship(const Ship& obj);
     Ship& operator=(const Ship& obj);
@@ -171,9 +171,9 @@ class Ship : public Shipinfo, public GoioObj {
     inline Speed  get_vertical_top_speed() const {
       return cur_vertical_top_speed;
     }
-    // inline const HelmTool* get_tool() const { return cur_tool; }
+    inline const HelmTool* get_tool() const { return cur_tool; }
 
-    // bool apply_tool(const HelmTool* tool);
+    bool apply_tool(const HelmTool* tool);
 
     Thrust        get_thrust() const;
     Acceleration  get_longitudinal_acceleration() const;

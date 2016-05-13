@@ -22,6 +22,7 @@
 #define AMMUNITIONS_H_
 
 #include "./goioobj.h"
+#include "./helmtools.h"
 
 
 namespace goio {

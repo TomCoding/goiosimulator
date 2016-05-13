@@ -23,6 +23,8 @@
 
 #include <string>
 #include <algorithm>
+#include <map>
+#include <cassert>
 
 #include "./utils.h"
 
@@ -62,29 +64,37 @@ inline bool get_dmg_type(const std::string& val, DmgType& dmg_type) {
   }
 }
 
-enum class CmpType {
-  BALLOON,
-  HULL,
-  ARMOR,
-  COMPONENTS
+namespace CmpTypeNs {
+enum Type {
+  BALLOON    =  1,
+  HULL       =  2,
+  ARMOR      =  4,
+  GUNS       =  8,
+  ENGINES    = 16,
+  COMPONENTS = GUNS + ENGINES  // 24
 };
-typedef Iterator<CmpType,
-                 CmpType::BALLOON,
-                 CmpType::COMPONENTS> CmpTypeIterator;
-static const std::string CmpTypeString[] {"balloon",
-                                          "hull",
-                                          "armor",
-                                          "component"};
+}  // namespace CmpTypeNs
+typedef CmpTypeNs::Type CmpType;
+static const std::map<std::string, CmpType> cmp_types {
+  { "balloon",   CmpType::BALLOON    },
+  { "hull",      CmpType::HULL       },
+  { "armor",     CmpType::ARMOR      },
+  { "gun",       CmpType::GUNS       },
+  { "engine",    CmpType::ENGINES    },
+  { "component", CmpType::COMPONENTS }
+};
 inline const std::string get_cmp_type_string(CmpType val) {
-  return CmpTypeString[static_cast<int>(val)];
+  for (auto it = cmp_types.begin(); it != cmp_types.end(); ++it) {
+    if (it->second == val)
+      return it->first;
+  }
+  assert(false);
 }
 
 inline bool get_cmp_type(const std::string& val, CmpType& cmp_type) {
-  auto it = std::find(std::begin(CmpTypeString),
-                      std::end(CmpTypeString),
-                      val);
-  if (it != std::end(CmpTypeString)) {
-    cmp_type = static_cast<CmpType>(it-std::begin(CmpTypeString));
+  auto it = cmp_types.find(val);
+  if (it != cmp_types.end()) {
+    cmp_type = it->second;
     return true;
   } else {
     return false;
@@ -102,7 +112,14 @@ static const double dmg_types[6][4] = {
 };
 
 inline double get_dmg_modifier(DmgType dmg_type, CmpType cmp_type) {
-  return dmg_types[static_cast<int>(dmg_type)][static_cast<int>(cmp_type)];
+  int index = 0;
+  unsigned int cmp_type_i = static_cast<unsigned int>(cmp_type);
+  while (!(cmp_type_i & 1)) {
+    cmp_type_i = cmp_type_i >> 1;
+    if (++index > 3)
+      break;
+  }
+  return dmg_types[static_cast<int>(dmg_type)][index];
 }
 
 /*

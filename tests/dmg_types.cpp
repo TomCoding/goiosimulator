@@ -49,22 +49,28 @@ TEST(DmgTypes, valuesDmgType) {
 
 TEST(DmgTypes, valuesCmpType) {
   CmpType cmp_type;
-  bool ret;
 
-  {
-  int i = 0;
-  for (CmpType type : CmpTypeIterator()) {
-    EXPECT_EQ(CmpTypeString[i], get_cmp_type_string(type));
+  EXPECT_EQ("balloon", get_cmp_type_string(CmpType::BALLOON));
+  EXPECT_EQ("hull", get_cmp_type_string(CmpType::HULL));
+  EXPECT_EQ("armor", get_cmp_type_string(CmpType::ARMOR));
+  EXPECT_EQ("gun", get_cmp_type_string(CmpType::GUNS));
+  EXPECT_EQ("engine", get_cmp_type_string(CmpType::ENGINES));
+  EXPECT_EQ("component", get_cmp_type_string(CmpType::COMPONENTS));
 
-    ret = get_cmp_type(CmpTypeString[i], cmp_type);
-    EXPECT_TRUE(ret);
-    EXPECT_EQ(type, cmp_type);
-    ++i;
-  }
-  }
+  EXPECT_TRUE(get_cmp_type("balloon", cmp_type));
+  EXPECT_EQ(CmpType::BALLOON, cmp_type);
+  EXPECT_TRUE(get_cmp_type("hull", cmp_type));
+  EXPECT_EQ(CmpType::HULL, cmp_type);
+  EXPECT_TRUE(get_cmp_type("armor", cmp_type));
+  EXPECT_EQ(CmpType::ARMOR, cmp_type);
+  EXPECT_TRUE(get_cmp_type("gun", cmp_type));
+  EXPECT_EQ(CmpType::GUNS, cmp_type);
+  EXPECT_TRUE(get_cmp_type("engine", cmp_type));
+  EXPECT_EQ(CmpType::ENGINES, cmp_type);
+  EXPECT_TRUE(get_cmp_type("component", cmp_type));
+  EXPECT_EQ(CmpType::COMPONENTS, cmp_type);
 
-  ret = get_cmp_type("", cmp_type);
-  EXPECT_FALSE(ret);
+  EXPECT_FALSE(get_cmp_type("", cmp_type));
 }
 
 TEST(DmgTypes, valuesDmgMatrix) {
