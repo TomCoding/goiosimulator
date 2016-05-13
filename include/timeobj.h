@@ -40,7 +40,7 @@ class TimeObj {
       int id;
       GoioActor* registrar;  // key in registrars
       TimeDmgFunc timedmgfunc;
-      DmgState::State dmg_flags;
+      DmgState dmg_flags;
       GoioObj* obj;
       Time time_prev;
       Time time_next;    // key in events
@@ -71,7 +71,7 @@ class TimeObj {
         explicit EndEvent(TimeObj* timeobj) : GoioActor("", CmpType::HULL),
                                               timeobj(timeobj) {}
 
-        inline DmgState::State noop(GoioObj*, Time) {
+        inline DmgState noop(GoioObj*, Time) {
           return DmgState::NONE;
         }
 
@@ -89,7 +89,7 @@ class TimeObj {
     inline Time get_time() const { return time; }
     bool next_event();
     int register_event(GoioActor* registrar, TimeDmgFunc timedmgfunc,
-                       DmgState::State dmg_flags,
+                       DmgState dmg_flags,
                        GoioObj* obj, TimeCheckFunc timecheckfunc,
                        Time time = 0_s, bool rel = true);
 
@@ -112,7 +112,7 @@ class TimeObj {
     inline int register_shoot_event(Actor_t* registrar, GoioObj* obj,
                               Time time = 0_s, bool rel = true) {
       return register_event(registrar,
-                            std::bind(static_cast<DmgState::State (Actor_t::*)
+                            std::bind(static_cast<DmgState (Actor_t::*)
                                                   (GoioObj*, Time)>
                                       (&ShootActor::shoot), registrar, _1, _2),
                             DmgState::TRANSITIONED,

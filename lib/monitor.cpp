@@ -32,7 +32,7 @@ Monitor::Monitor(Time tick) : GoioActor("", CmpType::HULL), tick(tick) {
     throw NonPositiveTime(tick);
 }
 
-DmgState::State Monitor::monitor(GoioObj*, Time) {
+DmgState Monitor::monitor(GoioObj*, Time) {
   std::cout << "                            ";
   return DmgState::NONE;
 }

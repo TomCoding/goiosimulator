@@ -52,7 +52,7 @@ class RepairActor : public GoioActor {
  public:
     virtual ~RepairActor() {}
 
-    virtual DmgState::State repair(GoioObj* obj, Time time) = 0;
+    virtual DmgState repair(GoioObj* obj, Time time) = 0;
 };
 
 class ShootActor : public GoioActor {
@@ -66,9 +66,9 @@ class ShootActor : public GoioActor {
  public:
     virtual ~ShootActor() {}
 
-    virtual DmgState::State shoot(GoioObj* obj, Time time,
+    virtual DmgState shoot(GoioObj* obj, Time time,
                                   bool armed, Distance aoe_range) = 0;
-    inline DmgState::State shoot(GoioObj* obj, Time time) {
+    inline DmgState shoot(GoioObj* obj, Time time) {
       return shoot(obj, time, true, 0_m);
     }
 };

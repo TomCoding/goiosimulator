@@ -34,7 +34,7 @@ class Monitor : public GoioActor {
  public:
     explicit Monitor(Time tick);  // throws NonPositiveTime
 
-    DmgState::State monitor(GoioObj*, Time);
+    DmgState monitor(GoioObj*, Time);
     inline Time get_tick() const { return tick; }
 
     TimeFunc get_time_func(const GoioObj* obj, Time, bool&) override;

@@ -120,7 +120,7 @@ class Engineer : public RepairActor {
     inline void set_mode(RepairMode mode) { this->mode = mode; }
     inline void set_extmode(ExtinguishMode extmode) { this->extmode = extmode; }
 
-    DmgState::State repair(GoioObj* obj, Time time) override;
+    DmgState repair(GoioObj* obj, Time time) override;
 
     TimeFunc get_time_func(const GoioObj*, Time, bool&) override;
 };

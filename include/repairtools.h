@@ -87,7 +87,7 @@ class RepairTool : public RepairInfo, public RepairActor {
     inline Time get_cur_swing() const { return cur_swing; }
     inline Time wait_cooldown() const { return repair_wait; }
 
-    DmgState::State repair(GoioObj* obj, Time time) override;
+    DmgState repair(GoioObj* obj, Time time) override;
 
     void reset(bool = true) override;
 

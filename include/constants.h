@@ -29,7 +29,7 @@
 
 namespace goio {
 
-namespace DmgState {
+namespace DmgStateNs {
 enum State : uint32_t {
   NONE              = 0,            // nothing changed
 
@@ -104,11 +104,12 @@ inline
   a = a | b;
   return a;
 }
-}  // namespace DmgState
+}  // namespace DmgStateNs
+typedef DmgStateNs::State DmgState;
 
-inline DmgState::State get_dmg_state_self_reversed(DmgState::State dmg_state) {
-  return static_cast<DmgState::State>(
-                static_cast<std::underlying_type_t<DmgState::State>>(dmg_state)
+inline DmgState get_dmg_state_self_reversed(DmgState dmg_state) {
+  return static_cast<DmgState>(
+                static_cast<std::underlying_type_t<DmgState>>(dmg_state)
                 >> 16);
 }
 

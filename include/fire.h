@@ -35,7 +35,7 @@ class Fire : public GoioActor {
     Fire() : GoioActor("", CmpType::HULL) {}
 
     static Health get_fire_dmg(GoioObj* obj, Time time);  // throws NonPositiveTime
-    DmgState::State burn(GoioObj* obj, Time);
+    DmgState burn(GoioObj* obj, Time);
     static inline Time get_firetick() { return Time(firetick); }
 
     TimeFunc get_time_func(const GoioObj* obj, Time, bool&) override;

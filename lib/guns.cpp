@@ -246,7 +246,7 @@ inline Angular_Speed Gun::get_turn_vertical_changed() const {
   return get_max_health()/get_health()*get_turn_vertical();
 }
 
-DmgState::State Gun::shoot(GoioObj* obj, Time time,
+DmgState Gun::shoot(GoioObj* obj, Time time,
                            bool armed, Distance aoe_range) {
   if (during_reload) {
     reload();

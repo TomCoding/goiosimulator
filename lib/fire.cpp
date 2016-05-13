@@ -39,7 +39,7 @@ Health Fire::get_fire_dmg(GoioObj* obj, Time time) {
     return 0_hp;
 }
 
-DmgState::State Fire::burn(GoioObj* obj, Time) {
+DmgState Fire::burn(GoioObj* obj, Time) {
   if (obj->get_fire_stacks() < 1)
     return DmgState::NONE;
   obj->add_health(-get_fire_dmg(obj, get_firetick()));

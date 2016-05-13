@@ -282,7 +282,7 @@ class GoioObj : public Object {
 typedef std::function<Time ()> TimeFunc;
 typedef std::function<TimeFunc (const GoioObj*, Time, bool&)> TimeCheckFunc;
 
-typedef std::function<DmgState::State (GoioObj*, Time)> TimeDmgFunc;
+typedef std::function<DmgState (GoioObj*, Time)> TimeDmgFunc;
 
 }  // namespace goio
 

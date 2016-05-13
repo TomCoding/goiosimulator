@@ -53,7 +53,7 @@ bool RepairTool::action_possible(const GoioObj* const obj) const {
               (get_extinguish() > 0 && obj->get_fire_stacks() <= 0)));
 }
 
-DmgState::State RepairTool::repair(GoioObj* obj, Time time) {
+DmgState RepairTool::repair(GoioObj* obj, Time time) {
   cur_swing = get_swing();
 
   if (obj->dead()) {

@@ -76,7 +76,7 @@ TEST(Constants, DmgStateAND) {
 }
 
 TEST(Constants, DmgStateAssignmentOR) {
-  DmgState::State dmg_state = DmgState::SELF;
+  DmgState dmg_state = DmgState::SELF;
   EXPECT_EQ(DmgState::START_SELF, dmg_state |= DmgState::START_TARGET_SO);
 
   dmg_state = DmgState::REBUILD_S;

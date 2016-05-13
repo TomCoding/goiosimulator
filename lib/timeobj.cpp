@@ -228,7 +228,7 @@ void TimeObj::register_burn_event(GoioObj* obj) {
 }
 
 int TimeObj::register_event(GoioActor* registrar, TimeDmgFunc timedmgfunc,
-                            DmgState::State dmg_flags, GoioObj* obj,
+                            DmgState dmg_flags, GoioObj* obj,
                             TimeCheckFunc timecheckfunc,
                             Time time, bool rel) {
   Time comp_time;

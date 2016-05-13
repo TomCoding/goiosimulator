@@ -153,7 +153,7 @@ RepairTool* Engineer::get_repair_tool(GoioObj* obj) {
   }
 }
 
-DmgState::State Engineer::repair(GoioObj* obj, Time time) {
+DmgState Engineer::repair(GoioObj* obj, Time time) {
   if (obj->get_health() == 0_hp) {
     auto rebuilddiff = obj->get_rebuild_value() - obj->get_rebuild_state();
     if (rebuilddiff > rebuild_thresholds[0])
