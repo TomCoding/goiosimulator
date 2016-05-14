@@ -23,6 +23,8 @@
 #include <string>
 #include <set>
 
+#include "./helmtools.h"
+
 
 namespace goio {
 
@@ -70,6 +72,12 @@ inline double Shipinfo::get_longitudinal_drag_int(
   return 2_m*longitudinal_acceleration /
          (longitudinal_top_speed*longitudinal_top_speed);
 }
+inline double Shipinfo::get_angular_drag_int(
+                                       Angular_Acceleration angular_acceleration,
+                                       Angular_Speed angular_top_speed) const {
+  return 2_m*angular_acceleration /
+         (angular_top_speed*angular_top_speed);
+}
 inline Acceleration Shipinfo::get_vertical_acceleration_int(
                                        Force lift_force,
                                        Weight mass) const {
@@ -92,6 +100,10 @@ inline Acceleration Shipinfo::get_orig_longitudinal_acceleration() const {
 inline double Shipinfo::get_orig_longitudinal_drag() const {
   return get_longitudinal_drag_int(get_orig_longitudinal_acceleration(),
                                    get_orig_longitudinal_top_speed());
+}
+inline double Shipinfo::get_orig_angular_drag() const {
+  return get_angular_drag_int(get_orig_angular_acceleration(),
+                              get_orig_angular_top_speed());
 }
 inline Acceleration Shipinfo::get_orig_vertical_acceleration() const {
   return get_vertical_acceleration_int(get_orig_lift_force(), get_orig_mass());
@@ -213,6 +225,10 @@ inline double Ship::get_longitudinal_drag() const {
   return get_longitudinal_drag_int(get_longitudinal_acceleration(),
                                    get_longitudinal_top_speed());
 }
+inline double Ship::get_angular_drag() const {
+  return get_angular_drag_int(get_angular_acceleration(),
+                              get_angular_top_speed());
+}
 inline Acceleration Ship::get_lift_acceleration() const {
   return get_vertical_acceleration_int(get_lift_force(), get_mass());
 }
@@ -226,6 +242,21 @@ inline double Ship::get_lift_drag() const {
 inline double Ship::get_descent_drag() const {
   return get_vertical_drag_int(get_descent_acceleration(),
                                get_vertical_top_speed());
+}
+
+bool Ship::apply_tool(const HelmTool* tool) {
+  if (tool == nullptr)
+    return false;
+  set_light_engine_thrust(get_orig_light_engine_thrust() * tool->get_thrust());
+  set_heavy_engine_thrust(get_orig_heavy_engine_thrust() * tool->get_thrust());
+  // set_angular_drag(get_orig_angular_drag() * tool->get_angular_drag());
+  // set_longitudinal_drag(get_orig_longitudinal_drag() * tool->get_longitudinal_drag());
+  set_lift_force(get_lift_force() * tool->get_lift_force());
+  set_descent_force(get_orig_descent_force() * tool->get_descent_force());
+  // set_vertical_drag(get_orig_vertical_drag() * tool->get_vertical_drag());
+
+  cur_tool = tool;
+  return true;
 }
 
 void Ship::add_gun(Gun* gun) {

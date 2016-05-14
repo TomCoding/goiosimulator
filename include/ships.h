@@ -64,6 +64,8 @@ class Shipinfo {
                                                     Weight mass) const;
     double        get_longitudinal_drag_int(Acceleration longitudinal_acceleration,
                                             Speed longitudinal_top_speed) const;
+    double        get_angular_drag_int(Angular_Acceleration angular_acceleration,
+                                       Angular_Speed angular_top_speed) const;
     Acceleration  get_vertical_acceleration_int(Force lift_force,
                                                 Weight mass) const;
     double        get_vertical_drag_int(Acceleration vertical_acceleration,
@@ -99,6 +101,7 @@ class Shipinfo {
     Thrust        get_orig_thrust() const;
     Acceleration  get_orig_longitudinal_acceleration() const;
     double        get_orig_longitudinal_drag() const;
+    double        get_orig_angular_drag() const;
     Acceleration  get_orig_vertical_acceleration() const;
     double        get_orig_vertical_drag() const;
 };
@@ -178,6 +181,7 @@ class Ship : public Shipinfo, public GoioObj {
     Thrust        get_thrust() const;
     Acceleration  get_longitudinal_acceleration() const;
     double        get_longitudinal_drag() const;
+    double        get_angular_drag() const;
     Acceleration  get_lift_acceleration() const;
     Acceleration  get_descent_acceleration() const;
     double        get_lift_drag() const;
