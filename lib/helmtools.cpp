@@ -23,7 +23,17 @@
 
 namespace goio {
 
+REGISTER_TYPE_SHORT(ChuteVent);
+REGISTER_TYPE_SHORT(DrogueChute);
+REGISTER_TYPE_SHORT(Hydrogen);
+REGISTER_TYPE_SHORT(ImpactBumpers);
+REGISTER_TYPE_SHORT(Kerosene);
+REGISTER_TYPE_SHORT(Moonshine);
 REGISTER_TYPE_SHORT(PhoenixClaw);
+REGISTER_TYPE_SHORT(TarBarrel);
+
+REGISTER_TYPE_SHORT(SpyGlass);
+REGISTER_TYPE_SHORT(RangeFinder);
 
 HelmTool::HelmTool(double  thrust,
                    double  angular_drag,
@@ -35,6 +45,8 @@ HelmTool::HelmTool(double  thrust,
                    DmgType dmg_type,
                    CmpType dmg_target,
                    double  target_ign_chance,
+                   double  dmg_reduction,
+                   DmgType dmg_reduction_type,
                    Time    delay_after,
                    bool    tar_cloud,
                    bool    spot,
@@ -49,6 +61,8 @@ HelmTool::HelmTool(double  thrust,
                    dmg_type(dmg_type),
                    dmg_target(dmg_target),
                    target_ign_chance(target_ign_chance),
+                   dmg_reduction(dmg_reduction),
+                   dmg_reduction_type(dmg_reduction_type),
                    delay_after(delay_after),
                    tar_cloud(tar_cloud),
                    spot(spot),

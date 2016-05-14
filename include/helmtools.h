@@ -38,6 +38,8 @@ class HelmTool : public Object {
     const DmgType dmg_type;
     const CmpType dmg_target;
     const double  target_ign_chance;
+    const double  dmg_reduction;
+    const DmgType dmg_reduction_type;
     const Time    delay_after;
     const bool    tar_cloud;
     const bool    spot;
@@ -53,6 +55,8 @@ class HelmTool : public Object {
              DmgType dmg_type,
              CmpType dmg_target,
              double  target_ign_chance,
+             double  dmg_reduction,
+             DmgType dmg_reduction_type,
              Time    delay_after,
              bool    tar_cloud,
              bool    spot,
@@ -71,6 +75,8 @@ class HelmTool : public Object {
     inline DmgType get_dmg_type() const { return dmg_type; }
     inline CmpType get_dmg_target() const { return dmg_target; }
     inline double  get_target_ign_chance() const{ return target_ign_chance; }
+    inline double  get_dmg_reduction() const{ return dmg_reduction; }
+    inline DmgType get_dmg_reduction_type() const{ return dmg_reduction_type; }
     inline Time    get_delay_after() const { return delay_after; }
     inline bool    get_tar_cloud() const { return tar_cloud; }
     inline bool    get_spot() const { return spot; }
@@ -89,6 +95,8 @@ class HelmTool : public Object {
                      dmg_type, \
                      dmg_target, \
                      target_ign_chance, \
+                     dmg_reduction, \
+                     dmg_reduction_type, \
                      delay_after, \
                      tar_cloud, \
                      spot, \
@@ -105,23 +113,135 @@ class HelmTool : public Object {
                         dmg_type, \
                         dmg_target, \
                         target_ign_chance, \
+                        dmg_reduction, \
+                        dmg_reduction_type, \
                         delay_after, \
                         tar_cloud, \
                         spot, \
                         range) { \
         static_assert(thrust >= 0, "requirement 'thrust >= 0' not met"); \
-        static_assert(angular_drag > 0, "requirement 'angular_drag > 0' not met"); \
-        static_assert(longitudinal_drag > 0, \
-                      "requirement 'longitudinal_drag > 0' not met"); \
-        static_assert(lift_force >= 0, "requirement 'lift_force >= 0' not met"); \
-        static_assert(descent_force >= 0, \
-                      "requirement 'descent_force >= 0' not met"); \
         static_assert(vertical_drag > 0, \
                       "requirement 'vertical_drag > 0' not met"); \
+        static_assert(dmg_reduction >= 0, \
+                      "requirement 'dmg_reduction >= 0' not met"); \
         static_assert(delay_after >= 0_s, \
                       "requirement 'delay_after >= 0' not met"); \
       } \
   }
+
+NEW_HELMTOOL(ChuteVent,
+             1,                   // thrust
+             1,                   // angular drag
+             1,                   // longitudinal drag
+             -19,                 // lift force
+             4,                   // descent force
+             0.4,                 // vertical drag
+             97.5_hp/1_s,         // damage per second to target
+             DmgType::FIRE,       // damage type
+             CmpType::BALLOON,    // damage target
+             0,                   // target ignition chance
+             1,                   // incoming damage reduction
+             DmgType::IMPACT,     // reduced damage type
+             3_s,                 // deactivation delay
+             false,               // produce tar cloud
+             false,               // ability to spot
+             false                // ability to tell range
+);
+
+NEW_HELMTOOL(DrogueChute,
+             0.4,                 // thrust
+             1,                   // angular drag
+             1,                   // longitudinal drag
+             1,                   // lift force
+             1,                   // descent force
+             3.5,                 // vertical drag
+             0_hp/1_s,            // damage per second to target
+             DmgType::FIRE,       // damage type
+             CmpType::BALLOON,    // damage target
+             0,                   // target ignition chance
+             1,                   // incoming damage reduction
+             DmgType::IMPACT,     // reduced damage type
+             2_s,                 // deactivation delay
+             false,               // produce tar cloud
+             false,               // ability to spot
+             false                // ability to tell range
+);
+
+NEW_HELMTOOL(Hydrogen,
+             1,                   // thrust
+             1,                   // angular drag
+             1,                   // longitudinal drag
+             4.5,                 // lift force
+             -19,                 // descent force
+             0.4,                 // vertical drag
+             112.5_hp/1_s,        // damage per second to target
+             DmgType::FIRE,       // damage type
+             CmpType::BALLOON,    // damage target
+             0.5,                 // target ignition chance
+             1,                   // incoming damage reduction
+             DmgType::IMPACT,     // reduced damage type
+             3_s,                 // deactivation delay
+             false,               // produce tar cloud
+             false,               // ability to spot
+             false                // ability to tell range
+);
+
+NEW_HELMTOOL(ImpactBumpers,
+             0.4,                 // thrust
+             1,                   // angular drag
+             1,                   // longitudinal drag
+             1,                   // lift force
+             1,                   // descent force
+             1,                   // vertical drag
+             0_hp/1_s,            // damage per second to target
+             DmgType::FIRE,       // damage type
+             CmpType::ARMOR,      // damage target
+             0,                   // target ignition chance
+             0.75,                // incoming damage reduction
+             DmgType::IMPACT,     // reduced damage type
+             5_s,                 // deactivation delay
+             false,               // produce tar cloud
+             false,               // ability to spot
+             false                // ability to tell range
+);
+
+NEW_HELMTOOL(Kerosene,
+             2.5,                 // thrust
+             4,                   // angular drag
+             1,                   // longitudinal drag
+             1,                   // lift force
+             1,                   // descent force
+             1,                   // vertical drag
+             10_hp/1_s,           // damage per second to target
+             DmgType::FIRE,       // damage type
+             CmpType::ENGINES,    // damage target
+             0,                   // target ignition chance
+             1,                   // incoming damage reduction
+             DmgType::IMPACT,     // reduced damage type
+             0_s,                 // deactivation delay
+             false,               // produce tar cloud
+             false,               // ability to spot
+             false                // ability to tell range
+);
+
+NEW_HELMTOOL(Moonshine,
+             3,                   // thrust
+             11,                  // angular drag
+             0.5,                 // longitudinal drag
+             1,                   // lift force
+             1,                   // descent force
+             1,                   // vertical drag
+             40_hp/1_s,           // damage per second to target
+             DmgType::FIRE,       // damage type
+             CmpType::ENGINES,    // damage target
+             0,                   // target ignition chance
+             1,                   // incoming damage reduction
+             DmgType::IMPACT,     // reduced damage type
+             0_s,                 // deactivation delay
+             false,               // produce tar cloud
+             false,               // ability to spot
+             false                // ability to tell range
+);
 
 NEW_HELMTOOL(PhoenixClaw,
              1.5,                 // thrust
@@ -134,10 +254,69 @@ NEW_HELMTOOL(PhoenixClaw,
              DmgType::FIRE,       // damage type
              CmpType::ENGINES,    // damage target
              0,                   // target ignition chance
+             1,                   // incoming damage reduction
+             DmgType::IMPACT,     // reduced damage type
              0_s,                 // deactivation delay
              false,               // produce tar cloud
              false,               // ability to spot
              false                // ability to tell range
+);
+
+NEW_HELMTOOL(TarBarrel,
+             1,                   // thrust
+             1,                   // angular drag
+             1,                   // longitudinal drag
+             1,                   // lift force
+             1,                   // descent force
+             1,                   // vertical drag
+             20_hp/1_s,           // damage per second to target
+             DmgType::FIRE,       // damage type
+             CmpType::ENGINES,    // damage target
+             0,                   // target ignition chance
+             1,                   // incoming damage reduction
+             DmgType::IMPACT,     // reduced damage type
+             3_s,                 // deactivation delay
+             true,                // produce tar cloud
+             false,               // ability to spot
+             false                // ability to tell range
+);
+
+NEW_HELMTOOL(SpyGlass,
+             1,                   // thrust
+             1,                   // angular drag
+             1,                   // longitudinal drag
+             1,                   // lift force
+             1,                   // descent force
+             1,                   // vertical drag
+             0_hp/1_s,            // damage per second to target
+             DmgType::FIRE,       // damage type
+             CmpType::ENGINES,    // damage target
+             0,                   // target ignition chance
+             1,                   // incoming damage reduction
+             DmgType::IMPACT,     // reduced damage type
+             0_s,                 // deactivation delay
+             false,               // produce tar cloud
+             true,                // ability to spot
+             false                // ability to tell range
+);
+
+NEW_HELMTOOL(RangeFinder,
+             1,                   // thrust
+             1,                   // angular drag
+             1,                   // longitudinal drag
+             1,                   // lift force
+             1,                   // descent force
+             1,                   // vertical drag
+             0_hp/1_s,            // damage per second to target
+             DmgType::FIRE,       // damage type
+             CmpType::ENGINES,    // damage target
+             0,                   // target ignition chance
+             1,                   // incoming damage reduction
+             DmgType::IMPACT,     // reduced damage type
+             0_s,                 // deactivation delay
+             false,               // produce tar cloud
+             false,               // ability to spot
+             true                 // ability to tell range
 );
 
 }  // namespace goio
