@@ -22,6 +22,7 @@
 
 #include <string>
 #include <set>
+#include <cmath>
 
 #include "./helmtools.h"
 
@@ -39,21 +40,21 @@ REGISTER_TYPE(Mobula);
 Shipinfo::Shipinfo(Weight mass,
                    int light_engines, Thrust light_engine_thrust,
                    int heavy_engines, Thrust heavy_engine_thrust,
-                   Speed longitudinal_top_speed,
+                   double longitudinal_drag,
                    Angular_Speed angular_top_speed,
-                   Angular_Acceleration angular_acceleration,
+                   double angular_drag,
                    Force lift_force,
-                   Speed vertical_top_speed) :
+                   double vertical_drag) :
                       mass(mass),
                       light_engines(light_engines),
                       light_engine_thrust(light_engine_thrust),
                       heavy_engines(heavy_engines),
                       heavy_engine_thrust(heavy_engine_thrust),
-                      longitudinal_top_speed(longitudinal_top_speed),
+                      longitudinal_drag(longitudinal_drag),
                       angular_top_speed(angular_top_speed),
-                      angular_acceleration(angular_acceleration),
+                      angular_drag(angular_drag),
                       lift_force(lift_force),
-                      vertical_top_speed(vertical_top_speed) {
+                      vertical_drag(vertical_drag) {
 }
 
 inline Thrust Shipinfo::get_thrust_int(Thrust light_engine_thrust,
@@ -61,81 +62,70 @@ inline Thrust Shipinfo::get_thrust_int(Thrust light_engine_thrust,
   return light_engines*light_engine_thrust +
          heavy_engines*heavy_engine_thrust;
 }
-inline Acceleration Shipinfo::get_longitudinal_acceleration_int(
-                                       Thrust thrust,
-                                       Weight mass) const {
-  return thrust/mass;
+inline Speed Shipinfo::get_top_speed_int(double drag,
+                                         Acceleration acceleration) const {
+  return sqrt(2_m*acceleration/drag);
 }
-inline double Shipinfo::get_longitudinal_drag_int(
-                                       Acceleration longitudinal_acceleration,
-                                       Speed longitudinal_top_speed) const {
-  return 2_m*longitudinal_acceleration /
-         (longitudinal_top_speed*longitudinal_top_speed);
+inline Acceleration Shipinfo::get_acceleration_int(Force force,
+                                                   Weight mass) const {
+  return force/mass;
 }
-inline double Shipinfo::get_angular_drag_int(
-                                       Angular_Acceleration angular_acceleration,
-                                       Angular_Speed angular_top_speed) const {
-  return 2_m*angular_acceleration /
-         (angular_top_speed*angular_top_speed);
-}
-inline Acceleration Shipinfo::get_vertical_acceleration_int(
-                                       Force lift_force,
-                                       Weight mass) const {
-  return lift_force/mass;
-}
-inline double Shipinfo::get_vertical_drag_int(
-                                       Acceleration vertical_acceleration,
-                                       Speed vertical_top_speed) const {
-  return 2_m*vertical_acceleration /
-         (vertical_top_speed*vertical_top_speed);
+inline Angular_Acceleration Shipinfo::get_angular_acceleration_int(
+                                          double drag,
+                                          Angular_Speed top_speed) const {
+  return top_speed*top_speed*drag/2_deg;
 }
 
 inline Thrust Shipinfo::get_orig_thrust() const {
   return get_thrust_int(get_orig_light_engine_thrust(),
                         get_orig_heavy_engine_thrust());
 }
+inline Speed Shipinfo::get_orig_longitudinal_top_speed() const {
+  return get_top_speed_int(get_orig_longitudinal_drag(),
+                           get_orig_longitudinal_acceleration());
+}
 inline Acceleration Shipinfo::get_orig_longitudinal_acceleration() const {
-  return get_longitudinal_acceleration_int(get_orig_thrust(), get_orig_mass());
+  return get_acceleration_int(get_orig_thrust(), get_orig_mass());
 }
-inline double Shipinfo::get_orig_longitudinal_drag() const {
-  return get_longitudinal_drag_int(get_orig_longitudinal_acceleration(),
-                                   get_orig_longitudinal_top_speed());
+inline Angular_Acceleration Shipinfo::get_orig_angular_acceleration() const {
+  return get_angular_acceleration_int(get_orig_angular_drag(),
+                                      get_orig_angular_top_speed());
 }
-inline double Shipinfo::get_orig_angular_drag() const {
-  return get_angular_drag_int(get_orig_angular_acceleration(),
-                              get_orig_angular_top_speed());
+inline Speed Shipinfo::get_orig_vertical_top_speed() const {
+  return get_top_speed_int(get_orig_vertical_drag(),
+                           get_orig_vertical_acceleration());
 }
 inline Acceleration Shipinfo::get_orig_vertical_acceleration() const {
-  return get_vertical_acceleration_int(get_orig_lift_force(), get_orig_mass());
-}
-inline double Shipinfo::get_orig_vertical_drag() const {
-  return get_vertical_drag_int(get_orig_vertical_acceleration(),
-                               get_orig_vertical_top_speed());
+  return get_acceleration_int(get_orig_lift_force(), get_orig_mass());
 }
 
 
-Ship::Ship(const std::string& name, Health max_health, Health hull_max_health,
-           Weight mass, int light_engines, Thrust light_engine_thrust,
+Ship::Ship(const std::string& name,
+           Health max_health, Health hull_max_health,
+           Weight mass,
+           int light_engines, Thrust light_engine_thrust,
            int heavy_engines, Thrust heavy_engine_thrust,
-           Speed longitudinal_top_speed, Angular_Speed angular_top_speed,
-           Angular_Acceleration angular_acceleration, Force lift_force,
-           Speed vertical_top_speed) :
+           double longitudinal_drag,
+           Angular_Speed angular_top_speed,
+           double angular_drag,
+           Force lift_force,
+           double vertical_drag) :
               Shipinfo(mass,
                        light_engines, light_engine_thrust,
                        heavy_engines, heavy_engine_thrust,
-                       longitudinal_top_speed,
-                       angular_top_speed, angular_acceleration,
-                       lift_force, vertical_top_speed),
+                       longitudinal_drag,
+                       angular_top_speed, angular_drag,
+                       lift_force, vertical_drag),
               GoioObj(name, CmpType::ARMOR, 1, max_health, hull_max_health),
               cur_mass(mass),
               cur_light_engine_thrust(light_engine_thrust),
               cur_heavy_engine_thrust(heavy_engine_thrust),
-              cur_longitudinal_top_speed(longitudinal_top_speed),
+              cur_longitudinal_drag(longitudinal_drag),
               cur_angular_top_speed(angular_top_speed),
-              cur_angular_acceleration(angular_acceleration),
+              cur_angular_drag(angular_drag),
               cur_lift_force(lift_force),
               cur_descent_force(lift_force),
-              cur_vertical_top_speed(vertical_top_speed),
+              cur_vertical_drag(vertical_drag),
               balloon(new Balloon("", lift_force)),
               engines_l(), engines_h(), guns(), cur_tool(nullptr) {
   balloon->set_hull(this);
@@ -177,11 +167,11 @@ void Ship::set_heavy_engine_thrust(Thrust thrust) {
   else
     cur_heavy_engine_thrust = thrust;
 }
-void Ship::set_longitudinal_top_speed(Speed speed) {
-  if (speed < 0_m/1_s)
-    cur_longitudinal_top_speed = 0_m/1_s;
+void Ship::set_longitudinal_drag(double drag) {
+  if (drag < 0)
+    cur_longitudinal_drag = 1;
   else
-    cur_longitudinal_top_speed = speed;
+    cur_longitudinal_drag = drag;
 }
 void Ship::set_angular_top_speed(Angular_Speed speed) {
   if (speed < 0_deg/1_s)
@@ -189,11 +179,11 @@ void Ship::set_angular_top_speed(Angular_Speed speed) {
   else
     cur_angular_top_speed = speed;
 }
-void Ship::set_angular_acceleration(Angular_Acceleration acceleration) {
-  if (acceleration < 0_deg_s2)
-    cur_angular_acceleration = 0_deg_s2;
+void Ship::set_angular_drag(double drag) {
+  if (drag < 0)
+    cur_angular_drag = 1;
   else
-    cur_angular_acceleration = acceleration;
+    cur_angular_drag = drag;
 }
 void Ship::set_lift_force(Force lift_force) {
   if (lift_force < 0_N)
@@ -207,41 +197,41 @@ void Ship::set_descent_force(Force descent_force) {
   else
     cur_descent_force = descent_force;
 }
-void Ship::set_vertical_top_speed(Speed speed) {
-  if (speed < 0_m/1_s)
-    cur_vertical_top_speed = 0_m/1_s;
+void Ship::set_vertical_drag(double drag) {
+  if (drag < 0)
+    cur_vertical_drag = 1;
   else
-    cur_vertical_top_speed = speed;
+    cur_vertical_drag = drag;
 }
 
 inline Thrust Ship::get_thrust() const {
   return get_thrust_int(get_light_engine_thrust(),
                         get_heavy_engine_thrust());
 }
+inline Speed Ship::get_longitudinal_top_speed() const {
+  return get_top_speed_int(get_longitudinal_drag(),
+                           get_longitudinal_acceleration());
+}
 inline Acceleration Ship::get_longitudinal_acceleration() const {
-  return get_longitudinal_acceleration_int(get_thrust(), get_mass());
+  return get_acceleration_int(get_thrust(), get_mass());
 }
-inline double Ship::get_longitudinal_drag() const {
-  return get_longitudinal_drag_int(get_longitudinal_acceleration(),
-                                   get_longitudinal_top_speed());
+inline Angular_Acceleration Ship::get_angular_acceleration() const {
+  return get_angular_acceleration_int(get_angular_drag(),
+                                      get_angular_top_speed());
 }
-inline double Ship::get_angular_drag() const {
-  return get_angular_drag_int(get_angular_acceleration(),
-                              get_angular_top_speed());
+inline Speed Ship::get_lift_top_speed() const {
+  return get_top_speed_int(get_vertical_drag(),
+                           get_lift_acceleration());
+}
+inline Speed Ship::get_descent_top_speed() const {
+  return get_top_speed_int(get_vertical_drag(),
+                           get_descent_acceleration());
 }
 inline Acceleration Ship::get_lift_acceleration() const {
-  return get_vertical_acceleration_int(get_lift_force(), get_mass());
+  return get_acceleration_int(get_lift_force(), get_mass());
 }
 inline Acceleration Ship::get_descent_acceleration() const {
-  return get_vertical_acceleration_int(get_descent_force(), get_mass());
-}
-inline double Ship::get_lift_drag() const {
-  return get_vertical_drag_int(get_lift_acceleration(),
-                               get_vertical_top_speed());
-}
-inline double Ship::get_descent_drag() const {
-  return get_vertical_drag_int(get_descent_acceleration(),
-                               get_vertical_top_speed());
+  return get_acceleration_int(get_descent_force(), get_mass());
 }
 
 bool Ship::apply_tool(const HelmTool* tool) {
@@ -249,11 +239,11 @@ bool Ship::apply_tool(const HelmTool* tool) {
     return false;
   set_light_engine_thrust(get_orig_light_engine_thrust() * tool->get_thrust());
   set_heavy_engine_thrust(get_orig_heavy_engine_thrust() * tool->get_thrust());
-  // set_angular_drag(get_orig_angular_drag() * tool->get_angular_drag());
-  // set_longitudinal_drag(get_orig_longitudinal_drag() * tool->get_longitudinal_drag());
+  set_angular_drag(get_orig_angular_drag() * tool->get_angular_drag());
+  set_longitudinal_drag(get_orig_longitudinal_drag() * tool->get_longitudinal_drag());
   set_lift_force(get_lift_force() * tool->get_lift_force());
   set_descent_force(get_orig_descent_force() * tool->get_descent_force());
-  // set_vertical_drag(get_orig_vertical_drag() * tool->get_vertical_drag());
+  set_vertical_drag(get_orig_vertical_drag() * tool->get_vertical_drag());
 
   cur_tool = tool;
   return true;
@@ -267,12 +257,12 @@ void Ship::reset(bool) {
   cur_mass = get_orig_mass();
   cur_light_engine_thrust = get_orig_light_engine_thrust();
   cur_heavy_engine_thrust = get_orig_heavy_engine_thrust();
-  cur_longitudinal_top_speed = get_orig_longitudinal_top_speed();
+  cur_longitudinal_drag = get_orig_longitudinal_drag();
   cur_angular_top_speed = get_orig_angular_top_speed();
-  cur_angular_acceleration = get_orig_angular_acceleration();
+  cur_angular_drag = get_orig_angular_drag();
   cur_lift_force = get_orig_lift_force();
   cur_descent_force = get_orig_lift_force();
-  cur_vertical_top_speed = get_orig_vertical_top_speed();
+  cur_vertical_drag = get_orig_vertical_drag();
 }
 
 }  // namespace goio

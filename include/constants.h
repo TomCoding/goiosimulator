@@ -22,6 +22,8 @@
 #define CONSTANTS_H_
 
 #include <iostream>
+#include <cmath>
+#include <exception>
 
 #include "./dmg_types.h"
 #include "./ai_behavior.h"
@@ -246,6 +248,17 @@ constexpr Value<Unit<m1 + m2, k1 + k2, s1 + s2, h1 + h2, a1 + a2>> operator*
                     s1 + s2,
                     h1 + h2,
                     a1 + a2>>(a.val * b.val);
+}
+template<int m, int k, int s, int h, int a>
+constexpr Value<Unit<m/2, k/2, s/2, h/2, a/2>>
+                                      sqrt(Value<Unit<m, k, s, h, a>> obj) {
+  if ((m%2) || (k%2) || (s%2) || (h%2) || (a%2))
+    throw std::invalid_argument("Unable to calculate square root of uneven units.");
+  return Value<Unit<m/2,
+                    k/2,
+                    s/2,
+                    h/2,
+                    a/2>>(std::sqrt(obj.val));
 }
 
 template<int m, int k, int s, int h, int a>

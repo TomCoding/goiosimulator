@@ -576,7 +576,6 @@ TEST(Asserts, RepairToolassert) {
   tr.*get(RepairTool_f()) = 3;
   EXPECT_EQ(3, tr.get_done());
 
-  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   // Should just check for ".*Assertion.*" but valgrind removes the output.
   EXPECT_DEATH(tr.get_time_func(obj, 0_s, force)(), ".*Assertion.*|");
 

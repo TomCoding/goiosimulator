@@ -22,6 +22,7 @@
 
 #include <string>
 #include <sstream>
+#include <exception>
 
 #include "gtest/gtest.h"
 
@@ -172,6 +173,16 @@ TEST(Constants, UnitCalcs) {
 
   EXPECT_EQ(9_m/1_s, 3_m_s2*3_s);
   EXPECT_EQ(3_m_s2, 3_N/1_kg);
+}
+
+TEST(Constants, Sqrt) {
+  EXPECT_EQ(2_m, sqrt(4_m*1_m));
+  EXPECT_EQ(4_m/1_s, sqrt(16_m_s2*1_m));
+  EXPECT_EQ(4/1_m, sqrt(16/1_m/1_m));
+  EXPECT_EQ(2, static_cast<double>(sqrt(4_m/1_m)));
+
+  EXPECT_THROW(sqrt(4_m), std::invalid_argument);
+  EXPECT_THROW(sqrt(4_m_s2), std::invalid_argument);
 }
 #endif
 
