@@ -408,7 +408,7 @@ int Config::load_config() {
                 } else {
                   ammo_obj = it->second;
                 }
-                gun->apply_ammunition(static_cast<Ammunition*>(ammo_obj));
+                gun->reload(static_cast<Ammunition*>(ammo_obj));
               } else {
                 std::cerr << "'" << obj_name
                           << "' not a Gun, ammunitions can only be used on guns."

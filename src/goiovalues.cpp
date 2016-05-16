@@ -57,10 +57,10 @@ int main() {
   auto gat4 = new goio::Gatling("Gatling4");
   auto loch = new goio::Lochnagar();
   auto inc = new goio::Incendiary();
-  // gat->apply_ammunition(loch);
-  gat->apply_ammunition(inc);
-  // gat3->apply_ammunition(loch);
-  // gat4->apply_ammunition(loch);
+  // gat->reload(loch);
+  gat->reload(inc);
+  // gat3->reload(loch);
+  // gat4->reload(loch);
   // gat->set_health(10_hp);
 
   auto gat2 = new goio::Gatling("Gatling2");

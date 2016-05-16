@@ -107,143 +107,143 @@ class Ammunition : public Object {
                           proportional_self_damage, \
                           immune \
       ) { \
-        static_assert(magazine >= 0, "requirement 'magazine >= 0' not met"); \
-        static_assert(damage >= 0, "requirement 'damage >= 0' not met"); \
-        static_assert(rof >= 0, "requirement 'rof >= 0' not met"); \
-        static_assert(aoe_radius >= 0, "requirement 'aoe_radius >= 0' not met"); \
-        static_assert(arming_time >= 0, "requirement 'arming_time >= 0' not met"); \
-        static_assert(ign_chance >= 0, "requirement 'ign_chance >= 0' not met"); \
-        static_assert(projectile_speed >= 0, \
-                      "requirement 'projectile_speed >= 0' not met"); \
-        static_assert(shell_drop >= 0, "shell_drop 'magazine >= 0' not met"); \
-        static_assert(jitter >= 0, "jitter 'magazine >= 0' not met"); \
-        static_assert(turn_speed >= 0, "turn_speed 'magazine >= 0' not met"); \
+        static_assert(magazine >= -1, "requirement 'magazine >= -1' not met"); \
+        static_assert(damage >= -1, "requirement 'damage >= -1' not met"); \
+        static_assert(rof > -1, "requirement 'rof > -1' not met"); \
+        static_assert(aoe_radius >= -1, "requirement 'aoe_radius >= -1' not met"); \
+        static_assert(arming_time >= -1, "requirement 'arming_time >= -1' not met"); \
+        static_assert(ign_chance >= -1, "requirement 'ign_chance >= -1' not met"); \
+        static_assert(projectile_speed >= -1, \
+                      "requirement 'projectile_speed >= -1' not met"); \
+        static_assert(shell_drop >= -1, "shell_drop 'magazine >= -1' not met"); \
+        static_assert(jitter >= -1, "jitter 'magazine >= -1' not met"); \
+        static_assert(turn_speed >= -1, "turn_speed 'magazine >= -1' not met"); \
       } \
   }
 
 NEW_AMMUNITION(Lochnagar,
-               0.4,           // magazine
-               2.25,          // damage
-               1,             // rof
-               0.5,           // aoe radius
-               0.4,           // arming time
+               -0.6,          // magazine
+               1.25,          // damage
+               0,             // rof
+               -0.5,          // aoe radius
+               -0.6,          // arming time
                0,             // ign_chance
-               1,             // projectile speed
-               1,             // shell drop
-               0.4,           // jitter
-               0.2,           // rotation speed
+               0,             // projectile speed
+               0,             // shell drop
+               -0.6,          // jitter
+               -0.8,          // rotation speed
                0,             // fire stacks
                true,          // proportional self damage
                false          // temporary fire immunity
 );
 
 NEW_AMMUNITION(Greased,
-               1.2,           // magazine
-               0.8,           // damage
-               1.6,           // rof
-               1,             // aoe radius
-               1,             // arming time
+               0.2,           // magazine
+               -0.2,          // damage
+               0.6,           // rof
+               0,             // aoe radius
+               0,             // arming time
                0,             // ign_chance
-               0.8,           // projectile speed
-               1,             // shell drop
-               1,             // jitter
-               0.85,          // rotation speed
+               -0.2,          // projectile speed
+               0,             // shell drop
+               0,             // jitter
+               -0.15,         // rotation speed
                0,             // fire stacks
                false,         // proportional self damage
                false          // temporary fire immunity
 );
 
 NEW_AMMUNITION(Charged,
-               0.8,           // magazine
-               1.3,           // damage
-               0.75,          // rof
-               1,             // aoe radius
-               1,             // arming time
+               -0.2,          // magazine
+               0.3,           // damage
+               -0.25,         // rof
+               0,             // aoe radius
+               0,             // arming time
                0,             // ign_chance
-               1,             // projectile speed
-               1,             // shell drop
-               1,             // jitter
-               1,             // rotation speed
+               0,             // projectile speed
+               0,             // shell drop
+               0,             // jitter
+               0,             // rotation speed
                0,             // fire stacks
                false,         // proportional self damage
                false          // temporary fire immunity
 );
 
 NEW_AMMUNITION(Lesmok,
-               0.7,           // magazine
-               1,             // damage
-               1,             // rof
-               1,             // aoe radius
-               1,             // arming time
+               -0.3,          // magazine
+               0,             // damage
+               0,             // rof
+               0,             // aoe radius
+               0,             // arming time
                0,             // ign_chance
-               1.7,           // projectile speed
-               0.7,           // shell drop
-               1,             // jitter
-               0.7,           // rotation speed
+               0.7,           // projectile speed
+               -0.3,          // shell drop
+               0,             // jitter
+               -0.3,          // rotation speed
                0,             // fire stacks
                false,         // proportional self damage
                false          // temporary fire immunity
 );
 
 NEW_AMMUNITION(Burst,
-               1.2,           // magazine
-               1,             // damage
-               0.85,          // rof
-               1.5,           // aoe radius
-               1,             // arming time
+               0.2,           // magazine
+               0,             // damage
+               -0.15,         // rof
+               0.5,           // aoe radius
+               0,             // arming time
                0,             // ign_chance
-               1,             // projectile speed
-               1,             // shell drop
-               1,             // jitter
-               1,             // rotation speed
+               0,             // projectile speed
+               0,             // shell drop
+               0,             // jitter
+               0,             // rotation speed
                0,             // fire stacks
                false,         // proportional self damage
                false          // temporary fire immunity
 );
 
 NEW_AMMUNITION(Heavy,
-               0.75,          // magazine
-               1,             // damage
-               1,             // rof
-               1,             // aoe radius
-               1,             // arming time
+               -0.25,         // magazine
+               0,             // damage
+               0,             // rof
+               0,             // aoe radius
+               0,             // arming time
                0,             // ign_chance
-               1,             // projectile speed
-               1,             // shell drop
-               0.3,           // jitter
-               1,             // rotation speed
+               0,             // projectile speed
+               0,             // shell drop
+               -0.7,          // jitter
+               0,             // rotation speed
                0,             // fire stacks
                false,         // proportional self damage
                false          // temporary fire immunity
 );
 
 NEW_AMMUNITION(Incendiary,
-               0.75,          // magazine
-               1,             // damage
-               0.7,           // rof
-               1,             // aoe radius
-               1,             // arming time
+               -0.25,         // magazine
+               0,             // damage
+               -0.3,          // rof
+               0,             // aoe radius
+               0,             // arming time
                0.2,           // ign_chance
-               0.7,           // projectile speed
-               1,             // shell drop
-               1,             // jitter
-               1,             // rotation speed
+               -0.3,          // projectile speed
+               0,             // shell drop
+               0,             // jitter
+               0,             // rotation speed
                0,             // fire stacks
                false,         // proportional self damage
                false          // temporary fire immunity
 );
 
 NEW_AMMUNITION(Heatsink,
-               1.3,           // magazine
-               0.83,          // damage
-               1,             // rof
-               1,             // aoe radius
-               1,             // arming time
+               0.3,           // magazine
+               -0.17,         // damage
+               0,             // rof
+               0,             // aoe radius
+               0,             // arming time
                0,             // ign_chance
-               0.8,           // projectile speed
-               1,             // shell drop
-               1,             // jitter
-               1.5,           // rotation speed
+               -0.2,          // projectile speed
+               0,             // shell drop
+               0,             // jitter
+               0.5,           // rotation speed
                -3,            // fire stacks
                false,         // proportional self damage
                true           // temporary fire immunity

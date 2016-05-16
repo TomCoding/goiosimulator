@@ -29,6 +29,10 @@ TEST(Rng, Randomness) {
   EXPECT_EQ(nullptr, random_percentage);
   init();
   ASSERT_NE(nullptr, random_percentage);
-  for (int i = 0; i < 1000; ++i)
-    ASSERT_NE(random_percentage(), random_percentage());
+  for (int i = 0; i < 1000; ++i) {
+    auto percent = random_percentage();
+    ASSERT_NE(random_percentage(), percent);
+    ASSERT_LE(0, percent);
+    ASSERT_GE(1, percent);
+  }
 }

@@ -51,183 +51,163 @@ REGISTER_TYPE(Lumberjack);
 REGISTER_TYPE(HeavyFlak);
 REGISTER_TYPE(Minotaur);
 
-void Gun::set_clipsize(int clipsize) {
-  if (clipsize < 0)
-    cur_clipsize = 0;
-  else
-    cur_clipsize = clipsize;
+void Gun::add_clipsize_mod(double clipsize) {
+  cur_clipsize_mod += clipsize;
+  if (cur_clipsize_mod < -1)
+    cur_clipsize_mod = -1;
 }
-void Gun::set_rof(P_Time rof) {
-  if (rof < 0/1_s)
-    cur_rof = 0/1_s;
-  else
-    cur_rof = rof;
+void Gun::add_rof_mod(double rof) {
+  cur_rof_mod += rof;
+  if (cur_rof_mod < -1)
+    cur_rof_mod = -1;
 }
-void Gun::set_reload(Time reload) {
-  if (reload < 0_s)
-    cur_reload = 0_s;
-  else
-    cur_reload = reload;
+void Gun::add_reload_mod(double reload) {
+  cur_reload_mod += reload;
+  if (cur_reload_mod < -1)
+    cur_reload_mod = -1;
 }
-void Gun::set_direct_dmg(Health direct_dmg) {
-  if (direct_dmg < 0_hp)
-    cur_direct_dmg = 0_hp;
-  else
-    cur_direct_dmg = direct_dmg;
+void Gun::add_direct_dmg_mod(double direct_dmg) {
+  cur_direct_dmg_mod += direct_dmg;
+  if (cur_direct_dmg_mod < -1)
+    cur_direct_dmg_mod = -1;
 }
-void Gun::set_direct_dmg_type(DmgType direct_dmg_type) {
+void Gun::add_aoe_dmg_mod(double aoe_dmg) {
+  cur_aoe_dmg_mod += aoe_dmg;
+  if (cur_aoe_dmg_mod < -1)
+    cur_aoe_dmg_mod = -1;
+}
+void Gun::add_aoe_radius_mod(double aoe_radius) {
+  cur_aoe_radius_mod += aoe_radius;
+  if (cur_aoe_radius_mod < -1)
+    cur_aoe_radius_mod = -1;
+}
+void Gun::add_arming_time_mod(double arming_time) {
+  cur_arming_time_mod += arming_time;
+  if (cur_arming_time_mod < -1)
+    cur_arming_time_mod = -1;
+}
+void Gun::add_direct_ign_chance_mod(double ign_chance) {
+  cur_direct_ign_chance_mod += ign_chance;
+  if (cur_direct_ign_chance_mod < -1)
+    cur_direct_ign_chance_mod = -1;
+}
+void Gun::add_aoe_ign_chance_mod(double ign_chance) {
+  cur_aoe_ign_chance_mod += ign_chance;
+  if (cur_aoe_ign_chance_mod < -1)
+    cur_aoe_ign_chance_mod = -1;
+}
+void Gun::add_range_mod(double range) {
+  cur_range_mod += range;
+  if (cur_range_mod < -1)
+    cur_range_mod = -1;
+}
+void Gun::add_projectile_speed_mod(double projectile_speed) {
+  cur_projectile_speed_mod += projectile_speed;
+  if (cur_projectile_speed_mod < -1)
+    cur_projectile_speed_mod = -1;
+}
+void Gun::add_shell_drop_mod(double shell_drop) {
+  cur_shell_drop_mod += shell_drop;
+  if (cur_shell_drop_mod < -1)
+    cur_shell_drop_mod = -1;
+}
+void Gun::add_jitter_mod(double jitter) {
+  cur_jitter_mod += jitter;
+  if (cur_jitter_mod < -1)
+    cur_jitter_mod = -1;
+}
+void Gun::add_turn_left_mod(double turn_left) {
+  cur_turn_left_mod += turn_left;
+  if (cur_turn_left_mod < -1)
+    cur_turn_left_mod = -1;
+}
+void Gun::add_turn_right_mod(double turn_right) {
+  cur_turn_right_mod += turn_right;
+  if (cur_turn_right_mod < -1)
+    cur_turn_right_mod = -1;
+}
+void Gun::add_turn_up_mod(double turn_up) {
+  cur_turn_up_mod += turn_up;
+  if (cur_turn_up_mod < -1)
+    cur_turn_up_mod = -1;
+}
+void Gun::add_turn_down_mod(double turn_down) {
+  cur_turn_down_mod += turn_down;
+  if (cur_turn_down_mod < -1)
+    cur_turn_down_mod = -1;
+}
+void Gun::add_turn_horizontal_mod(double turn_horizontal) {
+  cur_turn_horizontal_mod += turn_horizontal;
+  if (cur_turn_horizontal_mod < -1)
+    cur_turn_horizontal_mod = -1;
+}
+void Gun::add_turn_vertical_mod(double turn_vertical) {
+  cur_turn_vertical_mod += turn_vertical;
+  if (cur_turn_vertical_mod < -1)
+    cur_turn_vertical_mod = -1;
+}
+
+inline void Gun::set_direct_dmg_type(DmgType direct_dmg_type) {
   cur_direct_dmg_type = direct_dmg_type;
 }
-void Gun::set_aoe_dmg(Health aoe_dmg) {
-  if (aoe_dmg < 0_hp)
-    cur_aoe_dmg = 0_hp;
-  else
-    cur_aoe_dmg = aoe_dmg;
-}
-void Gun::set_aoe_dmg_type(DmgType aoe_dmg_type) {
+inline void Gun::set_aoe_dmg_type(DmgType aoe_dmg_type) {
   cur_aoe_dmg_type = aoe_dmg_type;
 }
-void Gun::set_aoe_radius(Distance aoe_radius) {
-  if (aoe_radius < 0_m)
-    cur_aoe_radius = 0_m;
-  else
-    cur_aoe_radius = aoe_radius;
-}
-void Gun::set_arming_time(Time arming_time) {
-  if (arming_time < 0_s)
-    cur_arming_time = 0_s;
-  else
-    cur_arming_time = arming_time;
-}
-void Gun::set_direct_ign_chance(double ign_chance) {
-  if (ign_chance < 0)
-    cur_direct_ign_chance = 0;
-  else if (ign_chance > 1)
-    cur_direct_ign_chance = 1;
-  else
-    cur_direct_ign_chance = ign_chance;
-}
-void Gun::set_aoe_ign_chance(double ign_chance) {
-  if (ign_chance < 0)
-    cur_aoe_ign_chance = 0;
-  else if (ign_chance > 1)
-    cur_aoe_ign_chance = 1;
-  else
-    cur_aoe_ign_chance = ign_chance;
-}
-void Gun::set_range(Distance range) {
-  if (range < 0_m)
-    cur_range = 0_m;
-  else
-    cur_range = range;
-}
-void Gun::set_projectile_speed(Speed projectile_speed) {
-  if (projectile_speed < 0_m/1_s)
-    cur_projectile_speed = 0_m/1_s;
-  else
-    cur_projectile_speed = projectile_speed;
-}
-void Gun::set_shell_drop(Acceleration shell_drop) {
-  if (shell_drop < 0_m_s2)
-    cur_shell_drop = 0_m_s2;
-  else
-    cur_shell_drop = shell_drop;
-}
-void Gun::set_jitter(Angle jitter) {
-  if (jitter < 0_deg)
-    cur_jitter = 0_deg;
-  else
-    cur_jitter = jitter;
-}
-void Gun::set_turn_left(Angle turn_left) {
-  if (turn_left < 0_deg)
-    cur_turn_left = 0_deg;
-  else
-    cur_turn_left = turn_left;
-}
-void Gun::set_turn_right(Angle turn_right) {
-  if (turn_right < 0_deg)
-    cur_turn_right = 0_deg;
-  else
-    cur_turn_right = turn_right;
-}
-void Gun::set_turn_up(Angle turn_up) {
-  if (turn_up < 0_deg)
-    cur_turn_up = 0_deg;
-  else
-    cur_turn_up = turn_up;
-}
-void Gun::set_turn_down(Angle turn_down) {
-  if (turn_down < 0_deg)
-    cur_turn_down = 0_deg;
-  else
-    cur_turn_down = turn_down;
-}
-void Gun::set_turn_horizontal(Angular_Speed turn_horizontal) {
-  if (turn_horizontal < 0_deg/1_s)
-    cur_turn_horizontal = 0_deg/1_s;
-  else
-    cur_turn_horizontal = turn_horizontal;
-}
-void Gun::set_turn_vertical(Angular_Speed turn_vertical) {
-  if (turn_vertical < 0_deg/1_s)
-    cur_turn_vertical = 0_deg/1_s;
-  else
-    cur_turn_vertical = turn_vertical;
-}
 
-int Gun::get_max_clipsize() const {
-  if (get_ammo() != nullptr)
-    return get_orig_clipsize() * get_ammo()->get_clipsize();
-  return get_orig_clipsize();
-}
+void Gun::reload(const Ammunition* ammo) {
+  cur_clipsize_mod = 0;
+  cur_rof_mod = 0;
+  cur_reload_mod = 0;
+  cur_direct_dmg_mod = 0;
+  cur_aoe_dmg_mod = 0;
+  cur_aoe_radius_mod = 0;
+  cur_arming_time_mod = 0;
+  cur_direct_ign_chance_mod = 0;
+  cur_aoe_ign_chance_mod = 0;
+  cur_range_mod = 0;
+  cur_projectile_speed_mod = 0;
+  cur_shell_drop_mod = 0;
+  cur_jitter_mod = 0;
+  cur_turn_left_mod = 0;
+  cur_turn_right_mod = 0;
+  cur_turn_up_mod = 0;
+  cur_turn_down_mod = 0;
+  cur_turn_horizontal_mod = 0;
+  cur_turn_vertical_mod = 0;
 
-bool Gun::apply_ammunition(const Ammunition* ammo) {
-  if (ammo == nullptr)
-    return false;
-  set_clipsize(get_orig_clipsize() * ammo->get_clipsize());
-  set_direct_dmg(get_orig_direct_dmg() * ammo->get_damage());
-  set_aoe_dmg(get_orig_aoe_dmg() * ammo->get_damage());
-  set_rof(get_orig_rof() * ammo->get_rof());
-  set_aoe_radius(get_orig_aoe_radius() * ammo->get_aoe_radius());
-  set_arming_time(get_orig_arming_time() * ammo->get_arming_time());
-  set_direct_ign_chance(get_orig_direct_ign_chance() + ammo->get_ign_chance());
-  set_aoe_ign_chance(get_orig_aoe_ign_chance() + ammo->get_ign_chance());
-  set_projectile_speed(get_orig_projectile_speed() * ammo->get_projectile_speed());
-  set_shell_drop(get_orig_shell_drop() * ammo->get_shell_drop());
-  set_jitter(get_orig_jitter() * ammo->get_jitter());
-  set_turn_horizontal(get_orig_turn_horizontal() * ammo->get_turn_speed());
-  set_turn_vertical(get_orig_turn_vertical() * ammo->get_turn_speed());
-  add_fire(ammo->get_fire_stacks());
-  set_temporary_immunity(ammo->get_immune());
+  // reapply buff or other modifiers here
 
-  cur_ammo = ammo;
-  return true;
-}
+  cur_direct_dmg_type = get_orig_direct_dmg_type();
+  cur_aoe_dmg_type = get_orig_aoe_dmg_type();
 
-void Gun::reload(bool with_ammo) {
-  set_reload(get_orig_reload());
-  set_direct_dmg_type(get_orig_direct_dmg_type());
-  set_aoe_dmg_type(get_orig_aoe_dmg_type());
+  if (ammo != nullptr) {
+    add_clipsize_mod(ammo->get_clipsize());
+    add_direct_dmg_mod(ammo->get_damage());
+    add_aoe_dmg_mod(ammo->get_damage());
+    add_rof_mod(ammo->get_rof());
+    add_aoe_radius_mod(ammo->get_aoe_radius());
+    add_arming_time_mod(ammo->get_arming_time());
+    add_direct_ign_chance_mod(ammo->get_ign_chance());
+    add_aoe_ign_chance_mod(ammo->get_ign_chance());
+    add_projectile_speed_mod(ammo->get_projectile_speed());
+    add_shell_drop_mod(ammo->get_shell_drop());
+    add_jitter_mod(ammo->get_jitter());
+    add_turn_left_mod(ammo->get_turn_speed());
+    add_turn_right_mod(ammo->get_turn_speed());
+    add_turn_up_mod(ammo->get_turn_speed());
+    add_turn_down_mod(ammo->get_turn_speed());
+    add_turn_horizontal_mod(ammo->get_turn_speed());
+    add_turn_vertical_mod(ammo->get_turn_speed());
 
-  if (get_ammo() != nullptr && with_ammo) {
-    apply_ammunition(get_ammo());
+    add_fire(ammo->get_fire_stacks());
+    set_temporary_immunity(ammo->get_immune());
+
+    cur_ammo = ammo;
   } else {
-    set_clipsize(get_orig_clipsize());
-    set_direct_dmg(get_orig_direct_dmg());
-    set_aoe_dmg(get_orig_aoe_dmg());
-    set_rof(get_orig_rof());
-    set_aoe_radius(get_orig_aoe_radius());
-    set_arming_time(get_orig_arming_time());
-    set_direct_ign_chance(get_orig_direct_ign_chance());
-    set_aoe_ign_chance(get_orig_aoe_ign_chance());
-    set_projectile_speed(get_orig_projectile_speed());
-    set_shell_drop(get_orig_shell_drop());
-    set_jitter(get_orig_jitter());
-    set_turn_horizontal(get_orig_turn_horizontal());
-    set_turn_vertical(get_orig_turn_vertical());
     cur_ammo = nullptr;
   }
+
+  cur_clipsize = get_max_clipsize();
 }
 
 inline P_Time Gun::get_rof_changed() const {
@@ -249,7 +229,7 @@ inline Angular_Speed Gun::get_turn_vertical_changed() const {
 DmgState Gun::shoot(GoioObj* obj, Time time,
                            bool armed, Distance aoe_range) {
   if (during_reload) {
-    reload();
+    reload(get_ammo());
     during_reload = false;
   }
   if (get_health() == 0_hp || get_clipsize() == 0 ||
@@ -284,7 +264,7 @@ DmgState Gun::shoot(GoioObj* obj, Time time,
   auto start_fire = obj->get_fire_stacks() == 0;
   if (tmpobj->get_immunity_end() <= time) {
     if (get_direct_ign_chance() > 0 &&
-                          random_percentage() < get_direct_ign_chance()*100) {
+                          random_percentage() < get_direct_ign_chance()) {
       if (tmpobj->add_fire(get_orig_direct_ign_stacks())) {
         if (start_fire)
           ret |= DmgState::START_FIRE;
@@ -296,7 +276,7 @@ DmgState Gun::shoot(GoioObj* obj, Time time,
                         get_dmg_modifier(DmgType::EXPLOSIVE,
                                          tmpobj->get_cmp_type()) *
                         explosive_ign_chance;
-      if (random_percentage() < ign_chance*100) {
+      if (random_percentage() < ign_chance) {
         if (tmpobj->add_fire(explosive_stacks)) {
           if (start_fire)
             ret |= DmgState::START_FIRE;
@@ -324,7 +304,7 @@ DmgState Gun::shoot(GoioObj* obj, Time time,
       ret |= DmgState::TRANSITIONED;
     if (tmpobj->get_immunity_end() <= time) {
       if (get_aoe_ign_chance() > 0 &&
-                             random_percentage() < get_aoe_ign_chance()*100) {
+                             random_percentage() < get_aoe_ign_chance()) {
         if (tmpobj->add_fire(get_orig_aoe_ign_stacks())) {
           if (start_fire)
             ret |= DmgState::START_FIRE;
@@ -336,7 +316,7 @@ DmgState Gun::shoot(GoioObj* obj, Time time,
                           get_dmg_modifier(DmgType::EXPLOSIVE,
                                            tmpobj->get_cmp_type()) *
                           explosive_ign_chance;
-        if (random_percentage() < ign_chance*100) {
+        if (random_percentage() < ign_chance) {
           if (tmpobj->add_fire(explosive_stacks)) {
             if (start_fire)
               ret |= DmgState::START_FIRE;
