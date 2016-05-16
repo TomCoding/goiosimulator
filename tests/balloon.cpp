@@ -52,12 +52,25 @@ TEST(Balloon, create) {
 
   EXPECT_THROW(create_balloon(-1_hp), NonPositiveHealth);
   EXPECT_THROW(create_balloon(0_hp), NonPositiveHealth);
+
+  auto mb = new MineBalloon(name);
+  EXPECT_NE(nullptr, mb);
+  if (mb != nullptr) {
+    EXPECT_EQ(0_N, mb->get_lift_force());
+    EXPECT_EQ(200_hp, mb->get_health());
+    EXPECT_EQ(200_hp, mb->get_max_health());
+  }
+  delete mb;
 }
 
 TEST(Balloon, createFactory) {
   auto balloon = ObjectFactory::create("Balloon");
   EXPECT_EQ(nullptr, balloon);
   delete balloon;
+
+  auto mb = ObjectFactory::create("MineBalloon");
+  EXPECT_EQ(nullptr, mb);
+  delete mb;
 }
 
 TEST(Balloon, GoioObj) {

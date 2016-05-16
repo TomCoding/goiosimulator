@@ -68,6 +68,11 @@ class Balloon : public BalloonInfo, public GoioObj {
     void reset(bool) override;
 };
 
+class MineBalloon : public Balloon {
+ public:
+    MineBalloon(const std::string& name) : Balloon(name, 0_N, 200_hp) {}
+};
+
 }  // namespace goio
 
 
