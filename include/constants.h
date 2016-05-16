@@ -129,6 +129,8 @@ struct Value {
   constexpr Value(const Value& obj) : val(obj.val) {}
 #ifndef GCC_4_9
   constexpr
+#else
+  inline
 #endif
             Value& operator=(const Value& obj) { val = obj.val; return *this; }
 
@@ -146,7 +148,7 @@ struct Value {
   constexpr Value operator/(double d) const { return Value(val / d); }
   constexpr Value operator/(int d) const { return Value(val / d); }
 
-  operator double();
+  constexpr operator double();
 
   friend std::ostream& operator<<(std::ostream& os, const Value& obj) {
     os << obj.val;
@@ -155,7 +157,7 @@ struct Value {
 };
 
 template<>
-inline Value<Unit<0, 0, 0, 0, 0>>::operator double() { return val; }
+constexpr Value<Unit<0, 0, 0, 0, 0>>::operator double() { return val; }
 
 using Distance      = Value<Unit<1, 0,  0, 0, 0>>;
 using Time          = Value<Unit<0, 0,  1, 0, 0>>;
@@ -251,14 +253,16 @@ constexpr Value<Unit<m1 + m2, k1 + k2, s1 + s2, h1 + h2, a1 + a2>> operator*
 }
 template<int m, int k, int s, int h, int a>
 constexpr Value<Unit<m/2, k/2, s/2, h/2, a/2>>
-                                      sqrt(Value<Unit<m, k, s, h, a>> obj) {
-  if ((m%2) || (k%2) || (s%2) || (h%2) || (a%2))
-    throw std::invalid_argument("Unable to calculate square root of uneven units.");
-  return Value<Unit<m/2,
-                    k/2,
-                    s/2,
-                    h/2,
-                    a/2>>(std::sqrt(obj.val));
+                                sqrt(const Value<Unit<m, k, s, h, a>>& obj) {
+  // everything in one expression to support gcc-4.9 constexpr
+  return ((m%2) || (k%2) || (s%2) || (h%2) || (a%2)) ?
+    throw std::invalid_argument(
+            "Unable to calculate square root of unit with uneven exponent.") :
+    Value<Unit<m/2,
+               k/2,
+               s/2,
+               h/2,
+               a/2>>(std::sqrt(obj.val));
 }
 
 template<int m, int k, int s, int h, int a>
