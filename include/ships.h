@@ -100,15 +100,15 @@ class Shipinfo {
 
 class Ship : public Shipinfo, public GoioObj {
  private:
-    Weight cur_mass;
-    Thrust cur_light_engine_thrust;
-    Thrust cur_heavy_engine_thrust;
-    double cur_longitudinal_drag;
-    Angular_Speed cur_angular_top_speed;
-    double cur_angular_drag;
-    Force  cur_lift_force;
-    Force  cur_descent_force;
-    double cur_vertical_drag;
+    double cur_mass_mod;
+    double cur_light_engine_thrust_mod;
+    double cur_heavy_engine_thrust_mod;
+    double cur_longitudinal_drag_mod;
+    double cur_angular_top_speed_mod;
+    double cur_angular_drag_mod;
+    double cur_lift_force_mod;
+    double cur_descent_force_mod;
+    double cur_vertical_drag_mod;
 
     Balloon* balloon;
     std::set<LightEngine*> engines_l;
@@ -120,15 +120,15 @@ class Ship : public Shipinfo, public GoioObj {
     Ship(const Ship& obj);
     Ship& operator=(const Ship& obj);
 
-    void set_mass(Weight mass);
-    void set_light_engine_thrust(Thrust thrust);
-    void set_heavy_engine_thrust(Thrust thrust);
-    void set_longitudinal_drag(double drag);
-    void set_angular_top_speed(Angular_Speed speed);
-    void set_angular_drag(double drag);
-    void set_lift_force(Force lift_force);
-    void set_descent_force(Force descent_force);
-    void set_vertical_drag(double drag);
+    void add_mass_mod(double mass);
+    void add_light_engine_thrust_mod(double thrust);
+    void add_heavy_engine_thrust_mod(double thrust);
+    void add_longitudinal_drag_mod(double drag);
+    void add_angular_top_speed_mod(double speed);
+    void add_angular_drag_mod(double drag);
+    void add_lift_force_mod(double lift_force);
+    void add_descent_force_mod(double descent_force);
+    void add_vertical_drag_mod(double drag);
 
  protected:
     Ship(const std::string& name,
@@ -145,24 +145,36 @@ class Ship : public Shipinfo, public GoioObj {
  public:
     virtual ~Ship();
 
-    inline Weight get_mass() const { return cur_mass; }
+    inline Weight get_mass() const {
+      return get_orig_mass() * (1+cur_mass_mod);
+    }
     inline Thrust get_light_engine_thrust() const {
-      return cur_light_engine_thrust;
+      return get_orig_light_engine_thrust() * (1+cur_light_engine_thrust_mod);
     }
     inline Thrust get_heavy_engine_thrust() const {
-      return cur_heavy_engine_thrust;
+      return get_orig_heavy_engine_thrust() * (1+cur_heavy_engine_thrust_mod);
     }
-    inline double get_longitudinal_drag() const { return cur_longitudinal_drag; }
+    inline double get_longitudinal_drag() const {
+      return get_orig_longitudinal_drag() * (1+cur_longitudinal_drag_mod);
+    }
     inline Angular_Speed get_angular_top_speed() const {
-      return cur_angular_top_speed;
+      return get_orig_angular_top_speed() * (1+cur_angular_top_speed_mod);
     }
-    inline double get_angular_drag() const { return cur_angular_drag; }
-    inline Force  get_lift_force() const { return cur_lift_force; }
-    inline Force  get_descent_force() const { return cur_descent_force; }
-    inline double get_vertical_drag() const { return cur_vertical_drag; }
+    inline double get_angular_drag() const {
+      return get_orig_angular_drag() * (1+cur_angular_drag_mod);
+    }
+    inline Force  get_lift_force() const {
+      return get_orig_lift_force() * (1+cur_lift_force_mod);
+    }
+    inline Force  get_descent_force() const {
+      return get_orig_descent_force() * (1+cur_descent_force_mod);
+    }
+    inline double get_vertical_drag() const {
+      return get_orig_vertical_drag() * (1+cur_vertical_drag_mod);
+    }
     inline const HelmTool* get_tool() const { return cur_tool; }
 
-    bool apply_tool(const HelmTool* tool);
+    void apply_tool(const HelmTool* tool = nullptr);
 
     Thrust        get_thrust() const;
     Speed         get_longitudinal_top_speed() const;
@@ -179,8 +191,6 @@ class Ship : public Shipinfo, public GoioObj {
     inline std::set<Gun*> get_guns() const { return guns; }
 
     void add_gun(Gun* gun);
-
-    void reset(bool = true) override;
 };
 
 #define NEW_SHIP(...) VFUNC(NEW_SHIP, __VA_ARGS__)

@@ -201,12 +201,8 @@ void Gun::reload(const Ammunition* ammo) {
 
     add_fire(ammo->get_fire_stacks());
     set_temporary_immunity(ammo->get_immune());
-
-    cur_ammo = ammo;
-  } else {
-    cur_ammo = nullptr;
   }
-
+  cur_ammo = ammo;
   cur_clipsize = get_max_clipsize();
 }
 

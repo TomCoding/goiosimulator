@@ -119,10 +119,16 @@ class HelmTool : public Object {
                         tar_cloud, \
                         spot, \
                         range) { \
-        static_assert(thrust >= 0, "requirement 'thrust >= 0' not met"); \
-        static_assert(vertical_drag > 0, \
-                      "requirement 'vertical_drag > 0' not met"); \
-        static_assert(dmg_reduction >= 0, \
+        static_assert(thrust >= -1, "requirement 'thrust >= 0' not met"); \
+        static_assert(angular_drag >= -1, \
+                      "requirement 'angular_drag >= -1' not met"); \
+        static_assert(longitudinal_drag>= -1, \
+                      "requirement 'longitudinal_drag >= -1' not met"); \
+        static_assert(vertical_drag>= -1, \
+                      "requirement 'vertical_drag >= -1' not met"); \
+        static_assert(target_ign_chance>= -1, \
+                      "requirement 'target_ign_chance >= -1' not met"); \
+        static_assert(dmg_reduction >= -1, \
                       "requirement 'dmg_reduction >= 0' not met"); \
         static_assert(delay_after >= 0_s, \
                       "requirement 'delay_after >= 0' not met"); \
@@ -130,17 +136,17 @@ class HelmTool : public Object {
   }
 
 NEW_HELMTOOL(ChuteVent,
-             1,                   // thrust
-             1,                   // angular drag
-             1,                   // longitudinal drag
-             -19,                 // lift force
-             4,                   // descent force
-             0.4,                 // vertical drag
+             0,                   // thrust
+             0,                   // angular drag
+             0,                   // longitudinal drag
+             -20,                 // lift force
+             3,                   // descent force
+             -0.6,                // vertical drag
              97.5_hp/1_s,         // damage per second to target
              DmgType::FIRE,       // damage type
              CmpType::BALLOON,    // damage target
              0,                   // target ignition chance
-             1,                   // incoming damage reduction
+             0,                   // incoming damage reduction
              DmgType::IMPACT,     // reduced damage type
              3_s,                 // deactivation delay
              false,               // produce tar cloud
@@ -149,17 +155,17 @@ NEW_HELMTOOL(ChuteVent,
 );
 
 NEW_HELMTOOL(DrogueChute,
-             0.4,                 // thrust
-             1,                   // angular drag
-             1,                   // longitudinal drag
-             1,                   // lift force
-             1,                   // descent force
-             3.5,                 // vertical drag
+             -0.6,                // thrust
+             0,                   // angular drag
+             0,                   // longitudinal drag
+             0,                   // lift force
+             0,                   // descent force
+             2.5,                 // vertical drag
              0_hp/1_s,            // damage per second to target
              DmgType::FIRE,       // damage type
              CmpType::BALLOON,    // damage target
              0,                   // target ignition chance
-             1,                   // incoming damage reduction
+             0,                   // incoming damage reduction
              DmgType::IMPACT,     // reduced damage type
              2_s,                 // deactivation delay
              false,               // produce tar cloud
@@ -168,17 +174,17 @@ NEW_HELMTOOL(DrogueChute,
 );
 
 NEW_HELMTOOL(Hydrogen,
-             1,                   // thrust
-             1,                   // angular drag
-             1,                   // longitudinal drag
-             4.5,                 // lift force
-             -19,                 // descent force
-             0.4,                 // vertical drag
+             0,                   // thrust
+             0,                   // angular drag
+             0,                   // longitudinal drag
+             3.5,                 // lift force
+             -20,                 // descent force
+             -0.6,                // vertical drag
              112.5_hp/1_s,        // damage per second to target
              DmgType::FIRE,       // damage type
              CmpType::BALLOON,    // damage target
              0.5,                 // target ignition chance
-             1,                   // incoming damage reduction
+             0,                   // incoming damage reduction
              DmgType::IMPACT,     // reduced damage type
              3_s,                 // deactivation delay
              false,               // produce tar cloud
@@ -187,17 +193,17 @@ NEW_HELMTOOL(Hydrogen,
 );
 
 NEW_HELMTOOL(ImpactBumpers,
-             0.4,                 // thrust
-             1,                   // angular drag
-             1,                   // longitudinal drag
-             1,                   // lift force
-             1,                   // descent force
-             1,                   // vertical drag
+             -0.6,                // thrust
+             0,                   // angular drag
+             0,                   // longitudinal drag
+             0,                   // lift force
+             0,                   // descent force
+             0,                   // vertical drag
              0_hp/1_s,            // damage per second to target
              DmgType::FIRE,       // damage type
              CmpType::ARMOR,      // damage target
              0,                   // target ignition chance
-             0.75,                // incoming damage reduction
+             -0.25,               // incoming damage reduction
              DmgType::IMPACT,     // reduced damage type
              5_s,                 // deactivation delay
              false,               // produce tar cloud
@@ -206,17 +212,17 @@ NEW_HELMTOOL(ImpactBumpers,
 );
 
 NEW_HELMTOOL(Kerosene,
-             2.5,                 // thrust
-             4,                   // angular drag
-             1,                   // longitudinal drag
-             1,                   // lift force
-             1,                   // descent force
-             1,                   // vertical drag
+             1.5,                 // thrust
+             3,                   // angular drag
+             0,                   // longitudinal drag
+             0,                   // lift force
+             0,                   // descent force
+             0,                   // vertical drag
              10_hp/1_s,           // damage per second to target
              DmgType::FIRE,       // damage type
              CmpType::ENGINES,    // damage target
              0,                   // target ignition chance
-             1,                   // incoming damage reduction
+             0,                   // incoming damage reduction
              DmgType::IMPACT,     // reduced damage type
              0_s,                 // deactivation delay
              false,               // produce tar cloud
@@ -225,17 +231,17 @@ NEW_HELMTOOL(Kerosene,
 );
 
 NEW_HELMTOOL(Moonshine,
-             3,                   // thrust
-             11,                  // angular drag
-             0.5,                 // longitudinal drag
-             1,                   // lift force
-             1,                   // descent force
-             1,                   // vertical drag
+             2,                   // thrust
+             10,                  // angular drag
+             -0.5,                // longitudinal drag
+             0,                   // lift force
+             0,                   // descent force
+             0,                   // vertical drag
              40_hp/1_s,           // damage per second to target
              DmgType::FIRE,       // damage type
              CmpType::ENGINES,    // damage target
              0,                   // target ignition chance
-             1,                   // incoming damage reduction
+             0,                   // incoming damage reduction
              DmgType::IMPACT,     // reduced damage type
              0_s,                 // deactivation delay
              false,               // produce tar cloud
@@ -244,17 +250,17 @@ NEW_HELMTOOL(Moonshine,
 );
 
 NEW_HELMTOOL(PhoenixClaw,
-             1.5,                 // thrust
-             0.35,                // angular drag
-             3,                   // longitudinal drag
-             1,                   // lift force
-             1,                   // descent force
-             1,                   // vertical drag
+             0.5,                 // thrust
+             -0.65,               // angular drag
+             2,                   // longitudinal drag
+             0,                   // lift force
+             0,                   // descent force
+             0,                   // vertical drag
              13_hp/1_s,           // damage per second to target
              DmgType::FIRE,       // damage type
              CmpType::ENGINES,    // damage target
              0,                   // target ignition chance
-             1,                   // incoming damage reduction
+             0,                   // incoming damage reduction
              DmgType::IMPACT,     // reduced damage type
              0_s,                 // deactivation delay
              false,               // produce tar cloud
@@ -263,17 +269,17 @@ NEW_HELMTOOL(PhoenixClaw,
 );
 
 NEW_HELMTOOL(TarBarrel,
-             1,                   // thrust
-             1,                   // angular drag
-             1,                   // longitudinal drag
-             1,                   // lift force
-             1,                   // descent force
-             1,                   // vertical drag
+             0,                   // thrust
+             0,                   // angular drag
+             0,                   // longitudinal drag
+             0,                   // lift force
+             0,                   // descent force
+             0,                   // vertical drag
              20_hp/1_s,           // damage per second to target
              DmgType::FIRE,       // damage type
              CmpType::ENGINES,    // damage target
              0,                   // target ignition chance
-             1,                   // incoming damage reduction
+             0,                   // incoming damage reduction
              DmgType::IMPACT,     // reduced damage type
              3_s,                 // deactivation delay
              true,                // produce tar cloud
@@ -282,17 +288,17 @@ NEW_HELMTOOL(TarBarrel,
 );
 
 NEW_HELMTOOL(SpyGlass,
-             1,                   // thrust
-             1,                   // angular drag
-             1,                   // longitudinal drag
-             1,                   // lift force
-             1,                   // descent force
-             1,                   // vertical drag
+             0,                   // thrust
+             0,                   // angular drag
+             0,                   // longitudinal drag
+             0,                   // lift force
+             0,                   // descent force
+             0,                   // vertical drag
              0_hp/1_s,            // damage per second to target
              DmgType::FIRE,       // damage type
              CmpType::ENGINES,    // damage target
              0,                   // target ignition chance
-             1,                   // incoming damage reduction
+             0,                   // incoming damage reduction
              DmgType::IMPACT,     // reduced damage type
              0_s,                 // deactivation delay
              false,               // produce tar cloud
@@ -301,17 +307,17 @@ NEW_HELMTOOL(SpyGlass,
 );
 
 NEW_HELMTOOL(RangeFinder,
-             1,                   // thrust
-             1,                   // angular drag
-             1,                   // longitudinal drag
-             1,                   // lift force
-             1,                   // descent force
-             1,                   // vertical drag
+             0,                   // thrust
+             0,                   // angular drag
+             0,                   // longitudinal drag
+             0,                   // lift force
+             0,                   // descent force
+             0,                   // vertical drag
              0_hp/1_s,            // damage per second to target
              DmgType::FIRE,       // damage type
              CmpType::ENGINES,    // damage target
              0,                   // target ignition chance
-             1,                   // incoming damage reduction
+             0,                   // incoming damage reduction
              DmgType::IMPACT,     // reduced damage type
              0_s,                 // deactivation delay
              false,               // produce tar cloud
