@@ -177,8 +177,10 @@ TimeFunc RepairTool::get_time_func(const GoioObj* obj, Time time, bool& force) {
 
       if (wait_cooldown() > 0_s)
         return std::bind(&RepairTool::wait_cooldown, this);
-      else
+      else if (get_cooldown() > get_swing())
         return std::bind(&RepairTool::get_cooldown, this);
+      else
+        return std::bind(&RepairTool::get_cur_swing, this);
     default:
       assert(false);
   }

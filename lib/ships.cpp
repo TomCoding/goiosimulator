@@ -236,6 +236,8 @@ void Ship::apply_tool(const HelmTool* tool) {
   cur_descent_force_mod = 0;
   cur_vertical_drag_mod = 0;
 
+  // apply buff and other modifiers here
+
   if (tool != nullptr) {
     add_light_engine_thrust_mod(tool->get_thrust());
     add_heavy_engine_thrust_mod(tool->get_thrust());

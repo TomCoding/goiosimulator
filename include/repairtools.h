@@ -119,6 +119,8 @@ class RepairTool : public RepairInfo, public RepairActor {
         static_assert(fire_immune >= 0_s, \
                       "requirement 'fire_immune >= 0' not met"); \
         static_assert(cooldown >= 0_s, "requirement 'cooldown >= 0' not met"); \
+        static_assert(cooldown > 0_s || swing > 0_s, \
+                      "requirement 'cooldown > 0 || swing > 0' not met"); \
       } \
   }
 

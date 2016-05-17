@@ -414,6 +414,19 @@ class TestToolRepair : public RepairTool {
     ) {}
 };
 
+class TestToolBuff : public RepairTool {
+ public:
+    explicit TestToolBuff(const std::string& name) : RepairTool(
+              name,
+              0.6_s,      // swing duration
+              0_hp,       // heal
+              0,          // rebuild power
+              0,          // extinguished fire stacks
+              0_s,        // fire immunity
+              0_s         // repair cooldown
+    ) {}
+};
+
 TEST(RepairTools, timefunc_0) {
   TestToolRepair tr("timefunc_0");
   bool force = false;
@@ -422,12 +435,15 @@ TEST(RepairTools, timefunc_0) {
   auto obj = new GoioObj("", CmpType::BALLOON, 0.666666, 1200_hp, 500_hp);
 
   // object intact
+  EXPECT_EQ(0, tr.get_done());
   timefunc = tr.get_time_func(obj, 0_s, force);
   EXPECT_NE(nullptr, timefunc);
-  if (timefunc != nullptr)
+  if (timefunc != nullptr) {
     EXPECT_EQ(5_s, timefunc());
-  EXPECT_FALSE(force);
+    EXPECT_FALSE(force);
+  }
 
+  force = false;
   obj->add_health(-700_hp, 5_s);
   EXPECT_EQ(DmgState::NONE, tr.repair(obj, 3_s));
   EXPECT_EQ(500_hp, obj->get_health());
@@ -435,14 +451,26 @@ TEST(RepairTools, timefunc_0) {
   EXPECT_EQ(2_s, tr.wait_cooldown());
   timefunc = tr.get_time_func(obj, 0_s, force);
   EXPECT_NE(nullptr, timefunc);
-  if (timefunc != nullptr)
+  if (timefunc != nullptr) {
     EXPECT_EQ(2_s, timefunc());
-  EXPECT_FALSE(force);
+    EXPECT_FALSE(force);
+  }
+
+  TestToolBuff tb("timefunc_0");
+  force = false;
+  EXPECT_EQ(0, tb.get_done());
+  timefunc = tb.get_time_func(obj, 0_s, force);
+  EXPECT_NE(nullptr, timefunc);
+  if (timefunc != nullptr) {
+    EXPECT_EQ(0.6_s, timefunc());
+    EXPECT_FALSE(force);
+  }
 
 
   // object destroyed
-  EXPECT_EQ(0, tr.get_done());
+  force = false;
   obj->set_health(0_hp);
+  EXPECT_EQ(0, tr.get_done());
   timefunc = tr.get_time_func(obj, 0_s, force);
   EXPECT_NE(nullptr, timefunc);
   if (timefunc != nullptr) {
@@ -451,6 +479,7 @@ TEST(RepairTools, timefunc_0) {
     EXPECT_TRUE(force);
   }
 
+  force = false;
   EXPECT_EQ(0, tr.get_done());
   timefunc = tr.get_time_func(obj, 3_s, force);
   EXPECT_NE(nullptr, timefunc);
