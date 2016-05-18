@@ -23,19 +23,18 @@
 
 namespace goio {
 
-void Engine::set_thrust(Thrust thrust) {
-  if (thrust < 0_N)
-    cur_thrust = 0_N;
-  else
-    cur_thrust = thrust;
+void Engine::add_thrust_mod(double thrust) {
+  cur_thrust_mod += thrust;
+  if (cur_thrust_mod < -1)
+    cur_thrust_mod = -1;
 }
 
 Thrust Engine::get_thrust_changed() const {
   return (get_health()/get_max_health())*get_thrust();
 }
 
-void Engine::reset(bool) {
-  cur_thrust = get_orig_thrust();
+void Engine::reset_modifiers() {
+  cur_thrust_mod = 0;
 }
 
 }  // namespace goio

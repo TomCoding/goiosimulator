@@ -45,8 +45,8 @@ class BalloonInfo {
 
 class Balloon : public BalloonInfo, public GoioObj {
  private:
-    Force cur_lift_force;
-    Force cur_descent_force;
+    double cur_lift_force_mod;
+    double cur_descent_force_mod;
 
     Balloon(const Balloon& obj);
     Balloon& operator=(const Balloon& obj);
@@ -56,16 +56,20 @@ class Balloon : public BalloonInfo, public GoioObj {
             Health max_health = 1800_hp);  // throws NonPositiveHealth
     virtual ~Balloon() {}
 
-    inline Force get_lift_force() const { return cur_lift_force; }
-    inline Force get_descent_force() const { return cur_descent_force; }
+    inline Force get_lift_force() const {
+      return get_orig_lift_force() * (1+cur_lift_force_mod);
+    }
+    inline Force get_descent_force() const {
+      return get_orig_descent_force() * (1+cur_descent_force_mod);
+    }
 
-    void set_lift_force(Force lift_force);
-    void set_descent_force(Force descent_force);
+    void add_lift_force_mod(double lift_force);
+    void add_descent_force_mod(double descent_force);
 
     Force get_lift_force_changed() const;
     Force get_descent_force_changed() const;
 
-    void reset(bool) override;
+    void reset_modifiers() override;
 };
 
 class MineBalloon : public Balloon {

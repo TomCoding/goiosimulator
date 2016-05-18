@@ -43,7 +43,7 @@ class EngineInfo {
 
 class Engine : public EngineInfo, public GoioObj {
  private:
-    Thrust cur_thrust;
+    double cur_thrust_mod;
 
     Engine(const Engine& obj);
     Engine& operator=(const Engine& obj);
@@ -52,17 +52,19 @@ class Engine : public EngineInfo, public GoioObj {
     Engine(const std::string& name, Health max_health, Thrust thrust) :
               EngineInfo(thrust),
               GoioObj(name, CmpType::COMPONENTS, 1.666666, max_health),
-              cur_thrust(thrust) {}
+              cur_thrust_mod(0) {}
     virtual ~Engine() {}
 
  public:
-    inline Thrust get_thrust() const { return cur_thrust; }
+    inline Thrust get_thrust() const {
+      return get_orig_thrust() * (1+cur_thrust_mod);
+    }
 
-    void set_thrust(Thrust thrust);
+    void add_thrust_mod(double thrust);
 
     Thrust get_thrust_changed() const;
 
-    void reset(bool) override;
+    void reset_modifiers() override;
 };
 
 class LightEngine : public Engine {

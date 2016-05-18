@@ -39,16 +39,23 @@ enum State : uint32_t {
   REBUILD           =  1ull <<  1,  // rebuild progress on target
   IMMUNITY          =  1ull <<  2,  // changed fire immunity on target
   FIRE              =  1ull <<  3,  // changed fire stacks on target
-  TRANSITIONED      =  1ull <<  4,  // destroyed/rebuild armor/hull on target
-  START_TARGET      = (1ull <<  5) + (1ull <<  0),
-  START_REBUILD     = (1ull <<  6) + (1ull <<  1),
-  START_IMMUNITY    = (1ull <<  7) + (1ull <<  2),
-  START_FIRE        = (1ull <<  8) + (1ull <<  3),
+  BUFF              =  1ull <<  4,  // changed buff state
+  PREBUFF           =  1ull <<  5,  // started to prebuff
+  TRANSITIONED      =  1ull <<  6,  // destroyed/rebuild armor/hull on target
 
-  START_TARGET_O    =  1ull <<  5,
-  START_REBUILD_O   =  1ull <<  6,
-  START_IMMUNITY_O  =  1ull <<  7,
-  START_FIRE_O      =  1ull <<  8,
+  START_TARGET      = (1ull <<  8) + (1ull <<  0),
+  START_REBUILD     = (1ull <<  9) + (1ull <<  1),
+  START_IMMUNITY    = (1ull << 10) + (1ull <<  2),
+  START_FIRE        = (1ull << 11) + (1ull <<  3),
+  START_BUFF        = (1ull << 12) + (1ull <<  4),
+  START_PREBUFF     = (1ull << 13) + (1ull <<  5),
+
+  START_TARGET_O    =  1ull <<  8,
+  START_REBUILD_O   =  1ull <<  9,
+  START_IMMUNITY_O  =  1ull << 10,
+  START_FIRE_O      =  1ull << 11,
+  START_BUFF_O      =  1ull << 12,
+  START_PREBUFF_O   =  1ull << 13,
 
   TARGET_ALL        = (1ull <<  0) +
                       (1ull <<  1) +
@@ -57,23 +64,34 @@ enum State : uint32_t {
                       (1ull <<  4) +
                       (1ull <<  5) +
                       (1ull <<  6) +
-                      (1ull <<  7) +
-                      (1ull <<  8),
+                      (1ull <<  8) +
+                      (1ull <<  9) +
+                      (1ull << 10) +
+                      (1ull << 11) +
+                      (1ull << 12) +
+                      (1ull << 13),
 
   SELF              =  1ull << 16,  // damaged/healed self
   REBUILD_S         =  1ull << 17,  // rebuild progress on self
   IMMUNITY_S        =  1ull << 18,  // changed fire immunity on self
   FIRE_S            =  1ull << 19,  // changed fire stacks on self
-  TRANSITIONED_S    =  1ull << 20,  // destroyed/rebuild armor/hull on self
-  START_SELF        = (1ull << 21) + (1ull << 16),
-  START_REBUILD_S   = (1ull << 22) + (1ull << 17),
-  START_IMMUNITY_S  = (1ull << 23) + (1ull << 18),
-  START_FIRE_S      = (1ull << 24) + (1ull << 19),
+  BUFF_S            =  1ull << 20,  // changed buff state on self
+  PREBUFF_S         =  1ull << 21,  // started to prebuff on self
+  TRANSITIONED_S    =  1ull << 22,  // destroyed/rebuild armor/hull on self
 
-  START_TARGET_SO   =  1ull << 21,
-  START_REBUILD_SO  =  1ull << 22,
-  START_IMMUNITY_SO =  1ull << 23,
-  START_FIRE_SO     =  1ull << 24,
+  START_SELF        = (1ull << 24) + (1ull << 16),
+  START_REBUILD_S   = (1ull << 25) + (1ull << 17),
+  START_IMMUNITY_S  = (1ull << 26) + (1ull << 18),
+  START_FIRE_S      = (1ull << 27) + (1ull << 19),
+  START_BUFF_S      = (1ull << 28) + (1ull << 20),
+  START_PREBUFF_S   = (1ull << 29) + (1ull << 21),
+
+  START_TARGET_SO   =  1ull << 24,
+  START_REBUILD_SO  =  1ull << 25,
+  START_IMMUNITY_SO =  1ull << 26,
+  START_FIRE_SO     =  1ull << 27,
+  START_BUFF_SO     =  1ull << 28,
+  START_PREBUFF_SO  =  1ull << 29,
 
   SELF_ALL          = (1ull << 16) +
                       (1ull << 17) +
@@ -82,8 +100,12 @@ enum State : uint32_t {
                       (1ull << 20) +
                       (1ull << 21) +
                       (1ull << 22) +
-                      (1ull << 23) +
-                      (1ull << 24),
+                      (1ull << 24) +
+                      (1ull << 25) +
+                      (1ull << 26) +
+                      (1ull << 27) +
+                      (1ull << 28) +
+                      (1ull << 29),
 
   ALL               = 0xffffffff
 };

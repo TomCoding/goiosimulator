@@ -32,6 +32,7 @@ void test_const_values(const Balloon& b, const std::string& name, Force lift_for
                        Health max_health);
 void test_variable_values(const Balloon& b, Force lift_force, Force descent_force,
                        Health max_health, bool all = true);
+double get_force_mod(Force old_force, Force new_force);
 
 void create_balloon(Health health) {  // throws NonPositiveHealth
   Balloon b("", 100_N, health);
@@ -87,12 +88,12 @@ void test_const_values(const Balloon& b, const std::string& name, Force lift_for
 }
 void test_variable_values(const Balloon& b, Force lift_force, Force descent_force,
                           Health max_health, bool all) {
-  EXPECT_EQ(lift_force, b.get_lift_force());
-  EXPECT_EQ(descent_force, b.get_descent_force());
+  EXPECT_FLOAT_EQ(lift_force/1_N, b.get_lift_force()/1_N);
+  EXPECT_FLOAT_EQ(descent_force/1_N, b.get_descent_force()/1_N);
   if (all) {
     EXPECT_EQ(max_health, b.get_health());
-    EXPECT_EQ(lift_force, b.get_lift_force_changed());
-    EXPECT_EQ(descent_force, b.get_descent_force_changed());
+    EXPECT_FLOAT_EQ(lift_force/1_N, b.get_lift_force_changed()/1_N);
+    EXPECT_FLOAT_EQ(descent_force/1_N, b.get_descent_force_changed()/1_N);
   }
 }
 
@@ -106,22 +107,33 @@ TEST(Balloon, values) {
   test_variable_values(b, lift_force, lift_force, max_health);
 }
 
+double get_force_mod(Force old_force, Force new_force) {
+  return new_force/old_force - 1;
+}
+
 TEST(Balloon, valuesSet) {
   std::string name = "valuesSet";
   Force lift_force = 778293_N;
   Health max_health = 50_hp;
 
   Force lift_force_new = 500103_N;
+  double lift_mod = get_force_mod(lift_force, lift_force_new);
   Force descent_force_new = 192775.3_N;
+  double descent_mod = get_force_mod(lift_force, descent_force_new);
 
   Balloon b(name, lift_force, max_health);
-  b.set_lift_force(lift_force_new);
-  b.set_descent_force(descent_force_new);
+  b.add_lift_force_mod(lift_mod);
+  b.add_descent_force_mod(descent_mod);
   test_const_values(b, name, lift_force, max_health);
   test_variable_values(b, lift_force_new, descent_force_new, max_health);
 
-  b.set_lift_force(-lift_force_new);
-  b.set_descent_force(-descent_force_new);
+  b.add_lift_force_mod(-lift_mod);
+  test_variable_values(b, lift_force, descent_force_new, max_health);
+  b.add_descent_force_mod(-descent_mod);
+  test_variable_values(b, lift_force, lift_force, max_health);
+
+  b.add_lift_force_mod(-200);
+  b.add_descent_force_mod(-200);
   test_const_values(b, name, lift_force, max_health);
   test_variable_values(b, 0_N, 0_N, max_health);
 }
@@ -136,8 +148,8 @@ TEST(Balloon, healthSet) {
   Health added_health = -789_hp;
 
   Balloon b(name, lift_force, max_health);
-  b.set_lift_force(lift_force_new);
-  b.set_descent_force(descent_force_new);
+  b.add_lift_force_mod(get_force_mod(lift_force, lift_force_new));
+  b.add_descent_force_mod(get_force_mod(lift_force, descent_force_new));
   b.add_health(added_health);
   test_const_values(b, name, lift_force, max_health);
   test_variable_values(b, lift_force_new, descent_force_new, max_health, false);
@@ -145,7 +157,8 @@ TEST(Balloon, healthSet) {
 
   auto health_mod = b.get_health()/max_health;
   EXPECT_DOUBLE_EQ(health_mod*lift_force_new/1_N, b.get_lift_force_changed()/1_N);
-  EXPECT_EQ(health_mod*descent_force_new, b.get_descent_force_changed());
+  EXPECT_FLOAT_EQ(health_mod*descent_force_new/1_N,
+                  b.get_descent_force_changed()/1_N);
 }
 
 TEST(Balloon, reset) {
@@ -157,12 +170,12 @@ TEST(Balloon, reset) {
   Force descent_force_new = 4100_N;
 
   Balloon b(name, lift_force, max_health);
-  b.set_lift_force(lift_force_new);
-  b.set_descent_force(descent_force_new);
+  b.add_lift_force_mod(get_force_mod(lift_force, lift_force_new));
+  b.add_descent_force_mod(get_force_mod(lift_force, descent_force_new));
   test_const_values(b, name, lift_force, max_health);
   test_variable_values(b, lift_force_new, descent_force_new, max_health);
 
-  b.reset(true);
+  b.reset_modifiers();
   test_const_values(b, name, lift_force, max_health);
   test_variable_values(b, lift_force, lift_force, max_health);
 }

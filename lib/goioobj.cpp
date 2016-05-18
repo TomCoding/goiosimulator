@@ -78,6 +78,17 @@ bool GoioObj::add_rebuild(int rebuild_progress) {
   return false;
 }
 
+bool GoioObj::add_buff(int buff_progress, Time buff_end) {
+  buff_state += buff_progress;
+  if (buff_state >= get_buff_value()) {
+    health = max_health*health_after_rebuild;
+    if (buff_end >= 0_s)
+      this->buff_end = buff_end;
+    return true;
+  }
+  return false;
+}
+
 bool GoioObj::set_health_int(Health health, GoioObj* obj) {
   if (obj->health == -1_hp)
     return true;
@@ -90,6 +101,7 @@ bool GoioObj::set_health_int(Health health, GoioObj* obj) {
     if (obj->cmp_type != CmpType::HULL) {
       obj->rebuild_state = 0;
       obj->cooldown_end = 0_s;
+      obj->buff_end = 0_s;
       // std::cout << "\ncooldown0: 0" << std::endl
       //           << "        ";
     }
@@ -104,6 +116,7 @@ void GoioObj::set_health(Health health) {
   if (health > max_health)
     max_health = health;
   cooldown_end = 0_s;
+  buff_end = 0_s;
   set_health_int(health, this);
 }
 
@@ -148,6 +161,7 @@ void GoioObj::reset(bool hull) {
     fire_stacks = 0;
   cooldown_end = 0_s;
   immunity_end = 0_s;
+  buff_end = 0_s;
   if (hull && this->hull != nullptr)
     this->hull->reset(true);
 }

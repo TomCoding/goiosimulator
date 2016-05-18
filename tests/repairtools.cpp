@@ -93,12 +93,13 @@ class TestTool : public RepairTool {
  public:
     explicit TestTool(const std::string& name) : RepairTool(
               name,
-              14.49_s,    // swing duration
-              200_hp,     // heal
-              0,          // rebuild power
-              3,          // extinguished fire stacks
-              1_s,        // fire immunity
-              3.4_s       // repair cooldown
+              14.49_s,       // swing duration
+              200_hp,        // heal
+              0,             // rebuild power
+              3,             // extinguished fire stacks
+              1_s,           // fire immunity
+              3.4_s,         // repair cooldown
+              0              // buff progress
     ) {}
 };
 
@@ -405,12 +406,13 @@ class TestToolRepair : public RepairTool {
  public:
     explicit TestToolRepair(const std::string& name) : RepairTool(
               name,
-              1_s,        // swing duration
-              200_hp,     // heal
-              3,          // rebuild power
-              0,          // extinguished fire stacks
-              0_s,        // fire immunity
-              5_s         // repair cooldown
+              1_s,           // swing duration
+              200_hp,        // heal
+              3,             // rebuild power
+              0,             // extinguished fire stacks
+              0_s,           // fire immunity
+              5_s,           // repair cooldown
+              0              // buff progress
     ) {}
 };
 
@@ -418,12 +420,13 @@ class TestToolBuff : public RepairTool {
  public:
     explicit TestToolBuff(const std::string& name) : RepairTool(
               name,
-              0.6_s,      // swing duration
-              0_hp,       // heal
-              0,          // rebuild power
-              0,          // extinguished fire stacks
-              0_s,        // fire immunity
-              0_s         // repair cooldown
+              0.6_s,         // swing duration
+              0_hp,          // heal
+              0,             // rebuild power
+              0,             // extinguished fire stacks
+              0_s,           // fire immunity
+              0_s,           // repair cooldown
+              1              // buff progress
     ) {}
 };
 
@@ -521,12 +524,13 @@ class TestToolExtinguish : public RepairTool {
  public:
     explicit TestToolExtinguish(const std::string& name) : RepairTool(
               name,
-              1_s,        // swing duration
-              0_hp,       // heal
-              0,          // rebuild power
-              5,          // extinguished fire stacks
-              1_s,        // fire immunity
-              5_s         // repair cooldown
+              1_s,           // swing duration
+              0_hp,          // heal
+              0,             // rebuild power
+              5,             // extinguished fire stacks
+              1_s,           // fire immunity
+              5_s,           // repair cooldown
+              0              // buff progress
     ) {}
 };
 

@@ -30,6 +30,10 @@
 
 namespace goio {
 
+const EnginesBuff BuffTool::engines_buff = EnginesBuff();
+const GunsBuff BuffTool::guns_buff = GunsBuff();
+const BalloonBuff BuffTool::balloon_buff = BalloonBuff();
+
 REGISTER_TYPE(Spanner);
 REGISTER_TYPE(Mallet);
 REGISTER_TYPE(PipeWrench);
@@ -100,6 +104,7 @@ DmgState RepairTool::repair(GoioObj* obj, Time time) {
   auto ret = DmgState::NONE;
   if (obj->get_health() > 0_hp) {
     done = 0;
+
     obj->add_health(get_heal(), time + get_cooldown());
     if (get_heal() > 0_hp)
       ret |= DmgState::TARGET;
@@ -110,9 +115,21 @@ DmgState RepairTool::repair(GoioObj* obj, Time time) {
       else
         ret |= DmgState::IMMUNITY;
     }
+
     obj->add_fire(-get_extinguish(), immunity_end);
     if (get_extinguish() > 0)
       ret |= DmgState::FIRE;
+
+    auto start_buff = obj->get_buff_state() == 0;
+    if (obj->add_buff(get_buff(), time + get_buff_duration(obj))) {
+      ret |= DmgState::START_BUFF;
+    } else if (get_buff() > 0) {
+      if (start_buff)
+        ret |= DmgState::START_PREBUFF;
+      else
+        ret |= DmgState::PREBUFF;
+    }
+
     repair_wait = get_cooldown();
   } else {
     done = 1;
@@ -174,13 +191,12 @@ TimeFunc RepairTool::get_time_func(const GoioObj* obj, Time time, bool& force) {
         repair_wait = 0_s;
         return std::bind(&RepairTool::get_cur_swing, this);
       }
-
-      if (wait_cooldown() > 0_s)
-        return std::bind(&RepairTool::wait_cooldown, this);
-      else if (get_cooldown() > get_swing())
-        return std::bind(&RepairTool::get_cooldown, this);
-      else
+      if (get_swing() > get_cooldown())
         return std::bind(&RepairTool::get_cur_swing, this);
+      else if (wait_cooldown() > 0_s)
+        return std::bind(&RepairTool::wait_cooldown, this);
+      else
+        return std::bind(&RepairTool::get_cooldown, this);
     default:
       assert(false);
   }

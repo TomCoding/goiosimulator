@@ -248,12 +248,18 @@ void Ship::apply_tool(const HelmTool* tool) {
     add_vertical_drag_mod(tool->get_vertical_drag());
   }
 
-  for (auto it = engines_l.begin(); it != engines_l.end(); ++it)
-    (*it)->set_thrust(get_light_engine_thrust());
-  for (auto it = engines_h.begin(); it != engines_h.end(); ++it)
-    (*it)->set_thrust(get_heavy_engine_thrust());
-  balloon->set_lift_force(get_lift_force());
-  balloon->set_descent_force(get_descent_force());
+  for (auto it = engines_l.begin(); it != engines_l.end(); ++it) {
+    (*it)->reset_modifiers();
+    (*it)->add_thrust_mod(tool->get_thrust());
+  }
+  for (auto it = engines_h.begin(); it != engines_h.end(); ++it) {
+    (*it)->reset_modifiers();
+    (*it)->add_thrust_mod(tool->get_thrust());
+  }
+
+  balloon->reset_modifiers();
+  balloon->add_lift_force_mod(tool->get_lift_force());
+  balloon->add_descent_force_mod(tool->get_descent_force());
 
   cur_tool = tool;
 }

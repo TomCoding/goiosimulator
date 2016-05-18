@@ -31,7 +31,7 @@ using namespace goio;
 
 TEST(Constants, DmgStateOR) {
   EXPECT_EQ((1ull << 16) + (1ull << 19), DmgState::SELF | DmgState::FIRE_S);
-  EXPECT_EQ((1ull << 2) + (1ull << 4) + (1ull << 18),
+  EXPECT_EQ((1ull << 2) + (1ull << 6) + (1ull << 18),
             DmgState::IMMUNITY | DmgState::TRANSITIONED | DmgState::IMMUNITY_S);
 
   EXPECT_EQ(DmgState::START_TARGET, DmgState::TARGET | DmgState::START_TARGET_O);
@@ -50,10 +50,12 @@ TEST(Constants, DmgStateOR) {
   EXPECT_EQ(DmgState::TARGET_ALL,
             DmgState::START_TARGET | DmgState::START_REBUILD |
             DmgState::START_IMMUNITY | DmgState::START_FIRE |
+            DmgState::START_BUFF | DmgState::START_PREBUFF |
             DmgState::TRANSITIONED);
   EXPECT_EQ(DmgState::SELF_ALL,
             DmgState::START_SELF | DmgState::START_REBUILD_S |
             DmgState::START_IMMUNITY_S | DmgState::START_FIRE_S |
+            DmgState::START_BUFF_S | DmgState::START_PREBUFF_S |
             DmgState::TRANSITIONED_S);
 }
 

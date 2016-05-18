@@ -25,6 +25,7 @@
 #include <cmath>
 #include <string>
 #include <map>
+#include <cassert>
 
 #include "./constants.h"
 #include "./utils.h"
@@ -194,10 +195,12 @@ class GoioObj : public Object {
     Health health;
     int fire_stacks;
     int rebuild_state;
+    int buff_state;
     const double part_type_multiplier;
     GoioObj* hull;
     Time cooldown_end;
     Time immunity_end;
+    Time buff_end;
 
     bool temporary_immunity;
 
@@ -205,9 +208,10 @@ class GoioObj : public Object {
 
     explicit GoioObj(Health max_health) : name(""), cmp_type(CmpType::HULL),
                 max_health(max_health), health(max_health),
-                fire_stacks(-1), rebuild_state(-1),
+                fire_stacks(-1), rebuild_state(-1), buff_state(-1),
                 part_type_multiplier(-1),
-                hull(nullptr), cooldown_end(0_s), immunity_end(0_s),
+                hull(nullptr),
+                cooldown_end(0_s), immunity_end(0_s), buff_end(0_s),
                 temporary_immunity(false), connected(false) {}
     GoioObj(const GoioObj& obj);
     GoioObj& operator=(const GoioObj& obj);
@@ -219,10 +223,12 @@ class GoioObj : public Object {
             double part_type_multiplier = -1,
             Health max_health = 0_hp, Health hull_max_health = -1_hp) :
             name(name), cmp_type(cmp_type), max_health(max_health),
-            health(max_health), fire_stacks(-1), rebuild_state(-1),
+            health(max_health), fire_stacks(-1),
+            rebuild_state(-1), buff_state(-1),
             part_type_multiplier(part_type_multiplier),
             hull(new GoioObj(hull_max_health)),
-            cooldown_end(0_s), immunity_end(0_s), temporary_immunity(false),
+            cooldown_end(0_s), immunity_end(0_s), buff_end(0_s),
+            temporary_immunity(false),
             connected(false) {}
     virtual ~GoioObj();
 
@@ -240,15 +246,36 @@ class GoioObj : public Object {
                         part_type_multiplier);
     }
 
+    inline int get_buff_value() const {
+      switch (get_cmp_type()) {
+        case CmpType::COMPONENTS:
+          return -1;
+        case CmpType::ENGINES:
+          return 4;
+        case CmpType::GUNS:
+          return 9;
+        case CmpType::ARMOR:
+          return 15;
+        case CmpType::BALLOON:
+          return 10;
+        case CmpType::HULL:
+          return -1;
+        default:
+          assert(false);
+      }
+    }
+
     inline const std::string get_name() const { return name; }
     inline CmpType get_cmp_type() const { return cmp_type; }
     inline Health  get_max_health() const { return max_health; }
     inline Health  get_health() const { return health; }
     inline int     get_fire_stacks() const { return fire_stacks; }
     inline double  get_rebuild_state() const { return rebuild_state; }
+    inline int     get_buff_state() const { return buff_state; }
     inline GoioObj* get_hull() const { return hull; }
     inline Time    get_cooldown_end() const { return cooldown_end; }
     inline Time    get_immunity_end() const { return immunity_end; }
+    inline Time    get_buff_end() const { return buff_end; }
     inline bool    get_temporary_immunity() const { return temporary_immunity; }
 
     static inline int get_max_fire_stacks() { return max_fire_stacks; }
@@ -261,6 +288,7 @@ class GoioObj : public Object {
     bool add_fire(int fire, Time immunity_end = -1_s,
                             Time cooldown_end = -1_s);
     bool add_rebuild(int rebuild_progress);
+    bool add_buff(int buff_progress, Time buff_end = -1_s);
 
     void set_health(Health health);
     void set_hull_health(Health health);
@@ -277,6 +305,7 @@ class GoioObj : public Object {
     bool dead() const;
 
     virtual void reset(bool hull = true);
+    virtual void reset_modifiers() {}
 };
 
 typedef std::function<Time ()> TimeFunc;
