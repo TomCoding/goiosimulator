@@ -18,36 +18,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MONITOR_H_
-#define MONITOR_H_
+#ifndef TOOLDISPATCHER_H_
+#define TOOLDISPATCHER_H_
 
-#include "./goioactor.h"
-#include "./exceptions.h"
+#include "./tool.h"
 
 
 namespace goio {
 
-class Monitor : public GoioActor {
- private:
-    Time tick;
+class HelmTool;
+class Ammunition;
+class BuffTool;
 
- protected:
-    void accept(ToolDispatcher&, const Tool*, bool) override {
-      assert(false);
-    }
-
+class ToolDispatcher {
  public:
-    explicit Monitor(Time tick);  // throws NonPositiveTime
+    void apply_tool(Ship* ship, const HelmTool* tool, bool activate);
+    void apply_tool(Engine* engine, const HelmTool* tool, bool activate);
+    void apply_tool(Balloon* balloon, const HelmTool* tool, bool activate);
 
-    DmgState monitor(GoioObj*, Time);
-    inline Time get_tick() const { return tick; }
+    void apply_tool(Gun* gun, const Ammunition* tool, bool activate);
 
-    TimeFunc get_time_func(const GoioObj* obj, Time, bool&) override;
-
-    int get_buff_value() const override { return -1; }
-    void reset_modifiers() override {}
+    void apply_tool(Ship* ship, const BuffTool* tool, bool activate);
+    void apply_tool(Engine* engine, const BuffTool* tool, bool activate);
+    void apply_tool(Balloon* balloon, const BuffTool* tool, bool activate);
+    void apply_tool(Gun* gun, const BuffTool* tool, bool activate);
 };
 
 }  // namespace goio
 
-#endif  // MONITOR_H_
+
+#endif  // TOOLDISPATCHER_H_

@@ -26,6 +26,8 @@
 
 #include "./goioobj.h"
 #include "./goioactor.h"
+#include "./tool.h"
+#include "./tooldispatcher.h"
 #include "./ammunitions.h"
 #include "./helmtools.h"
 #include "./engines.h"
@@ -71,10 +73,9 @@ class RepairInfo {
     inline int    get_buff() const { return buff; }
 
     virtual Time  get_buff_duration(const GoioObj*) const { return 0_s; }
-    virtual void  apply_buff(GoioObj*) {}
 };
 
-class RepairTool : public RepairInfo, public RepairActor {
+class RepairTool : public RepairInfo, public Tool, public RepairActor {
  private:
     int done;  // 0 = normal, 1 = rebuild swings, 2 = done
     Time cur_swing;
@@ -102,15 +103,52 @@ class RepairTool : public RepairInfo, public RepairActor {
 
     DmgState repair(GoioObj* obj, Time time) override;
 
+    int get_buff_value() const override { return -1; }
     void reset(bool = true) override;
+    void reset_modifiers() override {}
 
     TimeFunc get_time_func(const GoioObj*, Time, bool&) override;
 
     inline int get_done() const { return done; }
+
+    void accept(ToolDispatcher&, const Tool*, bool) override {
+      assert(false);
+    }
+    void accept(ToolDispatcher&, Ship*, bool) const override {
+      assert(false);
+    }
+    void accept(ToolDispatcher&, Engine*, bool) const override {
+      assert(false);
+    }
+    void accept(ToolDispatcher&, Balloon*, bool) const override {
+      assert(false);
+    }
+    void accept(ToolDispatcher&, Gun*, bool) const override {
+      assert(false);
+    }
 };
 
 NEW_HELMTOOL(EnginesBuff,
              0.25,                // thrust
+             0,                   // angular drag
+             0,                   // longitudinal drag
+             0,                   // lift force
+             0,                   // descent force
+             0,                   // vertical drag
+             0_hp/1_s,            // damage per second to target
+             DmgType::FIRE,       // damage type
+             CmpType::BALLOON,    // damage target
+             0,                   // target ignition chance
+             0,                   // incoming damage reduction
+             DmgType::IMPACT,     // reduced damage type
+             0_s,                 // deactivation delay
+             false,               // produce tar cloud
+             false,               // ability to spot
+             false                // ability to tell range
+);
+
+NEW_HELMTOOL(ArmorBuff,
+             0,                   // thrust
              0,                   // angular drag
              0,                   // longitudinal drag
              0,                   // lift force
@@ -164,6 +202,8 @@ NEW_AMMUNITION(GunsBuff,
 );
 
 class BuffTool : public RepairTool {
+ friend class ToolDispatcher;
+
  private:
     const Time engines_duration;
     const Time guns_duration;
@@ -172,6 +212,7 @@ class BuffTool : public RepairTool {
 
     static const EnginesBuff engines_buff;
     static const GunsBuff guns_buff;
+    static const ArmorBuff armor_buff;
     static const BalloonBuff balloon_buff;
 
  protected:
@@ -191,6 +232,11 @@ class BuffTool : public RepairTool {
  public:
     virtual ~BuffTool() {}
 
+    inline Time get_engines_duration() const { return engines_duration; }
+    inline Time get_guns_duration() const { return guns_duration; }
+    inline Time get_armor_duration() const { return armor_duration; }
+    inline Time get_balloon_duration() const { return balloon_duration; }
+
     Time get_buff_duration(const GoioObj* obj) const override {
       switch (obj->get_cmp_type()) {
         case CmpType::ENGINES:
@@ -201,46 +247,28 @@ class BuffTool : public RepairTool {
           return armor_duration;
         case CmpType::BALLOON:
           return balloon_duration;
+        case CmpType::COMPONENTS:
         case CmpType::HULL:
-          return 0_s;
+          return -1_s;
         default:
           assert(false);
       }
     }
 
-    void apply_buff(GoioObj* obj) override {
-      switch (obj->get_cmp_type()) {
-        case CmpType::ENGINES: {
-          Engine* e;
-          if ((e = dynamic_cast<Engine*>(obj)) != nullptr) {
-            e->add_thrust_mod(engines_buff.get_thrust());
-          }
-          break;
-        }
-        case CmpType::GUNS: {
-          Gun* g;
-          if ((g = dynamic_cast<Gun*>(obj)) != nullptr) {
-            g->reload(&guns_buff);
-          }
-          break;
-        }
-        case CmpType::ARMOR: {
-          break;
-        }
-        case CmpType::BALLOON: {
-          Balloon* b;
-          if ((b = dynamic_cast<Balloon*>(obj)) != nullptr) {
-            b->add_lift_force_mod(balloon_buff.get_lift_force());
-            b->add_descent_force_mod(balloon_buff.get_descent_force());
-          }
-          break;
-        }
-        case CmpType::HULL: {
-          break;
-        }
-        default:
-          assert(false);
-      }
+    void accept(ToolDispatcher&, const Tool*, bool) override {
+      assert(false);
+    }
+    void accept(ToolDispatcher& dispatcher, Ship* obj, bool activate) const override {
+      dispatcher.apply_tool(obj, this, activate);
+    }
+    void accept(ToolDispatcher& dispatcher, Engine* obj, bool activate) const override {
+      dispatcher.apply_tool(obj, this, activate);
+    }
+    void accept(ToolDispatcher& dispatcher, Balloon* obj, bool activate) const override {
+      dispatcher.apply_tool(obj, this, activate);
+    }
+    void accept(ToolDispatcher& dispatcher, Gun* obj, bool activate) const override {
+      dispatcher.apply_tool(obj, this, activate);
     }
 };
 

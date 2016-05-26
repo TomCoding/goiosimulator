@@ -67,6 +67,11 @@ class TimeObj {
         EndEvent(const EndEvent& obj);
         EndEvent& operator=(const EndEvent& obj);
 
+     protected:
+        void accept(ToolDispatcher&, const Tool*, bool) override {
+          assert(false);
+        }
+
      public:
         explicit EndEvent(TimeObj* timeobj) : GoioActor("", CmpType::HULL),
                                               timeobj(timeobj) {}
@@ -78,6 +83,9 @@ class TimeObj {
         inline TimeFunc get_time_func(const GoioObj*, Time, bool&) override {
           return nullptr;
         }
+
+        int get_buff_value() const override { return -1; }
+        void reset_modifiers() override {}
     };
 
     void free_funcdatas();

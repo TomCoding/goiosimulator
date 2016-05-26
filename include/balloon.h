@@ -51,9 +51,14 @@ class Balloon : public BalloonInfo, public GoioObj {
     Balloon(const Balloon& obj);
     Balloon& operator=(const Balloon& obj);
 
+ protected:
+    void accept(ToolDispatcher& dispatcher, const Tool* tool, bool activate) override {
+      tool->accept(dispatcher, this, activate);
+    }
+
  public:
     Balloon(const std::string& name, Force lift_force,
-            Health max_health = 1800_hp);  // throws NonPositiveHealth
+            Health max_health = 1200_hp);  // throws NonPositiveHealth
     virtual ~Balloon() {}
 
     inline Force get_lift_force() const {
@@ -69,6 +74,7 @@ class Balloon : public BalloonInfo, public GoioObj {
     Force get_lift_force_changed() const;
     Force get_descent_force_changed() const;
 
+    int get_buff_value() const override { return 10; }
     void reset_modifiers() override;
 };
 

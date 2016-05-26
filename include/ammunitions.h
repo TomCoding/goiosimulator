@@ -21,13 +21,16 @@
 #ifndef AMMUNITIONS_H_
 #define AMMUNITIONS_H_
 
+#include <cassert>
+
 #include "./goioobj.h"
-#include "./helmtools.h"
+#include "./tool.h"
+#include "./tooldispatcher.h"
 
 
 namespace goio {
 
-class Ammunition : public Object {
+class Ammunition : public Tool, public Object {
  protected:
     const double clipsize;
     const double damage;
@@ -74,6 +77,19 @@ class Ammunition : public Object {
       return proportional_self_damage;
     }
     inline bool   get_immune() const { return immune; }
+
+    void accept(ToolDispatcher&, Ship*, bool) const override {
+      assert(false);
+    }
+    void accept(ToolDispatcher&, Engine*, bool) const override {
+      assert(false);
+    }
+    void accept(ToolDispatcher&, Balloon*, bool) const override {
+      assert(false);
+    }
+    void accept(ToolDispatcher& dispatcher, Gun* obj, bool activate) const override {
+      dispatcher.apply_tool(obj, this, activate);
+    }
 };
 
 //TODO: Use template instead, keep static_assert.

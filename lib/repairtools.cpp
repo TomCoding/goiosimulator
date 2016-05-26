@@ -32,6 +32,7 @@ namespace goio {
 
 const EnginesBuff BuffTool::engines_buff = EnginesBuff();
 const GunsBuff BuffTool::guns_buff = GunsBuff();
+const ArmorBuff BuffTool::armor_buff = ArmorBuff();
 const BalloonBuff BuffTool::balloon_buff = BalloonBuff();
 
 REGISTER_TYPE(Spanner);
@@ -51,10 +52,15 @@ void RepairTool::set_cur_swing(Time swing) {
 }
 
 bool RepairTool::action_possible(const GoioObj* const obj) const {
-  return !(((get_heal() > 0_hp && obj->get_health() == obj->get_max_health()) ||
-              get_heal() == 0_hp) &&
-           (get_extinguish() == 0 ||
-              (get_extinguish() > 0 && obj->get_fire_stacks() <= 0)));
+  return !((get_heal() == 0_hp ||  // repair tool?
+              (get_heal() > 0_hp &&
+               obj->get_health() == obj->get_max_health())) &&
+           (get_extinguish() == 0 ||  // extinguish tool?
+              (get_extinguish() > 0 &&
+               obj->get_fire_stacks() <= 0)) &&
+           (get_buff() == 0 ||  // buff tool?
+              (get_buff() > 0 &&
+               obj->get_health() == 0_hp)));
 }
 
 DmgState RepairTool::repair(GoioObj* obj, Time time) {
@@ -123,6 +129,7 @@ DmgState RepairTool::repair(GoioObj* obj, Time time) {
     auto start_buff = obj->get_buff_state() == 0;
     if (obj->add_buff(get_buff(), time + get_buff_duration(obj))) {
       ret |= DmgState::START_BUFF;
+      obj->apply_tool(this);
     } else if (get_buff() > 0) {
       if (start_buff)
         ret |= DmgState::START_PREBUFF;

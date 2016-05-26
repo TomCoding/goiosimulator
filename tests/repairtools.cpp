@@ -24,6 +24,12 @@
 
 #include "gtest/gtest.h"
 #include "./private.h"
+#include "./balloon.h"
+#include "./tooldispatcher.h"
+#include "./helmtools.h"
+#include "./ships.h"
+#include "./engines.h"
+#include "./guns.h"
 
 
 using namespace goio;
@@ -58,6 +64,14 @@ TEST(RepairTools, create) {
 
 TEST(RepairTools, createFactory) {
   std::string name = "factory";
+
+  auto repairtool = ObjectFactory::create("RepairTool", name);
+  EXPECT_EQ(nullptr, repairtool);
+  delete repairtool;
+
+  auto bufftool = ObjectFactory::create("BuffTool", name);
+  EXPECT_EQ(nullptr, bufftool);
+  delete bufftool;
 
   auto spanner = ObjectFactory::create("Spanner", name);
   EXPECT_NE(nullptr, spanner);
@@ -103,6 +117,24 @@ class TestTool : public RepairTool {
     ) {}
 };
 
+class TestBuffTool : public BuffTool {
+ public:
+    explicit TestBuffTool(const std::string& name) : BuffTool(
+              name,
+              14.49_s,       // swing duration
+              200_hp,        // heal
+              0,             // rebuild power
+              3,             // extinguished fire stacks
+              1_s,           // fire immunity
+              3.4_s,         // repair cooldown
+              1,             // buff progress
+              11_s,          // buff duration on engines
+              19_s,          // buff duration on guns
+              7_s,           // buff duration on armor
+              90_s           // buff duration on balloon
+    ) {}
+};
+
 TEST(RepairTools, values) {
   std::string name = "values";
 
@@ -115,9 +147,71 @@ TEST(RepairTools, values) {
   EXPECT_EQ(3, t.get_extinguish());
   EXPECT_EQ(1_s, t.get_fire_immune());
   EXPECT_EQ(3.4_s, t.get_cooldown());
+  EXPECT_EQ(0, t.get_buff());
+
+  auto obj = new FreeObject("", CmpType::BALLOON);
+  EXPECT_EQ(0_s, t.get_buff_duration(obj));
 
   EXPECT_EQ(0, t.get_done());
   EXPECT_EQ(0_s, t.wait_cooldown());
+  EXPECT_EQ(-1, t.get_buff_value());
+
+  t.reset_modifiers();
+  EXPECT_EQ(name, t.get_name());
+  EXPECT_EQ(14.49_s, t.get_swing());
+  EXPECT_EQ(14.49_s, t.get_cur_swing());
+  EXPECT_EQ(200_hp, t.get_heal());
+  EXPECT_EQ(0, t.get_rebuild_power());
+  EXPECT_EQ(3, t.get_extinguish());
+  EXPECT_EQ(1_s, t.get_fire_immune());
+  EXPECT_EQ(3.4_s, t.get_cooldown());
+  EXPECT_EQ(0, t.get_buff());
+  EXPECT_EQ(0_s, t.get_buff_duration(obj));
+
+  EXPECT_EQ(0, t.get_done());
+  EXPECT_EQ(0_s, t.wait_cooldown());
+  EXPECT_EQ(-1, t.get_buff_value());
+
+  TestBuffTool bt(name);
+  EXPECT_EQ(name, bt.get_name());
+  EXPECT_EQ(14.49_s, bt.get_swing());
+  EXPECT_EQ(14.49_s, bt.get_cur_swing());
+  EXPECT_EQ(200_hp, bt.get_heal());
+  EXPECT_EQ(0, bt.get_rebuild_power());
+  EXPECT_EQ(3, bt.get_extinguish());
+  EXPECT_EQ(1_s, bt.get_fire_immune());
+  EXPECT_EQ(3.4_s, bt.get_cooldown());
+  EXPECT_EQ(1, bt.get_buff());
+  EXPECT_EQ(11_s, bt.get_engines_duration());
+  EXPECT_EQ(19_s, bt.get_guns_duration());
+  EXPECT_EQ(7_s, bt.get_armor_duration());
+  EXPECT_EQ(90_s, bt.get_balloon_duration());
+
+  auto obj_e = new FreeObject("engine", CmpType::ENGINES);
+  EXPECT_EQ(11_s, bt.get_buff_duration(obj_e));
+  delete obj_e;
+
+  auto obj_g = new FreeObject("gun", CmpType::GUNS);
+  EXPECT_EQ(19_s, bt.get_buff_duration(obj_g));
+  delete obj_g;
+
+  auto obj_a = new FreeObject("armor", CmpType::ARMOR);
+  EXPECT_EQ(7_s, bt.get_buff_duration(obj_a));
+  delete obj_a;
+
+  auto obj_b = new FreeObject("balloon", CmpType::BALLOON);
+  EXPECT_EQ(90_s, bt.get_buff_duration(obj_b));
+  delete obj_b;
+
+  auto obj_c = new FreeObject("component", CmpType::COMPONENTS);
+  EXPECT_EQ(-1_s, bt.get_buff_duration(obj_c));
+  delete obj_c;
+
+  auto obj_h = new FreeObject("hull", CmpType::HULL);
+  EXPECT_EQ(-1_s, bt.get_buff_duration(obj_h));
+  delete obj_h;
+
+  delete obj;
 }
 
 TEST(RepairTools, valuesSet) {
@@ -159,7 +253,7 @@ TEST(RepairTools, reset) {
   EXPECT_EQ(default_swing, sp.get_cur_swing());
   EXPECT_EQ(0, sp.get_done());
 
-  auto obj = new GoioObj("", CmpType::ARMOR, -1, 200_hp);
+  auto obj = new FreeObject("", CmpType::ARMOR, -1, 200_hp);
   EXPECT_EQ(DmgState::NONE, sp.repair(obj, 10_s));
   EXPECT_EQ(2, sp.get_done());
   sp.reset(true);
@@ -170,7 +264,7 @@ TEST(RepairTools, reset) {
 TEST(RepairTools, repairDead) {
   Spanner sp("repair");
   sp.set_cur_swing(0.1_s);
-  auto obj = new GoioObj("", CmpType::BALLOON, -1, 0_hp, 0_hp);
+  auto obj = new FreeObject("", CmpType::BALLOON, -1, 0_hp, 0_hp);
   EXPECT_EQ(DmgState::NONE, sp.repair(obj, 17.5_s));
   EXPECT_EQ(0_hp, obj->get_health());
   EXPECT_EQ(0_hp, obj->get_hull()->get_health());
@@ -182,7 +276,7 @@ TEST(RepairTools, repairDead) {
 TEST(RepairTools, repairNone) {
   Spanner sp("repair2");
   ChemicalSpray chem("repair2");
-  auto obj = new GoioObj("", CmpType::BALLOON, -1, 200_hp, 13_hp);
+  auto obj = new FreeObject("", CmpType::BALLOON, -1, 200_hp, 13_hp);
 
   EXPECT_EQ(DmgState::NONE, sp.repair(obj, 10_s));
   EXPECT_EQ(200_hp, obj->get_health());
@@ -235,8 +329,8 @@ TEST(RepairTools, repairNone) {
 
 TEST(RepairTools, repairStackedObj) {
   Spanner sp("repair stacked obj");
-  auto obj = new GoioObj("", CmpType::BALLOON, 1, 10_hp);
-  auto obj2 = new GoioObj("", CmpType::ARMOR, 1, 21_hp, 33_hp);
+  auto obj = new FreeObject("", CmpType::BALLOON, 1, 10_hp);
+  auto obj2 = new FreeObject("", CmpType::ARMOR, 1, 21_hp, 33_hp);
   obj->set_hull(obj2);
 
   // full health
@@ -283,7 +377,7 @@ TEST(RepairTools, repairStackedObj) {
 
 TEST(RepairTools, repair) {
   Spanner sp("repair");
-  auto obj = new GoioObj("", CmpType::BALLOON, 0.666666, 1200_hp, 500_hp);
+  auto obj = new FreeObject("", CmpType::BALLOON, 0.666666, 1200_hp, 500_hp);
   obj->set_health(800_hp);
   obj->set_fire(5);
 
@@ -316,7 +410,7 @@ TEST(RepairTools, repair) {
 
 TEST(RepairTools, extinguish) {
   ChemicalSpray chem("extinguish");
-  auto obj = new GoioObj("", CmpType::BALLOON, 0.666666, 1200_hp, 500_hp);
+  auto obj = new FreeObject("", CmpType::BALLOON, 0.666666, 1200_hp, 500_hp);
   obj->set_health(800_hp);
   obj->set_fire(5);
 
@@ -365,9 +459,38 @@ TEST(RepairTools, extinguish) {
   delete obj;
 }
 
+TEST(RepairTools, buff) {
+  BuffHammer buff("buff");
+  auto obj = new Balloon("", 100000_N);
+
+  // start buff
+  EXPECT_EQ(DmgState::START_PREBUFF, buff.repair(obj, 0_s));
+  EXPECT_EQ(1200_hp, obj->get_health());
+  EXPECT_EQ(1, obj->get_buff_state());
+  EXPECT_EQ(0, buff.get_done());
+  EXPECT_EQ(0_s, buff.wait_cooldown());
+
+  ASSERT_GT(obj->get_buff_value(), 0);
+  for (int i = 2; i < obj->get_buff_value(); ++i) {
+    EXPECT_EQ(DmgState::PREBUFF, buff.repair(obj, 0_s));
+    EXPECT_EQ(1200_hp, obj->get_health());
+    EXPECT_EQ(i, obj->get_buff_state());
+    EXPECT_EQ(0, buff.get_done());
+    EXPECT_EQ(0_s, buff.wait_cooldown());
+  }
+
+  EXPECT_EQ(DmgState::START_BUFF, buff.repair(obj, 0_s));
+  EXPECT_EQ(1200_hp, obj->get_health());
+  EXPECT_EQ(0, obj->get_buff_state());
+  EXPECT_EQ(0, buff.get_done());
+  EXPECT_EQ(0_s, buff.wait_cooldown());
+
+  delete obj;
+}
+
 TEST(RepairTools, rebuild) {
   Spanner sp("rebuild");
-  auto obj = new GoioObj("", CmpType::BALLOON, 0.666666, 1200_hp, 500_hp);
+  auto obj = new FreeObject("", CmpType::BALLOON, 0.666666, 1200_hp, 500_hp);
   obj->set_health(0_hp);
 
   // start rebuild
@@ -435,7 +558,7 @@ TEST(RepairTools, timefunc_0) {
   bool force = false;
   TimeFunc timefunc;
 
-  auto obj = new GoioObj("", CmpType::BALLOON, 0.666666, 1200_hp, 500_hp);
+  auto obj = new FreeObject("", CmpType::BALLOON, 0.666666, 1200_hp, 500_hp);
 
   // object intact
   EXPECT_EQ(0, tr.get_done());
@@ -500,7 +623,7 @@ TEST(RepairTools, timefunc_1) {
   bool force = false;
   TimeFunc timefunc;
 
-  auto obj = new GoioObj("", CmpType::BALLOON, 0.666666, 1200_hp, 500_hp);
+  auto obj = new FreeObject("", CmpType::BALLOON, 0.666666, 1200_hp, 500_hp);
   obj->set_health(0_hp);
   EXPECT_EQ(DmgState::START_REBUILD, tr.repair(obj, 0_s));
   EXPECT_EQ(1, tr.get_done());
@@ -540,7 +663,7 @@ TEST(RepairTools, timefunc_2) {
   bool force;
   TimeFunc timefunc;
 
-  auto obj = new GoioObj("", CmpType::BALLOON, 0.666666, 1200_hp, 500_hp);
+  auto obj = new FreeObject("", CmpType::BALLOON, 0.666666, 1200_hp, 500_hp);
   EXPECT_EQ(DmgState::NONE, tr.repair(obj, 0_s));
   EXPECT_EQ(2, tr.get_done());
   EXPECT_EQ(DmgState::NONE, te.repair(obj, 0_s));
@@ -600,12 +723,33 @@ TEST(RepairTools, timefunc_2) {
   delete obj;
 }
 
-TEST(Asserts, RepairToolassert) {
+TEST(RepairTool, acceptTools) {
+  TestBuffTool tb("acceptTools");
+  ToolDispatcher td;
+
+  auto ship = new Goldfish("");
+  tb.accept(td, ship, true);
+  delete ship;
+
+  auto engine = new LightEngine("", 100_N);
+  tb.accept(td, engine, true);
+  delete engine;
+
+  auto balloon = new Balloon("", 2103123_N);
+  tb.accept(td, balloon, true);
+  delete balloon;
+
+  auto gun = new Banshee("");
+  tb.accept(td, gun, true);
+  delete gun;
+}
+
+TEST(Asserts, RepairTool_repair) {
   TestToolRepair tr("assert");
   bool force = false;
   TimeFunc timefunc;
 
-  auto obj = new GoioObj("", CmpType::BALLOON, 0.666666, 1200_hp, 500_hp);
+  auto obj = new FreeObject("", CmpType::BALLOON, 0.666666, 1200_hp, 500_hp);
   tr.*get(RepairTool_f()) = 3;
   EXPECT_EQ(3, tr.get_done());
 
@@ -613,4 +757,37 @@ TEST(Asserts, RepairToolassert) {
   EXPECT_DEATH(tr.get_time_func(obj, 0_s, force)(), ".*Assertion.*|");
 
   delete obj;
+}
+
+TEST(Asserts, RepairTool_buffduration) {
+  TestBuffTool br("assert");
+
+  auto obj = new FreeObject("", static_cast<CmpType>(3));
+  EXPECT_DEATH(br.get_buff_duration(obj), ".*Assertion.*|");
+
+  delete obj;
+}
+
+TEST(Asserts, RepairTool_dispatch) {
+  TestToolRepair tr("");
+  TestBuffTool tb("");
+  const auto tool = new DrogueChute();
+  auto ship = new Goldfish("");
+  auto engine = new LightEngine("", 100_N);
+  auto balloon = new Balloon("", 2103123_N);
+  auto gun = new Banshee("");
+
+  ToolDispatcher td;
+  EXPECT_DEATH(tr.accept(td, tool, true), ".*Assertion.*|");
+  EXPECT_DEATH(tb.accept(td, tool, true), ".*Assertion.*|");
+  EXPECT_DEATH(tr.accept(td, ship, true), ".*Assertion.*|");
+  EXPECT_DEATH(tr.accept(td, engine, false), ".*Assertion.*|");
+  EXPECT_DEATH(tr.accept(td, balloon, true), ".*Assertion.*|");
+  EXPECT_DEATH(tr.accept(td, gun, false), ".*Assertion.*|");
+
+  delete ship;
+  delete engine;
+  delete balloon;
+  delete gun;
+
 }

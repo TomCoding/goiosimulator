@@ -24,6 +24,11 @@
 
 #include "gtest/gtest.h"
 #include "./goioobj.h"
+#include "./ships.h"
+#include "./engines.h"
+#include "./balloon.h"
+#include "./guns.h"
+#include "./tooldispatcher.h"
 
 
 using namespace goio;
@@ -109,4 +114,32 @@ TEST(Ammunitions, values) {
   EXPECT_EQ(-3, ta.get_fire_stacks());
   EXPECT_TRUE(ta.get_proportional_self_damage());
   EXPECT_FALSE(ta.get_immune());
+}
+
+TEST(Ammunitions, acceptTools) {
+  const TestAmmo* ta = new TestAmmo();
+  auto gun = new Artemis("");
+
+  ToolDispatcher td;
+  ta->accept(td, gun, true);
+
+  delete ta;
+  delete gun;
+}
+
+TEST(Asserts, Ammunitions) {
+  const TestAmmo* ta = new TestAmmo();
+  auto ship = new Pyramidion("");
+  auto engine = new HeavyEngine("", 125000_N);
+  auto balloon = new Balloon("", 100000_N);
+
+  ToolDispatcher td;
+  EXPECT_DEATH(ta->accept(td, ship, true), ".*Assertion.*|");
+  EXPECT_DEATH(ta->accept(td, engine, true), ".*Assertion.*|");
+  EXPECT_DEATH(ta->accept(td, balloon, true), ".*Assertion.*|");
+
+  delete ta;
+  delete ship;
+  delete engine;
+  delete balloon;
 }

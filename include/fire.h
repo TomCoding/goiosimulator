@@ -31,6 +31,11 @@ class Fire : public GoioActor {
  private:
     static constexpr double firetick = 0.001;
 
+ protected:
+    void accept(ToolDispatcher&, const Tool*, bool) override {
+      assert(false);
+    }
+
  public:
     Fire() : GoioActor("", CmpType::HULL) {}
 
@@ -39,6 +44,9 @@ class Fire : public GoioActor {
     static inline Time get_firetick() { return Time(firetick); }
 
     TimeFunc get_time_func(const GoioObj* obj, Time, bool&) override;
+
+    int get_buff_value() const override { return -1; }
+    void reset_modifiers() override {}
 };
 
 }  // namespace goio

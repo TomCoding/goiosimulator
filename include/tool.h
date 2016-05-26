@@ -18,36 +18,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MONITOR_H_
-#define MONITOR_H_
-
-#include "./goioactor.h"
-#include "./exceptions.h"
+#ifndef TOOL_H_
+#define TOOL_H_
 
 
 namespace goio {
 
-class Monitor : public GoioActor {
- private:
-    Time tick;
+class ToolDispatcher;
+class Ship;
+class Engine;
+class Balloon;
+class Gun;
 
+class Tool {
  protected:
-    void accept(ToolDispatcher&, const Tool*, bool) override {
-      assert(false);
-    }
+    explicit Tool() {}
+    ~Tool() {}
 
  public:
-    explicit Monitor(Time tick);  // throws NonPositiveTime
-
-    DmgState monitor(GoioObj*, Time);
-    inline Time get_tick() const { return tick; }
-
-    TimeFunc get_time_func(const GoioObj* obj, Time, bool&) override;
-
-    int get_buff_value() const override { return -1; }
-    void reset_modifiers() override {}
+    virtual void accept(ToolDispatcher& dispatcher, Ship* obj, bool activate) const = 0;
+    virtual void accept(ToolDispatcher& dispatcher, Engine* obj, bool activate) const = 0;
+    virtual void accept(ToolDispatcher& dispatcher, Balloon* obj, bool activate) const = 0;
+    virtual void accept(ToolDispatcher& dispatcher, Gun* obj, bool activate) const = 0;
 };
 
 }  // namespace goio
 
-#endif  // MONITOR_H_
+
+#endif  // TOOL_H_

@@ -24,8 +24,6 @@
 #include <set>
 #include <cmath>
 
-#include "./helmtools.h"
-
 
 namespace goio {
 
@@ -118,16 +116,12 @@ Ship::Ship(const std::string& name,
                        lift_force, vertical_drag),
               GoioObj(name, CmpType::ARMOR, 1, max_health, hull_max_health),
               cur_mass_mod(0),
-              cur_light_engine_thrust_mod(0),
-              cur_heavy_engine_thrust_mod(0),
               cur_longitudinal_drag_mod(0),
               cur_angular_top_speed_mod(0),
               cur_angular_drag_mod(0),
-              cur_lift_force_mod(0),
-              cur_descent_force_mod(0),
               cur_vertical_drag_mod(0),
               balloon(new Balloon("", lift_force)),
-              engines_l(), engines_h(), guns(), cur_tool(nullptr) {
+              engines_l(), engines_h(), guns() {
   balloon->set_hull(this);
   for (int i = 0; i < light_engines; ++i) {
     auto engine = new LightEngine("", light_engine_thrust);
@@ -155,14 +149,12 @@ void Ship::add_mass_mod(double mass) {
     cur_mass_mod = -1;
 }
 void Ship::add_light_engine_thrust_mod(double thrust) {
-  cur_light_engine_thrust_mod += thrust;
-  if (cur_light_engine_thrust_mod < -1)
-    cur_light_engine_thrust_mod = -1;
+  for (auto engine : engines_l)
+    engine->add_thrust_mod(thrust);
 }
 void Ship::add_heavy_engine_thrust_mod(double thrust) {
-  cur_heavy_engine_thrust_mod += thrust;
-  if (cur_heavy_engine_thrust_mod < -1)
-    cur_heavy_engine_thrust_mod = -1;
+  for (auto engine : engines_h)
+    engine->add_thrust_mod(thrust);
 }
 void Ship::add_longitudinal_drag_mod(double drag) {
   cur_longitudinal_drag_mod += drag;
@@ -180,14 +172,10 @@ void Ship::add_angular_drag_mod(double drag) {
     cur_angular_drag_mod = -1;
 }
 void Ship::add_lift_force_mod(double lift_force) {
-  cur_lift_force_mod += lift_force;
-  if (cur_lift_force_mod < -1)
-    cur_lift_force_mod = -1;
+  balloon->add_lift_force_mod(lift_force);
 }
 void Ship::add_descent_force_mod(double descent_force) {
-  cur_descent_force_mod += descent_force;
-  if (cur_descent_force_mod < -1)
-    cur_descent_force_mod = -1;
+  balloon->add_descent_force_mod(descent_force);
 }
 void Ship::add_vertical_drag_mod(double drag) {
   cur_vertical_drag_mod += drag;
@@ -225,43 +213,12 @@ inline Acceleration Ship::get_descent_acceleration() const {
   return get_acceleration_int(get_descent_force(), get_mass());
 }
 
-void Ship::apply_tool(const HelmTool* tool) {
+void Ship::reset_modifiers() {
   cur_mass_mod = 0;
-  cur_light_engine_thrust_mod = 0;
-  cur_heavy_engine_thrust_mod = 0;
   cur_longitudinal_drag_mod = 0;
   cur_angular_top_speed_mod = 0;
   cur_angular_drag_mod = 0;
-  cur_lift_force_mod = 0;
-  cur_descent_force_mod = 0;
   cur_vertical_drag_mod = 0;
-
-  // apply buff and other modifiers here
-
-  if (tool != nullptr) {
-    add_light_engine_thrust_mod(tool->get_thrust());
-    add_heavy_engine_thrust_mod(tool->get_thrust());
-    add_angular_drag_mod(tool->get_angular_drag());
-    add_longitudinal_drag_mod(tool->get_longitudinal_drag());
-    add_lift_force_mod(tool->get_lift_force());
-    add_descent_force_mod(tool->get_descent_force());
-    add_vertical_drag_mod(tool->get_vertical_drag());
-  }
-
-  for (auto it = engines_l.begin(); it != engines_l.end(); ++it) {
-    (*it)->reset_modifiers();
-    (*it)->add_thrust_mod(tool->get_thrust());
-  }
-  for (auto it = engines_h.begin(); it != engines_h.end(); ++it) {
-    (*it)->reset_modifiers();
-    (*it)->add_thrust_mod(tool->get_thrust());
-  }
-
-  balloon->reset_modifiers();
-  balloon->add_lift_force_mod(tool->get_lift_force());
-  balloon->add_descent_force_mod(tool->get_descent_force());
-
-  cur_tool = tool;
 }
 
 void Ship::add_gun(Gun* gun) {

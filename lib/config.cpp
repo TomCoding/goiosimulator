@@ -311,9 +311,9 @@ int Config::load_config() {
         Object* obj;
         bool processed = false;
 #if defined(GCC_4_9) || defined(LIBCONFIG_COMP)
-        if (strcmp(obj_type, "GoioObj") == 0) {
+        if (strcmp(obj_type, "FreeObject") == 0) {
 #else
-        if (obj_type == "GoioObj") {
+        if (obj_type == "FreeObject") {
 #endif
 #ifdef GCC_4_9
           CmpType cmp_type = CmpType::ARMOR;

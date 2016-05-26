@@ -23,6 +23,7 @@
 #include <string>
 
 #include "gtest/gtest.h"
+#include "./helmtools.h"
 
 
 using namespace goio;
@@ -68,6 +69,7 @@ TEST(Engines, GoioObj) {
 void test_const_values(const Engine& e, const std::string& name, Thrust thrust) {
   EXPECT_EQ(name, e.get_name());
   EXPECT_EQ(thrust, e.get_orig_thrust());
+  EXPECT_EQ(4, e.get_buff_value());
 }
 void test_variable_values(const Engine& e, Thrust thrust, bool all) {
   EXPECT_FLOAT_EQ(thrust/1_N, e.get_thrust()/1_N);
@@ -176,4 +178,47 @@ TEST(Engines, reset) {
   he.reset_modifiers();
   test_const_values(he, name, thrust);
   test_variable_values(he, thrust);
+}
+
+NEW_HELMTOOL(TestHelmTool,
+             2,                   // thrust
+             10,                  // angular drag
+             -0.5,                // longitudinal drag
+             0,                   // lift force
+             0,                   // descent force
+             0,                   // vertical drag
+             40_hp/1_s,           // damage per second to target
+             DmgType::FIRE,       // damage type
+             CmpType::ENGINES,    // damage target
+             0,                   // target ignition chance
+             0,                   // incoming damage reduction
+             DmgType::IMPACT,     // reduced damage type
+             0_s,                 // deactivation delay
+             false,               // produce tar cloud
+             false,               // ability to spot
+             false                // ability to tell range
+);
+
+TEST(Engines, applyTools) {
+  std::string name = "applyTools";
+  Thrust thrust = 100_N;
+
+  const HelmTool* tt = new TestHelmTool();
+
+  auto le = new LightEngine(name, thrust);
+  le->apply_tool(tt);
+  test_const_values(*le, name, thrust);
+  test_variable_values(*le, 300_N);
+  le->apply_tool(tt);
+  test_const_values(*le, name, thrust);
+  test_variable_values(*le, 300_N);
+  le->remove_tool(tt);
+  test_const_values(*le, name, thrust);
+  test_variable_values(*le, thrust);
+  le->remove_tool(tt);
+  test_const_values(*le, name, thrust);
+  test_variable_values(*le, thrust);
+
+  delete tt;
+  delete le;
 }

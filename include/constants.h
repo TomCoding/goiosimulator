@@ -157,7 +157,19 @@ struct Value {
             Value& operator=(const Value& obj) { val = obj.val; return *this; }
 
   constexpr Value operator+(const Value& obj) const { return Value(val + obj.val); }
+#ifndef GCC_4_9
+  constexpr
+#else
+  inline
+#endif
+            Value& operator+=(const Value& obj) { val += obj.val; return *this; }
   constexpr Value operator-(const Value& obj) const { return Value(val - obj.val); }
+#ifndef GCC_4_9
+  constexpr
+#else
+  inline
+#endif
+            Value& operator-=(const Value& obj) { val -= obj.val; return *this; }
   constexpr bool operator==(const Value& obj) const { return val == obj.val; }
   constexpr bool operator!=(const Value& obj) const { return val != obj.val; }
   constexpr bool operator>(const Value& obj) const { return val > obj.val; }

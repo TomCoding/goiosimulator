@@ -82,4 +82,12 @@ TEST(DmgTypes, valuesDmgMatrix) {
                                               CmpType::BALLOON));
   EXPECT_EQ(dmg_types[2][3], get_dmg_modifier(DmgType::SHATTER,
                                               CmpType::COMPONENTS));
+  EXPECT_EQ(dmg_types[0][3], get_dmg_modifier(DmgType::FIRE,
+                                              CmpType::ENGINES));
+  EXPECT_EQ(dmg_types[0][3], get_dmg_modifier(DmgType::FIRE,
+                                              CmpType::GUNS));
+}
+
+TEST(Asserts, DmgTypes) {
+  EXPECT_DEATH(get_cmp_type_string(static_cast<CmpType>(3)), ".*Assertion.*|");
 }

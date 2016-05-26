@@ -154,6 +154,13 @@ TEST(Constants, UnitCalcs) {
   EXPECT_EQ(3_m, 1_m+2_m);
   EXPECT_EQ(1_m, 3_m-2_m);
 
+  auto d = 1_m;
+  EXPECT_EQ(1_m, d);
+  EXPECT_EQ(3_m, d += 2_m);
+  EXPECT_EQ(3_m, d);
+  EXPECT_EQ(1_m, d -= 2_m);
+  EXPECT_EQ(1_m, d);
+
   EXPECT_NE(3_m, 1_m);
   EXPECT_GT(3_m, 1_m);
   EXPECT_LT(1_m, 3_m);

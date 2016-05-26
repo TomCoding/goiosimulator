@@ -21,6 +21,7 @@
 #include "./monitor.h"
 
 #include "gtest/gtest.h"
+#include "./helmtools.h"
 
 
 using namespace goio;
@@ -52,13 +53,19 @@ TEST(Monitor, value) {
 
   Monitor m(tick);
   EXPECT_EQ(tickold, m.get_tick());
+  EXPECT_EQ(-1, m.get_buff_value());
 
   tick = 3_s;
   EXPECT_EQ(tickold, m.get_tick());
+  EXPECT_EQ(-1, m.get_buff_value());
+
+  m.reset_modifiers();
+  EXPECT_EQ(tickold, m.get_tick());
+  EXPECT_EQ(-1, m.get_buff_value());
 }
 
 TEST(Monitor, monitor) {
-  auto obj = new GoioObj("", CmpType::HULL);
+  auto obj = new FreeObject("", CmpType::HULL);
   Time t = 0_s;
 
   Monitor m(1_s);
@@ -75,16 +82,22 @@ TEST(Monitor, timefunc) {
   Time t = 0_s;
   bool b;
 
-  auto obj1 = new GoioObj("", CmpType::BALLOON);
+  auto obj1 = new FreeObject("", CmpType::BALLOON);
   EXPECT_NE(nullptr, m.get_time_func(obj1, t, b));
   delete obj1;
 
-  auto obj2 = new GoioObj("", CmpType::COMPONENTS, -1, 0_hp, 0_hp);
+  auto obj2 = new FreeObject("", CmpType::COMPONENTS, -1, 0_hp, 0_hp);
   EXPECT_EQ(nullptr, m.get_time_func(obj2, t, b));
   delete obj2;
 
-  auto obj3 = new GoioObj("", CmpType::COMPONENTS, -1, 0_hp, 1_hp);
+  auto obj3 = new FreeObject("", CmpType::COMPONENTS, -1, 0_hp, 1_hp);
   obj3->get_hull()->add_health(-1_hp);
   EXPECT_EQ(nullptr, m.get_time_func(obj3, t, b));
   delete obj3;
+}
+
+TEST(Asserts, Monitor) {
+  Monitor m(1_s);
+  const HelmTool* h = new Moonshine();
+  EXPECT_DEATH(m.apply_tool(h), ".*Assertion.*|");
 }

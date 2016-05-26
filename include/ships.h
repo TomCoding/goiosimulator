@@ -99,23 +99,19 @@ class Shipinfo {
 };
 
 class Ship : public Shipinfo, public GoioObj {
+ friend class ToolDispatcher;
+
  private:
     double cur_mass_mod;
-    double cur_light_engine_thrust_mod;
-    double cur_heavy_engine_thrust_mod;
     double cur_longitudinal_drag_mod;
     double cur_angular_top_speed_mod;
     double cur_angular_drag_mod;
-    double cur_lift_force_mod;
-    double cur_descent_force_mod;
     double cur_vertical_drag_mod;
 
     Balloon* balloon;
     std::set<LightEngine*> engines_l;
     std::set<HeavyEngine*> engines_h;
     std::set<Gun*> guns;
-
-    const HelmTool* cur_tool;
 
     Ship(const Ship& obj);
     Ship& operator=(const Ship& obj);
@@ -142,6 +138,10 @@ class Ship : public Shipinfo, public GoioObj {
          Force lift_force,
          double vertical_drag);
 
+    void accept(ToolDispatcher& dispatcher, const Tool* tool, bool activate) override {
+      tool->accept(dispatcher, this, activate);
+    }
+
  public:
     virtual ~Ship();
 
@@ -149,10 +149,16 @@ class Ship : public Shipinfo, public GoioObj {
       return get_orig_mass() * (1+cur_mass_mod);
     }
     inline Thrust get_light_engine_thrust() const {
-      return get_orig_light_engine_thrust() * (1+cur_light_engine_thrust_mod);
+      Thrust thrust = 0_N;
+      for (auto engine : engines_l)
+        thrust += engine->get_thrust();
+      return thrust;
     }
     inline Thrust get_heavy_engine_thrust() const {
-      return get_orig_heavy_engine_thrust() * (1+cur_heavy_engine_thrust_mod);
+      Thrust thrust = 0_N;
+      for (auto engine : engines_h)
+        thrust += engine->get_thrust();
+      return thrust;
     }
     inline double get_longitudinal_drag() const {
       return get_orig_longitudinal_drag() * (1+cur_longitudinal_drag_mod);
@@ -164,17 +170,17 @@ class Ship : public Shipinfo, public GoioObj {
       return get_orig_angular_drag() * (1+cur_angular_drag_mod);
     }
     inline Force  get_lift_force() const {
-      return get_orig_lift_force() * (1+cur_lift_force_mod);
+      return balloon->get_lift_force();
     }
     inline Force  get_descent_force() const {
-      return get_orig_descent_force() * (1+cur_descent_force_mod);
+      return balloon->get_descent_force();
     }
     inline double get_vertical_drag() const {
       return get_orig_vertical_drag() * (1+cur_vertical_drag_mod);
     }
-    inline const HelmTool* get_tool() const { return cur_tool; }
 
-    void apply_tool(const HelmTool* tool = nullptr);
+    int get_buff_value() const override { return 15; }
+    void reset_modifiers() override;
 
     Thrust        get_thrust() const;
     Speed         get_longitudinal_top_speed() const;

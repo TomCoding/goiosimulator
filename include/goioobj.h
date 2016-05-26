@@ -26,9 +26,11 @@
 #include <string>
 #include <map>
 #include <cassert>
+#include <set>
 
 #include "./constants.h"
 #include "./utils.h"
+#include "./tool.h"
 
 
 namespace goio {
@@ -206,30 +208,33 @@ class GoioObj : public Object {
 
     bool connected;
 
-    explicit GoioObj(Health max_health) : name(""), cmp_type(CmpType::HULL),
-                max_health(max_health), health(max_health),
-                fire_stacks(-1), rebuild_state(-1), buff_state(-1),
-                part_type_multiplier(-1),
-                hull(nullptr),
-                cooldown_end(0_s), immunity_end(0_s), buff_end(0_s),
-                temporary_immunity(false), connected(false) {}
+    std::set<const Tool*> active_tools;
+
     GoioObj(const GoioObj& obj);
     GoioObj& operator=(const GoioObj& obj);
 
     bool set_health_int(Health health, GoioObj* obj);
 
+    class Hull;
+
+    GoioObj(Health max_health) :
+                name(""), cmp_type(CmpType::HULL),
+                max_health(max_health), health(max_health),
+                fire_stacks(-1), rebuild_state(-1), buff_state(0),
+                part_type_multiplier(-1),
+                hull(nullptr),
+                cooldown_end(0_s), immunity_end(0_s), buff_end(0_s),
+                temporary_immunity(false), connected(false), active_tools() {}
+
+ protected:
+    virtual void accept(ToolDispatcher& dispatcher,
+                        const Tool* tool,
+                        bool activate) = 0;
+
  public:
     GoioObj(const std::string& name, CmpType cmp_type,
             double part_type_multiplier = -1,
-            Health max_health = 0_hp, Health hull_max_health = -1_hp) :
-            name(name), cmp_type(cmp_type), max_health(max_health),
-            health(max_health), fire_stacks(-1),
-            rebuild_state(-1), buff_state(-1),
-            part_type_multiplier(part_type_multiplier),
-            hull(new GoioObj(hull_max_health)),
-            cooldown_end(0_s), immunity_end(0_s), buff_end(0_s),
-            temporary_immunity(false),
-            connected(false) {}
+            Health max_health = 0_hp, Health hull_max_health = -1_hp);
     virtual ~GoioObj();
 
     static const     int    max_fire_stacks           = 20;
@@ -246,24 +251,7 @@ class GoioObj : public Object {
                         part_type_multiplier);
     }
 
-    inline int get_buff_value() const {
-      switch (get_cmp_type()) {
-        case CmpType::COMPONENTS:
-          return -1;
-        case CmpType::ENGINES:
-          return 4;
-        case CmpType::GUNS:
-          return 9;
-        case CmpType::ARMOR:
-          return 15;
-        case CmpType::BALLOON:
-          return 10;
-        case CmpType::HULL:
-          return -1;
-        default:
-          assert(false);
-      }
-    }
+    virtual int get_buff_value() const = 0;
 
     inline const std::string get_name() const { return name; }
     inline CmpType get_cmp_type() const { return cmp_type; }
@@ -293,6 +281,7 @@ class GoioObj : public Object {
     void set_health(Health health);
     void set_hull_health(Health health);
     void set_fire(int fire);
+    void set_buff(int buff);
 
     inline void reset_cooldown() { cooldown_end = 0_s; }
     inline void set_temporary_immunity(bool temporary_immunity) {
@@ -305,8 +294,72 @@ class GoioObj : public Object {
     bool dead() const;
 
     virtual void reset(bool hull = true);
-    virtual void reset_modifiers() {}
+    virtual void reset_modifiers()  = 0;
+
+    void apply_tool(const Tool* tool);
+    void remove_tool(const Tool* tool);
 };
+
+class GoioObj::Hull : public GoioObj {
+ protected:
+    void accept(ToolDispatcher&, const Tool*, bool) override {
+      assert(false);
+    }
+
+ public:
+    explicit Hull(Health max_health) : GoioObj(max_health) {}
+
+    int get_buff_value() const override { return -1; }
+    void reset_modifiers() override {}
+};
+
+class FreeObject : public GoioObj {
+ protected:
+    void accept(ToolDispatcher&, const Tool*, bool) override {
+      assert(false);
+    }
+
+ public:
+    FreeObject(const std::string& name, CmpType cmp_type,
+                double part_type_multiplier = -1,
+                Health max_health = 0_hp, Health hull_max_health = -1_hp) :
+                GoioObj(name, cmp_type, part_type_multiplier,
+                        max_health, hull_max_health) {}
+
+    int get_buff_value() const override {
+      switch (get_cmp_type()) {
+        case CmpType::COMPONENTS:
+          return -1;
+        case CmpType::ENGINES:
+          return 4;
+        case CmpType::GUNS:
+          return 9;
+        case CmpType::ARMOR:
+          return 15;
+        case CmpType::BALLOON:
+          return 10;
+        case CmpType::HULL:
+          return -1;
+        default:
+          assert(false);
+      }
+    }
+
+    void reset_modifiers() override {}
+};
+
+// class StaticObject : public GoioObj {
+//  public:
+//     StaticObject(const std::string& name, CmpType cmp_type,
+//                  double part_type_multiplier = -1,
+//                  Health max_health = 0_hp, Health hull_max_health = -1_hp) :
+//                  GoioObj(name, cmp_type, part_type_multiplier,
+//                          max_health, hull_max_health) {}
+//
+//     int get_buff_value() const override { return -1; }
+//     void reset_modifiers() override {}
+// };
+
 
 typedef std::function<Time ()> TimeFunc;
 typedef std::function<TimeFunc (const GoioObj*, Time, bool&)> TimeCheckFunc;

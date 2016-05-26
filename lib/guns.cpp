@@ -155,6 +155,17 @@ inline void Gun::set_aoe_dmg_type(DmgType aoe_dmg_type) {
 }
 
 void Gun::reload(const Ammunition* ammo) {
+  cur_direct_dmg_type = get_orig_direct_dmg_type();
+  cur_aoe_dmg_type = get_orig_aoe_dmg_type();
+  if (ammo != nullptr)
+    apply_tool(ammo);
+  else
+    reset_modifiers();
+  cur_ammo = ammo;
+  cur_clipsize = get_max_clipsize();
+}
+
+void Gun::reset_modifiers() {
   cur_clipsize_mod = 0;
   cur_rof_mod = 0;
   cur_reload_mod = 0;
@@ -174,36 +185,6 @@ void Gun::reload(const Ammunition* ammo) {
   cur_turn_down_mod = 0;
   cur_turn_horizontal_mod = 0;
   cur_turn_vertical_mod = 0;
-
-  // reapply buff or other modifiers here
-
-  cur_direct_dmg_type = get_orig_direct_dmg_type();
-  cur_aoe_dmg_type = get_orig_aoe_dmg_type();
-
-  if (ammo != nullptr) {
-    add_clipsize_mod(ammo->get_clipsize());
-    add_direct_dmg_mod(ammo->get_damage());
-    add_aoe_dmg_mod(ammo->get_damage());
-    add_rof_mod(ammo->get_rof());
-    add_aoe_radius_mod(ammo->get_aoe_radius());
-    add_arming_time_mod(ammo->get_arming_time());
-    add_direct_ign_chance_mod(ammo->get_ign_chance());
-    add_aoe_ign_chance_mod(ammo->get_ign_chance());
-    add_projectile_speed_mod(ammo->get_projectile_speed());
-    add_shell_drop_mod(ammo->get_shell_drop());
-    add_jitter_mod(ammo->get_jitter());
-    add_turn_left_mod(ammo->get_turn_speed());
-    add_turn_right_mod(ammo->get_turn_speed());
-    add_turn_up_mod(ammo->get_turn_speed());
-    add_turn_down_mod(ammo->get_turn_speed());
-    add_turn_horizontal_mod(ammo->get_turn_speed());
-    add_turn_vertical_mod(ammo->get_turn_speed());
-
-    add_fire(ammo->get_fire_stacks());
-    set_temporary_immunity(ammo->get_immune());
-  }
-  cur_ammo = ammo;
-  cur_clipsize = get_max_clipsize();
 }
 
 inline P_Time Gun::get_rof_changed() const {

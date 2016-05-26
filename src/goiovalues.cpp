@@ -31,7 +31,7 @@ using goio::operator"" _s;
 
 int main() {
   goio::init();
-  delete goio::ObjectFactory::create("GoioObj", "test",
+  delete goio::ObjectFactory::create("FreeObject", "test",
                                      goio::CmpType::ARMOR,
                                      -1, 0_hp, -1_hp);
   delete goio::ObjectFactory::create("Pyramidion", "test2");

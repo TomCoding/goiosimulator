@@ -23,11 +23,28 @@
 #include <iostream>
 
 #include "./dmg_types.h"
+#include "./tooldispatcher.h"
 
 
 namespace goio {
 
-REGISTER_TYPE_FULL(GoioObj);
+REGISTER_TYPE_FULL(FreeObject);
+
+GoioObj::GoioObj(const std::string& name,
+                 CmpType cmp_type,
+                 double part_type_multiplier,
+                 Health max_health,
+                 Health hull_max_health) :
+                    name(name), cmp_type(cmp_type),
+                    max_health(max_health), health(max_health),
+                    fire_stacks(-1), rebuild_state(-1), buff_state(0),
+                    part_type_multiplier(part_type_multiplier),
+                    hull(new Hull(hull_max_health)),
+                    cooldown_end(0_s), immunity_end(0_s), buff_end(0_s),
+                    temporary_immunity(false),
+                    connected(false),
+                    active_tools() {
+}
 
 GoioObj::~GoioObj() {
   if (!connected)
@@ -70,6 +87,8 @@ bool GoioObj::add_fire(int fire, Time immunity_end, Time cooldown_end) {
 }
 
 bool GoioObj::add_rebuild(int rebuild_progress) {
+  // if (cmp_type == CmpType::HULL)
+  //   return false;
   rebuild_state += rebuild_progress;
   if (rebuild_state >= get_rebuild_value()) {
     health = max_health*health_after_rebuild;
@@ -79,9 +98,11 @@ bool GoioObj::add_rebuild(int rebuild_progress) {
 }
 
 bool GoioObj::add_buff(int buff_progress, Time buff_end) {
+  if (health == 0_hp || cmp_type == CmpType::HULL)
+    return false;
   buff_state += buff_progress;
   if (buff_state >= get_buff_value()) {
-    health = max_health*health_after_rebuild;
+    buff_state = 0;
     if (buff_end >= 0_s)
       this->buff_end = buff_end;
     return true;
@@ -98,6 +119,7 @@ bool GoioObj::set_health_int(Health health, GoioObj* obj) {
     obj->health = 0_hp;
     if (obj->fire_stacks > 0)
       obj->fire_stacks = 0;
+    obj->buff_state = 0;
     if (obj->cmp_type != CmpType::HULL) {
       obj->rebuild_state = 0;
       obj->cooldown_end = 0_s;
@@ -140,6 +162,16 @@ void GoioObj::set_fire(int fire) {
   immunity_end = 0_s;
 }
 
+void GoioObj::set_buff(int buff) {
+  if (buff > get_buff_value())
+    buff_state = get_buff_value()-1;
+  else if (buff <= 0)
+    buff_state = 0;
+  else
+    buff_state = buff;
+  buff_end = 0_s;
+}
+
 void GoioObj::set_hull(GoioObj* obj) {
   connected = true;
   delete hull;
@@ -159,11 +191,36 @@ void GoioObj::reset(bool hull) {
   health = max_health;
   if (fire_stacks > 0)
     fire_stacks = 0;
+  buff_state = 0;
   cooldown_end = 0_s;
   immunity_end = 0_s;
   buff_end = 0_s;
   if (hull && this->hull != nullptr)
     this->hull->reset(true);
+}
+
+void GoioObj::apply_tool(const Tool* tool) {
+  if (tool == nullptr)
+    return;
+
+  auto it = active_tools.find(tool);
+  if (it == active_tools.end()) {
+    active_tools.insert(tool);
+    ToolDispatcher td;
+    accept(td, tool, true);
+  }
+}
+
+void GoioObj::remove_tool(const Tool* tool) {
+  if (tool == nullptr)
+    return;
+
+  auto it = active_tools.find(tool);
+  if (it != active_tools.end()) {
+    ToolDispatcher td;
+    accept(td, tool, false);
+    active_tools.erase(it);
+  }
 }
 
 }  // namespace goio

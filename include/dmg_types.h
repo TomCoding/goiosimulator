@@ -114,9 +114,9 @@ static const double dmg_types[6][4] = {
 inline double get_dmg_modifier(DmgType dmg_type, CmpType cmp_type) {
   int index = 0;
   unsigned int cmp_type_i = static_cast<unsigned int>(cmp_type);
-  while (!(cmp_type_i & 1)) {
+  while (!(cmp_type_i & 1u)) {
     cmp_type_i = cmp_type_i >> 1;
-    if (++index > 3)
+    if (++index > 2)
       break;
   }
   return dmg_types[static_cast<int>(dmg_type)][index];

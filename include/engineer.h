@@ -106,6 +106,9 @@ class Engineer : public RepairActor {
       }
     }
 
+    void accept(ToolDispatcher&, const Tool*, bool) override {
+      assert(false);
+    }
 
  public:
     Engineer(const std::string& name, RepairTool* tool1, RepairTool* tool2,
@@ -123,6 +126,9 @@ class Engineer : public RepairActor {
     DmgState repair(GoioObj* obj, Time time) override;
 
     TimeFunc get_time_func(const GoioObj*, Time, bool&) override;
+
+    int get_buff_value() const override { return -1; }
+    void reset_modifiers() override {}
 };
 
 class MainEngineer : public Engineer {

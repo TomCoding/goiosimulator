@@ -160,6 +160,8 @@ class GunInfo {
 };
 
 class Gun : public GunInfo, public ShootActor {
+ friend class ToolDispatcher;
+
  private:
     double  cur_clipsize;
     double  cur_clipsize_mod;
@@ -266,6 +268,10 @@ class Gun : public GunInfo, public ShootActor {
                 cur_ammo(nullptr),
                 during_reload(false) {}
 
+    void accept(ToolDispatcher& dispatcher, const Tool* tool, bool activate) override {
+      tool->accept(dispatcher, this, activate);
+    }
+
  public:
     virtual ~Gun() {}
 
@@ -331,7 +337,10 @@ class Gun : public GunInfo, public ShootActor {
     }
     inline const Ammunition* get_ammo() const { return cur_ammo; }
 
+    int get_buff_value() const override { return 9; }
+
     void reload(const Ammunition* ammo = nullptr);
+    void reset_modifiers() override;
 
     P_Time        get_rof_changed() const;
     Time          get_time_per_shot() const;

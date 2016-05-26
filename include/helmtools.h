@@ -21,12 +21,16 @@
 #ifndef HELMTOOLS_H_
 #define HELMTOOLS_H_
 
+#include <cassert>
+
 #include "./goioobj.h"
+#include "./tool.h"
+#include "./tooldispatcher.h"
 
 
 namespace goio {
 
-class HelmTool : public Object {
+class HelmTool : public Tool, public Object {
  protected:
     const double  thrust;
     const double  angular_drag;
@@ -81,6 +85,19 @@ class HelmTool : public Object {
     inline bool    get_tar_cloud() const { return tar_cloud; }
     inline bool    get_spot() const { return spot; }
     inline bool    get_range() const { return range; }
+
+    void accept(ToolDispatcher& dispatcher, Ship* obj, bool activate) const override {
+      dispatcher.apply_tool(obj, this, activate);
+    }
+    void accept(ToolDispatcher& dispatcher, Engine* obj, bool activate) const override {
+      dispatcher.apply_tool(obj, this, activate);
+    }
+    void accept(ToolDispatcher& dispatcher, Balloon* obj, bool activate) const override {
+      dispatcher.apply_tool(obj, this, activate);
+    }
+    void accept(ToolDispatcher&, Gun*, bool) const override {
+      assert(false);
+    }
 };
 
 //TODO: Use template instead, keep static_assert.

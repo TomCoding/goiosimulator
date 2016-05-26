@@ -55,6 +55,10 @@ class Engine : public EngineInfo, public GoioObj {
               cur_thrust_mod(0) {}
     virtual ~Engine() {}
 
+    void accept(ToolDispatcher& dispatcher, const Tool* tool, bool activate) override {
+      tool->accept(dispatcher, this, activate);
+    }
+
  public:
     inline Thrust get_thrust() const {
       return get_orig_thrust() * (1+cur_thrust_mod);
@@ -63,6 +67,8 @@ class Engine : public EngineInfo, public GoioObj {
     void add_thrust_mod(double thrust);
 
     Thrust get_thrust_changed() const;
+
+    int get_buff_value() const override { return 4; }
 
     void reset_modifiers() override;
 };
