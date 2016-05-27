@@ -190,8 +190,8 @@ class Gun : public GunInfo, public ShootActor {
 
     bool during_reload;
 
-    Gun(const Gun& obj);
-    Gun& operator=(const Gun& obj);
+    Gun(const Gun& obj) = delete;
+    Gun& operator=(const Gun& obj) = delete;
 
     void add_clipsize_mod(double clipsize);
     void add_rof_mod(double rof);

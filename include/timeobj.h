@@ -64,8 +64,8 @@ class TimeObj {
      private:
         TimeObj* timeobj;
 
-        EndEvent(const EndEvent& obj);
-        EndEvent& operator=(const EndEvent& obj);
+        EndEvent(const EndEvent& obj) = delete;
+        EndEvent& operator=(const EndEvent& obj) = delete;
 
      protected:
         void accept(ToolDispatcher&, const Tool*, bool) override {

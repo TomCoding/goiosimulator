@@ -48,8 +48,8 @@ class Balloon : public BalloonInfo, public GoioObj {
     double cur_lift_force_mod;
     double cur_descent_force_mod;
 
-    Balloon(const Balloon& obj);
-    Balloon& operator=(const Balloon& obj);
+    Balloon(const Balloon& obj) = delete;
+    Balloon& operator=(const Balloon& obj) = delete;
 
  protected:
     void accept(ToolDispatcher& dispatcher, const Tool* tool, bool activate) override {

@@ -92,13 +92,11 @@ bool TimeObj::next_event() {
 
     // update to actor associated actors
     if (dmg_state & DmgState::SELF_ALL) {
-      {
       auto iterpair = recipients.equal_range(funcdata->registrar);
       for (auto it = iterpair.first; it != iterpair.second; ++it) {
         if (it->second != funcdata &&
             get_dmg_state_self_reversed(dmg_state) & it->second->dmg_flags)
           recalc_next_event(it->second);
-      }
       }
     }
   }

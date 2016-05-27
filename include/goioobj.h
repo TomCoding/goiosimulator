@@ -203,6 +203,7 @@ class GoioObj : public Object {
     Time cooldown_end;
     Time immunity_end;
     Time buff_end;
+    const Tool* buff_tool;
 
     bool temporary_immunity;
 
@@ -210,10 +211,11 @@ class GoioObj : public Object {
 
     std::set<const Tool*> active_tools;
 
-    GoioObj(const GoioObj& obj);
-    GoioObj& operator=(const GoioObj& obj);
+    GoioObj(const GoioObj& obj) = delete;
+    GoioObj& operator=(const GoioObj& obj) = delete;
 
-    bool set_health_int(Health health, GoioObj* obj);
+    bool set_health_int(Health health);
+    void remove_buff();
 
     class Hull;
 
@@ -224,6 +226,7 @@ class GoioObj : public Object {
                 part_type_multiplier(-1),
                 hull(nullptr),
                 cooldown_end(0_s), immunity_end(0_s), buff_end(0_s),
+                buff_tool(nullptr),
                 temporary_immunity(false), connected(false), active_tools() {}
 
  protected:
@@ -276,7 +279,8 @@ class GoioObj : public Object {
     bool add_fire(int fire, Time immunity_end = -1_s,
                             Time cooldown_end = -1_s);
     bool add_rebuild(int rebuild_progress);
-    bool add_buff(int buff_progress, Time buff_end = -1_s);
+    bool add_buff(int buff_progress, Time buff_end = -1_s,
+                  const Tool* tool = nullptr);
 
     void set_health(Health health);
     void set_hull_health(Health health);

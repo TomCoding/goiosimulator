@@ -41,6 +41,7 @@ GoioObj::GoioObj(const std::string& name,
                     part_type_multiplier(part_type_multiplier),
                     hull(new Hull(hull_max_health)),
                     cooldown_end(0_s), immunity_end(0_s), buff_end(0_s),
+                    buff_tool(nullptr),
                     temporary_immunity(false),
                     connected(false),
                     active_tools() {
@@ -62,7 +63,7 @@ bool GoioObj::add_health(Health health, Time cooldown_end) {
   }
   if (health == 0_hp)
     return true;
-  return set_health_int(this->health + health, this);
+  return set_health_int(this->health + health);
 }
 
 bool GoioObj::add_fire(int fire, Time immunity_end, Time cooldown_end) {
@@ -97,39 +98,48 @@ bool GoioObj::add_rebuild(int rebuild_progress) {
   return false;
 }
 
-bool GoioObj::add_buff(int buff_progress, Time buff_end) {
+void GoioObj::remove_buff() {
+  buff_state = 0;
+  buff_end = 0_s;
+  remove_tool(buff_tool);
+  buff_tool = nullptr;
+}
+
+bool GoioObj::add_buff(int buff_progress, Time buff_end, const Tool* tool) {
   if (health == 0_hp || cmp_type == CmpType::HULL)
     return false;
   buff_state += buff_progress;
   if (buff_state >= get_buff_value()) {
     buff_state = 0;
+    buff_tool = tool;
     if (buff_end >= 0_s)
       this->buff_end = buff_end;
+    if (tool != nullptr)
+      apply_tool(tool);
     return true;
   }
   return false;
 }
 
-bool GoioObj::set_health_int(Health health, GoioObj* obj) {
-  if (obj->health == -1_hp)
+bool GoioObj::set_health_int(Health health) {
+  if (this->health == -1_hp)
     return true;
-  if (health > obj->max_health) {
-    obj->health = obj->max_health;
+  if (health > max_health) {
+    this->health = max_health;
   } else if (health <= 0_hp) {
-    obj->health = 0_hp;
-    if (obj->fire_stacks > 0)
-      obj->fire_stacks = 0;
-    obj->buff_state = 0;
-    if (obj->cmp_type != CmpType::HULL) {
-      obj->rebuild_state = 0;
-      obj->cooldown_end = 0_s;
-      obj->buff_end = 0_s;
+    this->health = 0_hp;
+    if (fire_stacks > 0)
+      fire_stacks = 0;
+    if (cmp_type != CmpType::HULL) {
+      rebuild_state = 0;
+      cooldown_end = 0_s;
+      remove_buff();
       // std::cout << "\ncooldown0: 0" << std::endl
       //           << "        ";
     }
     return false;
   } else {
-    obj->health = health;
+    this->health = health;
   }
   return true;
 }
@@ -139,7 +149,7 @@ void GoioObj::set_health(Health health) {
     max_health = health;
   cooldown_end = 0_s;
   buff_end = 0_s;
-  set_health_int(health, this);
+  set_health_int(health);
 }
 
 void GoioObj::set_hull_health(Health health) {
@@ -149,7 +159,7 @@ void GoioObj::set_hull_health(Health health) {
   }
   if (health > hull->max_health)
     hull->max_health = health;
-  set_health_int(health, hull);
+  hull->set_health_int(health);
 }
 
 void GoioObj::set_fire(int fire) {

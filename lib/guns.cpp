@@ -232,11 +232,17 @@ DmgState Gun::shoot(GoioObj* obj, Time time,
   if (obj->get_health() == obj->get_max_health())
     ret |= DmgState::START_TARGET;
 
+  auto prebuff = tmpobj->get_buff_state() > 0;
+  auto buff = tmpobj->get_buff_end() > time;
   if (!tmpobj->add_health(-get_direct_dmg() *
                           get_dmg_modifier(get_direct_dmg_type(),
-                          tmpobj->get_cmp_type())))
-
+                          tmpobj->get_cmp_type()))) {
     ret |= DmgState::TRANSITIONED;
+    if (buff)
+      ret |= DmgState::BUFF;
+    if (prebuff)
+      ret |= DmgState::PREBUFF;
+  }
 
   auto start_fire = obj->get_fire_stacks() == 0;
   if (tmpobj->get_immunity_end() <= time) {

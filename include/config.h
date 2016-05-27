@@ -60,8 +60,8 @@ class Config {
     bool find_unknown_setting(const std::set<std::string>& settings,
                               const libconfig::Setting& settingsobj);
 
-    Config(const Config& obj);
-    Config& operator=(const Config& obj);
+    Config(const Config& obj) = delete;
+    Config& operator=(const Config& obj) = delete;
 
  public:
     explicit Config(const std::string& filename = "goiovalues.cfg") :

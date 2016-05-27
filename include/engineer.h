@@ -48,8 +48,8 @@ class Engineer : public RepairActor {
     RepairTool* cur_tool;
     bool delay;
 
-    Engineer(const Engineer& obj);
-    Engineer& operator=(const Engineer& obj);
+    Engineer(const Engineer& obj) = delete;
+    Engineer& operator=(const Engineer& obj) = delete;
 
     void select_tool(RepairTool* tool);
     RepairTool* get_repair_tool(GoioObj* obj);

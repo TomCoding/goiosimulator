@@ -45,8 +45,8 @@ class Engine : public EngineInfo, public GoioObj {
  private:
     double cur_thrust_mod;
 
-    Engine(const Engine& obj);
-    Engine& operator=(const Engine& obj);
+    Engine(const Engine& obj) = delete;
+    Engine& operator=(const Engine& obj) = delete;
 
  protected:
     Engine(const std::string& name, Health max_health, Thrust thrust) :

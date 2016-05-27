@@ -126,12 +126,15 @@ DmgState RepairTool::repair(GoioObj* obj, Time time) {
     if (get_extinguish() > 0)
       ret |= DmgState::FIRE;
 
-    auto start_buff = obj->get_buff_state() == 0;
-    if (obj->add_buff(get_buff(), time + get_buff_duration(obj))) {
-      ret |= DmgState::START_BUFF;
-      obj->apply_tool(this);
-    } else if (get_buff() > 0) {
+    auto start_prebuff = obj->get_buff_state() == 0;
+    auto start_buff = obj->get_buff_end() <= time;
+    if (obj->add_buff(get_buff(), time + get_buff_duration(obj), this)) {
       if (start_buff)
+        ret |= DmgState::START_BUFF;
+      else
+        ret |= DmgState::BUFF;
+    } else if (get_buff() > 0) {
+      if (start_prebuff)
         ret |= DmgState::START_PREBUFF;
       else
         ret |= DmgState::PREBUFF;

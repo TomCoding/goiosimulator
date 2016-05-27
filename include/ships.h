@@ -113,8 +113,8 @@ class Ship : public Shipinfo, public GoioObj {
     std::set<HeavyEngine*> engines_h;
     std::set<Gun*> guns;
 
-    Ship(const Ship& obj);
-    Ship& operator=(const Ship& obj);
+    Ship(const Ship& obj) = delete;
+    Ship& operator=(const Ship& obj) = delete;
 
     void add_mass_mod(double mass);
     void add_light_engine_thrust_mod(double thrust);
