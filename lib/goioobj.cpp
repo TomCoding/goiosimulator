@@ -98,13 +98,6 @@ bool GoioObj::add_rebuild(int rebuild_progress) {
   return false;
 }
 
-void GoioObj::remove_buff() {
-  buff_state = 0;
-  buff_end = 0_s;
-  remove_tool(buff_tool);
-  buff_tool = nullptr;
-}
-
 bool GoioObj::add_buff(int buff_progress, Time buff_end, const Tool* tool) {
   if (health == 0_hp || cmp_type == CmpType::HULL)
     return false;
@@ -133,7 +126,7 @@ bool GoioObj::set_health_int(Health health) {
     if (cmp_type != CmpType::HULL) {
       rebuild_state = 0;
       cooldown_end = 0_s;
-      remove_buff();
+      remove_tool(buff_tool);
       // std::cout << "\ncooldown0: 0" << std::endl
       //           << "        ";
     }
@@ -224,6 +217,11 @@ void GoioObj::apply_tool(const Tool* tool) {
 void GoioObj::remove_tool(const Tool* tool) {
   if (tool == nullptr)
     return;
+  if (tool == buff_tool) {
+    buff_state = 0;
+    buff_end = 0_s;
+    buff_tool = nullptr;
+  }
 
   auto it = active_tools.find(tool);
   if (it != active_tools.end()) {

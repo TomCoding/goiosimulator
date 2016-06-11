@@ -215,7 +215,6 @@ class GoioObj : public Object {
     GoioObj& operator=(const GoioObj& obj) = delete;
 
     bool set_health_int(Health health);
-    void remove_buff();
 
     class Hull;
 

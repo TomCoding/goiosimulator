@@ -467,6 +467,7 @@ TEST(RepairTools, buff) {
   EXPECT_EQ(DmgState::START_PREBUFF, buff.repair(obj, 0_s));
   EXPECT_EQ(1200_hp, obj->get_health());
   EXPECT_EQ(1, obj->get_buff_state());
+  EXPECT_EQ(0_s, obj->get_buff_end());
   EXPECT_EQ(0, buff.get_done());
   EXPECT_EQ(0_s, buff.wait_cooldown());
 
@@ -475,6 +476,7 @@ TEST(RepairTools, buff) {
     EXPECT_EQ(DmgState::PREBUFF, buff.repair(obj, 0_s));
     EXPECT_EQ(1200_hp, obj->get_health());
     EXPECT_EQ(i, obj->get_buff_state());
+    EXPECT_EQ(0_s, obj->get_buff_end());
     EXPECT_EQ(0, buff.get_done());
     EXPECT_EQ(0_s, buff.wait_cooldown());
   }
@@ -482,6 +484,32 @@ TEST(RepairTools, buff) {
   EXPECT_EQ(DmgState::START_BUFF, buff.repair(obj, 0_s));
   EXPECT_EQ(1200_hp, obj->get_health());
   EXPECT_EQ(0, obj->get_buff_state());
+  EXPECT_EQ(90_s, obj->get_buff_end());
+  EXPECT_EQ(0, buff.get_done());
+  EXPECT_EQ(0_s, buff.wait_cooldown());
+
+  // start second buff
+  EXPECT_EQ(DmgState::START_PREBUFF, buff.repair(obj, 0_s));
+  EXPECT_EQ(1200_hp, obj->get_health());
+  EXPECT_EQ(1, obj->get_buff_state());
+  EXPECT_EQ(90_s, obj->get_buff_end());
+  EXPECT_EQ(0, buff.get_done());
+  EXPECT_EQ(0_s, buff.wait_cooldown());
+
+  ASSERT_GT(obj->get_buff_value(), 0);
+  for (int i = 2; i < obj->get_buff_value(); ++i) {
+    EXPECT_EQ(DmgState::PREBUFF, buff.repair(obj, 0_s));
+    EXPECT_EQ(1200_hp, obj->get_health());
+    EXPECT_EQ(i, obj->get_buff_state());
+    EXPECT_EQ(90_s, obj->get_buff_end());
+    EXPECT_EQ(0, buff.get_done());
+    EXPECT_EQ(0_s, buff.wait_cooldown());
+  }
+
+  EXPECT_EQ(DmgState::BUFF, buff.repair(obj, 0_s));
+  EXPECT_EQ(1200_hp, obj->get_health());
+  EXPECT_EQ(0, obj->get_buff_state());
+  EXPECT_EQ(90_s, obj->get_buff_end());
   EXPECT_EQ(0, buff.get_done());
   EXPECT_EQ(0_s, buff.wait_cooldown());
 
