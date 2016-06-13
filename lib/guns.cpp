@@ -328,7 +328,11 @@ DmgState Gun::shoot(GoioObj* obj, Time time,
   using std::right;
   cout << fixed << setprecision(2);
   cout << setw(15) << right << get_name();
-  cout << setw(5) << get_clipsize();
+  if (buffed())
+    cout << " B" << setw(3);
+  else
+    cout << setw(5);
+  cout << get_clipsize();
   cout << setw(8) << get_health();
 
   return ret;

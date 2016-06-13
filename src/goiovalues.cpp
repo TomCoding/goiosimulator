@@ -98,10 +98,14 @@ int main() {
 
   // time->unregister_actor(gat, 7_s);
 
-  // std::cout << "\033[1m";
-  // std::cout << "    time          actor  clip health       target      type  health(R) fire type  health(R)" << endl;
-  // std::cout << "===========================================================================================" << endl;
-  // std::cout << "\033[0m";
+//   std::cout << "\033[1m";
+//   std::cout <<
+// "    time          actor  clip health       target      type  health(R) fire buff type  health(R)";
+//   std::cout << endl;
+//   std::cout <<
+// "================================================================================================";
+//   std::cout << endl;
+//   std::cout << "\033[0m";
   int i = 0;
   while (time->next_event()) {
     if (++i > 100000) {

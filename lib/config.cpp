@@ -655,10 +655,15 @@ bool Config::simulate(unsigned int simulation) {
 
   auto sim = simulations[simulation];
 
-  std::cout << std::get<0>(sim) << std::endl;
+  std::cout << "\033[1m\033[4m" << std::get<0>(sim) << "\033[0m"
+            << std::endl << std::endl;
   std::cout << "\033[1m";
-  std::cout << "    time          actor  clip health       target      type  health(R) fire type  health(R)" << std::endl;
-  std::cout << "===========================================================================================" << std::endl;
+  std::cout <<
+"    time          actor  clip health(R)    target      type  health(R) fire buff type  health(R)"
+            << std::endl;
+  std::cout <<
+"================================================================================================"
+            << std::endl;
   std::cout << "\033[0m";
 
   Options* opt;
@@ -671,12 +676,14 @@ bool Config::simulate(unsigned int simulation) {
   auto timeobj = std::get<1>(sim);
   while (timeobj->next_event()) {
     if (opt->max_events != -1 && ++event_count > opt->max_events) {
-      std::cout << "Events limit reached: " << opt->max_events << std::endl;
+      std::cout << "\033[1mEvents limit reached:\033[0m "
+                << opt->max_events << std::endl;
       return false;
     }
     if (Time(opt->max_time) != -1_s &&
                                 timeobj->get_time() > Time(opt->max_time)) {
-      std::cout << "Time limit reached: " << opt->max_time << std::endl;
+      std::cout << "\033[1mTime limit reached:\033[0m "
+                << opt->max_time << std::endl;
       return false;
     }
   }
@@ -686,9 +693,12 @@ bool Config::simulate(unsigned int simulation) {
 
 bool Config::simulate_all() {
   auto ret = true;
-  for (unsigned int i = 0; i < get_simulation_count(); ++i)
+  for (unsigned int i = 0; i < get_simulation_count(); ++i) {
+    if (i > 0)
+      std::cout << std::endl << std::endl;
     if (!simulate(i))
       ret = false;
+  }
   return ret;
 }
 

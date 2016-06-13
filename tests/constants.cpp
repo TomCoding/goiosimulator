@@ -94,6 +94,11 @@ TEST(Constants, DmgStateAssignmentOR) {
 
 TEST(Constants, DmgStateReversed) {
   EXPECT_EQ(DmgState::TARGET, get_dmg_state_self_reversed(DmgState::SELF));
+  EXPECT_EQ(DmgState::REBUILD, get_dmg_state_self_reversed(DmgState::REBUILD_S));
+  EXPECT_EQ(DmgState::IMMUNITY, get_dmg_state_self_reversed(DmgState::IMMUNITY_S));
+  EXPECT_EQ(DmgState::FIRE, get_dmg_state_self_reversed(DmgState::FIRE_S));
+  EXPECT_EQ(DmgState::BUFF, get_dmg_state_self_reversed(DmgState::BUFF_S));
+  EXPECT_EQ(DmgState::PREBUFF, get_dmg_state_self_reversed(DmgState::PREBUFF_S));
   EXPECT_EQ(DmgState::TARGET_ALL, get_dmg_state_self_reversed(DmgState::SELF_ALL));
   EXPECT_EQ(DmgState::NONE, get_dmg_state_self_reversed(DmgState::TARGET_ALL));
   EXPECT_EQ(DmgState::NONE, get_dmg_state_self_reversed(DmgState::ALL) &

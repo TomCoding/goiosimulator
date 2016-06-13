@@ -242,7 +242,7 @@ class Gun : public GunInfo, public ShootActor {
                         range, projectile_speed, shell_drop, jitter,
                         turn_left, turn_right, turn_up, turn_down,
                         turn_horizontal, turn_vertical),
-                ShootActor(name, CmpType::COMPONENTS, 2.333333, max_health),
+                ShootActor(name, CmpType::GUNS, 2.333333, max_health),
                 cur_clipsize(clipsize),
                 cur_clipsize_mod(0),
                 cur_rof_mod(0),

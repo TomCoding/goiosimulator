@@ -231,4 +231,8 @@ void GoioObj::remove_tool(const Tool* tool) {
   }
 }
 
+void GoioObj::remove_buff() {
+  remove_tool(buff_tool);
+}
+
 }  // namespace goio

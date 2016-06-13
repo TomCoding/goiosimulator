@@ -33,81 +33,77 @@ namespace goio {
 
 namespace DmgStateNs {
 enum State : uint32_t {
-  NONE              = 0,            // nothing changed
+  NONE              = 0b00000000000000000000000000000000,  // nothing changed
 
-  TARGET            =  1ull <<  0,  // damaged/healed target
-  REBUILD           =  1ull <<  1,  // rebuild progress on target
-  IMMUNITY          =  1ull <<  2,  // changed fire immunity on target
-  FIRE              =  1ull <<  3,  // changed fire stacks on target
-  BUFF              =  1ull <<  4,  // changed buff state
-  PREBUFF           =  1ull <<  5,  // started to prebuff
-  TRANSITIONED      =  1ull <<  6,  // destroyed/rebuild armor/hull on target
+  TARGET            = 0b00000000000000000000000000000001,  // damaged/healed target
+  REBUILD           = 0b00000000000000000000000000000010,  // rebuild progress on target
+  IMMUNITY          = 0b00000000000000000000000000000100,  // changed fire immunity on target
+  FIRE              = 0b00000000000000000000000000001000,  // changed fire stacks on target
+  BUFF              = 0b00000000000000000000000000010000,  // changed buff state
+  PREBUFF           = 0b00000000000000000000000000100000,  // started to prebuff
+  TRANSITIONED      = 0b00000000000000000000000001000000,  // destroyed/rebuild armor/hull on target
+  // NOTSET         = 0b00000000000000000000000010000000,
 
-  START_TARGET      = (1ull <<  8) + (1ull <<  0),
-  START_REBUILD     = (1ull <<  9) + (1ull <<  1),
-  START_IMMUNITY    = (1ull << 10) + (1ull <<  2),
-  START_FIRE        = (1ull << 11) + (1ull <<  3),
-  START_BUFF        = (1ull << 12) + (1ull <<  4),
-  START_PREBUFF     = (1ull << 13) + (1ull <<  5),
+  START_TARGET_O    = 0b00000000000000000000000100000000,
+  START_REBUILD_O   = 0b00000000000000000000001000000000,
+  START_IMMUNITY_O  = 0b00000000000000000000010000000000,
+  START_FIRE_O      = 0b00000000000000000000100000000000,
+  START_BUFF_O      = 0b00000000000000000001000000000000,
+  START_PREBUFF_O   = 0b00000000000000000010000000000000,
+  // START_NOTSET_O = 0b00000000000000001000000000000000,
 
-  START_TARGET_O    =  1ull <<  8,
-  START_REBUILD_O   =  1ull <<  9,
-  START_IMMUNITY_O  =  1ull << 10,
-  START_FIRE_O      =  1ull << 11,
-  START_BUFF_O      =  1ull << 12,
-  START_PREBUFF_O   =  1ull << 13,
+  START_TARGET      = TARGET   + START_TARGET_O,
+  START_REBUILD     = REBUILD  + START_REBUILD_O,
+  START_IMMUNITY    = IMMUNITY + START_IMMUNITY_O,
+  START_FIRE        = FIRE     + START_FIRE_O,
+  START_BUFF        = BUFF     + START_BUFF_O,
+  START_PREBUFF     = PREBUFF  + START_PREBUFF_O,
+  // START_NOTSET   = NOTSET   + START_NOTSET_O,
 
-  TARGET_ALL        = (1ull <<  0) +
-                      (1ull <<  1) +
-                      (1ull <<  2) +
-                      (1ull <<  3) +
-                      (1ull <<  4) +
-                      (1ull <<  5) +
-                      (1ull <<  6) +
-                      (1ull <<  8) +
-                      (1ull <<  9) +
-                      (1ull << 10) +
-                      (1ull << 11) +
-                      (1ull << 12) +
-                      (1ull << 13),
+  TARGET_ALL        = START_TARGET +
+                      START_REBUILD +
+                      START_IMMUNITY +
+                      START_FIRE +
+                      START_BUFF +
+                      START_PREBUFF +
+                      // START_NOTSET +
+                      TRANSITIONED,
 
-  SELF              =  1ull << 16,  // damaged/healed self
-  REBUILD_S         =  1ull << 17,  // rebuild progress on self
-  IMMUNITY_S        =  1ull << 18,  // changed fire immunity on self
-  FIRE_S            =  1ull << 19,  // changed fire stacks on self
-  BUFF_S            =  1ull << 20,  // changed buff state on self
-  PREBUFF_S         =  1ull << 21,  // started to prebuff on self
-  TRANSITIONED_S    =  1ull << 22,  // destroyed/rebuild armor/hull on self
+  SELF              = 0b00000000000000010000000000000000,  // damaged/healed self
+  REBUILD_S         = 0b00000000000000100000000000000000,  // rebuild progress on self
+  IMMUNITY_S        = 0b00000000000001000000000000000000,  // changed fire immunity on self
+  FIRE_S            = 0b00000000000010000000000000000000,  // changed fire stacks on self
+  BUFF_S            = 0b00000000000100000000000000000000,  // changed buff state on self
+  PREBUFF_S         = 0b00000000001000000000000000000000,  // started to prebuff on self
+  TRANSITIONED_S    = 0b00000000010000000000000000000000,  // destroyed/rebuild armor/hull on self
+  // NOTSET_S       = 0b00000000100000000000000000000000,
 
-  START_SELF        = (1ull << 24) + (1ull << 16),
-  START_REBUILD_S   = (1ull << 25) + (1ull << 17),
-  START_IMMUNITY_S  = (1ull << 26) + (1ull << 18),
-  START_FIRE_S      = (1ull << 27) + (1ull << 19),
-  START_BUFF_S      = (1ull << 28) + (1ull << 20),
-  START_PREBUFF_S   = (1ull << 29) + (1ull << 21),
+  START_TARGET_SO   = 0b00000001000000000000000000000000,
+  START_REBUILD_SO  = 0b00000010000000000000000000000000,
+  START_IMMUNITY_SO = 0b00000100000000000000000000000000,
+  START_FIRE_SO     = 0b00001000000000000000000000000000,
+  START_BUFF_SO     = 0b00010000000000000000000000000000,
+  START_PREBUFF_SO  = 0b00100000000000000000000000000000,
+  // START_NOTSET_SO= 0b10000000000000000000000000000000,
 
-  START_TARGET_SO   =  1ull << 24,
-  START_REBUILD_SO  =  1ull << 25,
-  START_IMMUNITY_SO =  1ull << 26,
-  START_FIRE_SO     =  1ull << 27,
-  START_BUFF_SO     =  1ull << 28,
-  START_PREBUFF_SO  =  1ull << 29,
+  START_SELF        = SELF       + START_TARGET_SO,
+  START_REBUILD_S   = REBUILD_S  + START_REBUILD_SO,
+  START_IMMUNITY_S  = IMMUNITY_S + START_IMMUNITY_SO,
+  START_FIRE_S      = FIRE_S     + START_FIRE_SO,
+  START_BUFF_S      = BUFF_S     + START_BUFF_SO,
+  START_PREBUFF_S   = PREBUFF_S  + START_PREBUFF_SO,
+  // START_NOTSET_S = NOTSET_S   + START_NOTSET_SO,
 
-  SELF_ALL          = (1ull << 16) +
-                      (1ull << 17) +
-                      (1ull << 18) +
-                      (1ull << 19) +
-                      (1ull << 20) +
-                      (1ull << 21) +
-                      (1ull << 22) +
-                      (1ull << 24) +
-                      (1ull << 25) +
-                      (1ull << 26) +
-                      (1ull << 27) +
-                      (1ull << 28) +
-                      (1ull << 29),
+  SELF_ALL          = START_SELF +
+                      START_REBUILD_S +
+                      START_IMMUNITY_S +
+                      START_FIRE_S +
+                      START_BUFF_S +
+                      START_PREBUFF_S +
+                      // START_NOTSET_S +
+                      TRANSITIONED_S,
 
-  ALL               = 0xffffffff
+  ALL               = TARGET_ALL + SELF_ALL
 };
 
 inline constexpr State operator|(State a, State b) {

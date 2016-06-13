@@ -295,12 +295,17 @@ class GoioObj : public Object {
     void set_hull(GoioObj* obj);
 
     bool dead() const;
+    inline bool buffed() const {
+      return buff_tool != nullptr;
+    }
 
     virtual void reset(bool hull = true);
     virtual void reset_modifiers()  = 0;
 
     void apply_tool(const Tool* tool);
     void remove_tool(const Tool* tool);
+
+    void remove_buff();
 };
 
 class GoioObj::Hull : public GoioObj {

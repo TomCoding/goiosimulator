@@ -36,6 +36,15 @@ namespace goio {
 class TimeObj {
  private:
     Time time;
+
+    enum class EventType {
+      NORMAL,
+      FIRE,
+      UPDATE,
+      END,
+      // REPORT
+    };
+
     struct FuncData {
       int id;
       GoioActor* registrar;  // key in registrars
@@ -46,17 +55,29 @@ class TimeObj {
       Time time_next;    // key in events
       Time time_cur;     // if set, not in events (on hold)
       TimeCheckFunc timecheckfunc;
-      bool fire;
-      bool end;
+      EventType type;
     };
 
-    std::multimap<Time, FuncData*> events;
+    /*
+     * Higher priorities have lower values, therefore using comparison works
+     * from LOW > HIGH...
+     */
+    enum Priority {
+      VERY_HIGH,  // internal events high priority, don't show
+      HIGH,       // internal events normal priority, don't show
+      HIGH_SHOW,  // internal events, show before user events
+      NORMAL,     // all user events, show
+      LOW         // internal events, show after user events
+    };
+
+    std::multimap<std::pair<Time, Priority>, FuncData*> events;
     std::multimap<GoioObj*, FuncData*> registrars;
     std::multimap<GoioObj*, FuncData*> recipients;
 
-    void register_event(FuncData* funcdata, Time time);
+    void register_event(FuncData* funcdata, Time time, Priority priority);
     void register_burn_event(GoioObj* obj);
-    bool recalc_next_event(FuncData* funcdata);
+    void register_update_event(GoioObj* obj, Time time);
+    bool recalc_next_event(FuncData* funcdata, Priority priority);
 
     static int max_id;
 
@@ -83,6 +104,29 @@ class TimeObj {
         inline TimeFunc get_time_func(const GoioObj*, Time, bool&) override {
           return nullptr;
         }
+
+        int get_buff_value() const override { return -1; }
+        void reset_modifiers() override {}
+    };
+
+    class UpdateEvent : public GoioActor {
+     private:
+        Time update_interval;
+
+     protected:
+        void accept(ToolDispatcher&, const Tool*, bool) override {
+          assert(false);
+        }
+
+     public:
+        UpdateEvent(Time update_interval) : GoioActor("", CmpType::HULL),
+                                            update_interval(update_interval) {}
+
+        inline Time get_update_interval() const { return update_interval; }
+
+        DmgState update(GoioObj* obj, Time time);
+
+        TimeFunc get_time_func(const GoioObj* obj, Time, bool&) override;
 
         int get_buff_value() const override { return -1; }
         void reset_modifiers() override {}
