@@ -22,6 +22,7 @@
 #define TIMEOBJ_H_
 
 #include <map>
+#include <utility>
 
 #include "./goioobj.h"
 #include "./goioactor.h"
@@ -82,20 +83,13 @@ class TimeObj {
     static int max_id;
 
     class EndEvent : public GoioActor {
-     private:
-        TimeObj* timeobj;
-
-        EndEvent(const EndEvent& obj) = delete;
-        EndEvent& operator=(const EndEvent& obj) = delete;
-
      protected:
         void accept(ToolDispatcher&, const Tool*, bool) override {
           assert(false);
         }
 
      public:
-        explicit EndEvent(TimeObj* timeobj) : GoioActor("", CmpType::HULL),
-                                              timeobj(timeobj) {}
+        EndEvent() : GoioActor("", CmpType::HULL) {}
 
         inline DmgState noop(GoioObj*, Time) {
           return DmgState::NONE;
@@ -119,8 +113,9 @@ class TimeObj {
         }
 
      public:
-        UpdateEvent(Time update_interval) : GoioActor("", CmpType::HULL),
-                                            update_interval(update_interval) {}
+        explicit UpdateEvent(Time update_interval) :
+                                        GoioActor("", CmpType::HULL),
+                                        update_interval(update_interval) {}
 
         inline Time get_update_interval() const { return update_interval; }
 

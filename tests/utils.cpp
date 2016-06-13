@@ -94,10 +94,10 @@ TEST(Utils, EnumIterPartial) {
 
 #define VAR_MACRO(...) VFUNC(VAR_MACRO, __VA_ARGS__)
 #define VAR_MACRO1(a1) a1
-#define VAR_MACRO3(a1,a2,a3) a1 + a2 + a3
-#define VAR_MACRO9(a1,a2,a3,a4,a5,a6,a7,a8,a9) \
-  VAR_MACRO10(a1,a2,a3,a4,a5,a6,a7,a8,a9,10)
-#define VAR_MACRO10(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10) \
+#define VAR_MACRO3(a1, a2, a3) a1 + a2 + a3
+#define VAR_MACRO9(a1, a2, a3, a4, a5, a6, a7, a8, a9) \
+  VAR_MACRO10(a1, a2, a3, a4, a5, a6, a7, a8, a9, 10)
+#define VAR_MACRO10(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10) \
   a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10
 
 TEST(Utils, VariadicMacro) {

@@ -78,9 +78,9 @@ class HelmTool : public Tool, public Object {
     inline Health_P_Time get_damage() const { return damage; }
     inline DmgType get_dmg_type() const { return dmg_type; }
     inline CmpType get_dmg_target() const { return dmg_target; }
-    inline double  get_target_ign_chance() const{ return target_ign_chance; }
-    inline double  get_dmg_reduction() const{ return dmg_reduction; }
-    inline DmgType get_dmg_reduction_type() const{ return dmg_reduction_type; }
+    inline double  get_target_ign_chance() const { return target_ign_chance; }
+    inline double  get_dmg_reduction() const { return dmg_reduction; }
+    inline DmgType get_dmg_reduction_type() const { return dmg_reduction_type; }
     inline Time    get_delay_after() const { return delay_after; }
     inline bool    get_tar_cloud() const { return tar_cloud; }
     inline bool    get_spot() const { return spot; }

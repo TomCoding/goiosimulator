@@ -218,7 +218,7 @@ class GoioObj : public Object {
 
     class Hull;
 
-    GoioObj(Health max_health) :
+    explicit GoioObj(Health max_health) :
                 name(""), cmp_type(CmpType::HULL),
                 max_health(max_health), health(max_health),
                 fire_stacks(-1), rebuild_state(-1), buff_state(0),

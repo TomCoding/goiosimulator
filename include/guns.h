@@ -275,7 +275,7 @@ class Gun : public GunInfo, public ShootActor {
  public:
     virtual ~Gun() {}
 
-    inline int      get_max_clipsize() const { 
+    inline int      get_max_clipsize() const {
       return get_orig_clipsize() * (1+cur_clipsize_mod);
     }
     inline int      get_clipsize() const { return cur_clipsize; }

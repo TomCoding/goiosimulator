@@ -357,7 +357,7 @@ bool TimeObj::unregister_actor(GoioActor* actor) {
 void TimeObj::unregister_actor(GoioActor* actor, Time time) {
   if (time < get_time())
     return;
-  auto endevent = new EndEvent(this);
+  auto endevent = new EndEvent();
   using std::placeholders::_1;
   using std::placeholders::_2;
   using std::placeholders::_3;

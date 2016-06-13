@@ -32,7 +32,7 @@ class Gun;
 
 class Tool {
  protected:
-    explicit Tool() {}
+    Tool() {}
     ~Tool() {}
 
  public:

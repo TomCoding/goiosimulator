@@ -21,6 +21,7 @@
 #include "./goioobj.h"
 
 #include <iostream>
+#include <string>
 
 #include "./dmg_types.h"
 #include "./tooldispatcher.h"
