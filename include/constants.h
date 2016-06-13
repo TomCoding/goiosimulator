@@ -127,7 +127,7 @@ inline
 }  // namespace DmgStateNs
 typedef DmgStateNs::State DmgState;
 
-inline DmgState get_dmg_state_self_reversed(DmgState dmg_state) {
+constexpr DmgState get_dmg_state_self_reversed(DmgState dmg_state) {
   return static_cast<DmgState>(
                 static_cast<std::underlying_type_t<DmgState>>(dmg_state)
                 >> 16);

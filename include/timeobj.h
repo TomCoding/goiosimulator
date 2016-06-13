@@ -126,7 +126,7 @@ class TimeObj {
 
         DmgState update(GoioObj* obj, Time time);
 
-        TimeFunc get_time_func(const GoioObj* obj, Time, bool&) override;
+        TimeFunc get_time_func(const GoioObj* obj, Time time, bool& force) override;
 
         int get_buff_value() const override { return -1; }
         void reset_modifiers() override {}

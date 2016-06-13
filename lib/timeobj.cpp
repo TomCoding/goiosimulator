@@ -61,10 +61,6 @@ bool TimeObj::next_event() {
   if (funcdata->type == EventType::END) {
     std::cout << "                            ";
   } else {
-    bool fire = funcdata->obj->get_fire_stacks() > 0;
-    if (funcdata->type != EventType::UPDATE && dmg_state & DmgState::START_BUFF)
-      register_update_event(funcdata->obj, funcdata->obj->get_buff_end());
-
     // update targeted actor
     {
     auto iterpair = registrars.equal_range(funcdata->obj);
@@ -81,12 +77,12 @@ bool TimeObj::next_event() {
       // don't update current actor itself
       if (it2->second != funcdata && dmg_state & it2->second->dmg_flags)
         recalc_next_event(it2->second, it->first.second);
-      if (it2->second->type == EventType::FIRE)
-        fire = false;
     }
     }
-    if (fire)
+    if (dmg_state & DmgState::START_FIRE_O)
       register_burn_event(funcdata->obj);
+    if (dmg_state & DmgState::START_BUFF_O)
+      register_update_event(funcdata->obj, funcdata->obj->get_buff_end());
 
     // update to actor associated actors
     if (dmg_state & DmgState::SELF_ALL) {
@@ -390,9 +386,13 @@ DmgState TimeObj::UpdateEvent::update(GoioObj* obj, Time time) {
   return DmgState::NONE;
 }
 
-TimeFunc TimeObj::UpdateEvent::get_time_func(const GoioObj* obj, Time, bool&) {
-  if (obj->buffed())
+TimeFunc TimeObj::UpdateEvent::get_time_func(const GoioObj* obj, Time time, bool& force) {
+  if (obj->buffed()) {
+    update_interval = obj->get_buff_end() - time;
+    force = true;
+  } else {
     return nullptr;
+  }
   return std::bind(&UpdateEvent::get_update_interval, this);
 }
 
