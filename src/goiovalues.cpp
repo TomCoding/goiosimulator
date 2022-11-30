@@ -26,12 +26,12 @@
 
 using std::cout;
 using std::endl;
-using goio::operator""_hp;
-using goio::operator""_s;
+using goio::operator"" _hp;
+using goio::operator"" _s;
 
 int main() {
   goio::init();
-  delete goio::ObjectFactory::create("GoioObj", "test",
+  delete goio::ObjectFactory::create("FreeObject", "test",
                                      goio::CmpType::ARMOR,
                                      -1, 0_hp, -1_hp);
   delete goio::ObjectFactory::create("Pyramidion", "test2");
@@ -57,10 +57,10 @@ int main() {
   auto gat4 = new goio::Gatling("Gatling4");
   auto loch = new goio::Lochnagar();
   auto inc = new goio::Incendiary();
-  // gat->apply_ammunition(loch);
-  gat->apply_ammunition(inc);
-  // gat3->apply_ammunition(loch);
-  // gat4->apply_ammunition(loch);
+  // gat->reload(loch);
+  gat->reload(inc);
+  // gat3->reload(loch);
+  // gat4->reload(loch);
   // gat->set_health(10_hp);
 
   auto gat2 = new goio::Gatling("Gatling2");
@@ -98,10 +98,14 @@ int main() {
 
   // time->unregister_actor(gat, 7_s);
 
-  // std::cout << "\033[1m";
-  // std::cout << "    time          actor  clip health       target      type  health(R) fire type  health(R)" << endl;
-  // std::cout << "===========================================================================================" << endl;
-  // std::cout << "\033[0m";
+//   std::cout << "\033[1m";
+//   std::cout <<
+// "    time          actor  clip health       target      type  health(R) fire buff type  health(R)";
+//   std::cout << endl;
+//   std::cout <<
+// "================================================================================================";
+//   std::cout << endl;
+//   std::cout << "\033[0m";
   int i = 0;
   while (time->next_event()) {
     if (++i > 100000) {

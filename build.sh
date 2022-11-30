@@ -28,6 +28,8 @@ SOURCE_DIR="$(pwd)"
 function help() {
   echo "Usage: $0 [options]
 Options:
+  --cxx_compiler=X    Set c++ compiler to X.
+  --c_compiler=Y      Set c compiler to Y.
   --gcc, --g++        Use gcc/g++ compiler.
   --clang, --clang++  Use clang/clang++ compiler.
   --clangcheck,       Use clang/clang++ compiler and static analyzer.
@@ -39,8 +41,9 @@ Options:
   --lcov              Run lcov.
   --lcovopen          Same as --lcov, additionally open report in browser.
   -n, --no-debug      Compile without debug flags.
+  -nut, --no-unit-tests  Disable unit tests.
   --doc               Create documentation.
-  --no-tests          Don't run tests.
+  -nt, --no-tests     Don't run tests.
   -r, --run           Run program after compilation.
   -v, --valgrind      Run program after compilation with valgrind.
   -c, --clean         Use clean build environment.
@@ -69,11 +72,20 @@ CPPLINT=0
 LCOV=0
 LCOV_OPEN=0
 NO_DEBUG=0
+NO_UNIT_TESTS=0
 DOC=0
 WAIT=0
 CLEAN=0
 for i in "$@"; do
   case "$i" in
+    --cxx_compiler=*)
+      CXX_COMPILER="${i#*=}"
+      shift
+      ;;
+    --c_compiler=*)
+      C_COMPILER="${i#*=}"
+      shift
+      ;;
     "--gcc"|"--g++")
       CXX_COMPILER="g++"
       C_COMPILER="gcc"
@@ -115,7 +127,7 @@ for i in "$@"; do
       VALGRIND=1
       shift
       ;;
-    "--no-tests")
+    "-nt"|"--no-tests")
       NO_TESTS=1
       shift
       ;;
@@ -150,6 +162,10 @@ for i in "$@"; do
       NO_DEBUG=1
       shift
       ;;
+    "--no-unit-tests"|"-nut")
+      NO_UNIT_TESTS=1
+      shift
+      ;;
     "-w"|"--wait")
       WAIT=1
       if [ "$VALGRIND" == 0 ]; then
@@ -166,6 +182,7 @@ for i in "$@"; do
       shift
       ;;
     *)
+      echo "Invalid option: $i"
       help
       exit 1
       ;;
@@ -180,6 +197,9 @@ fi
 CMAKE_OPTIONS=
 if [ "$NO_DEBUG" == 0 ]; then
   CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Debug"
+fi
+if [ "$NO_UNIT_TESTS" == 1 ]; then
+  CMAKE_OPTIONS="-DTESTS=OFF"
 fi
 if [ "$LCOV" == 1 ]; then
   CMAKE_OPTIONS="$CMAKE_OPTIONS -DCOVERAGE=ON"
@@ -197,8 +217,14 @@ fi
 cd "$BUILD_DIR"
 if [ "$CLANGCHECK" == 1 ]; then
   analyzer_dir="$(dirname $(readlink -f $(which scan-build)))"
-  CXX_COMPILER="$analyzer_dir/c++-analyzer"
-  C_COMPILER="$analyzer_dir/ccc-analyzer"
+  clang_version="$(clang --version | grep -Po '(?<=version )[.0-9]+')"
+  if [ "3.8" = "$(echo -e "3.8\n$clang_version" | sort -V | head -n1)" ]; then
+    CXX_COMPILER="$analyzer_dir/../libexec/c++-analyzer"
+    C_COMPILER="$analyzer_dir/../libexec/ccc-analyzer"
+  else
+    CXX_COMPILER="$analyzer_dir/c++-analyzer"
+    C_COMPILER="$analyzer_dir/ccc-analyzer"
+  fi
   scan-build -o "../$CLANGCHECK_DIR" cmake $CMAKE_OPTIONS \
                      -DCMAKE_CXX_COMPILER="$CXX_COMPILER" \
                      -DCMAKE_C_COMPILER="$C_COMPILER" ..
@@ -245,9 +271,14 @@ if [ "$?" == 0 ]; then
   SUCCESS=0
   if [ "$NO_TESTS" == 0 ]; then
     echo
-    ctest --output-on-failure -R run -D ExperimentalMemCheck
+    ctest --output-on-failure -E "Asserts" -D ExperimentalMemCheck
+    echo
+    echo
+    ctest --output-on-failure -R "Asserts"
     # ctest -V -R api_sanity_checker
   fi
+else
+  SUCCESS=1
 fi
 cd ..
 
@@ -261,7 +292,7 @@ if [ "$CPPCHECK" == 1 ]; then
   cppcheck -i "$BUILD_DIR" --enable=all --suppress=missingIncludeSystem --xml . \
                                                2>"$CPPCHECK_DIR/report.xml" &&
   cppcheck-htmlreport --title="$BIN_NAME" --file "$CPPCHECK_DIR/report.xml" \
-                      --report-dir "$CPPCHECK_DIR" --source-dir "src" &&
+                      --report-dir "$CPPCHECK_DIR" --source-dir . &&
   if [ "$CPPCHECK_OPEN" == 1 ]; then
     xdg-open "$CPPCHECK_DIR/index.html"
   fi
@@ -277,10 +308,16 @@ fi
 
 if [ "$CPPLINT" == 1 ]; then
   echo
-  cpplint.py --linelength=84 src/*.h src/*.cpp
+  cpplint.py --linelength=84 --root=include include/*.h
+  echo
+  cpplint.py --linelength=84 --root=lib lib/*.cpp
+  echo
+  cpplint.py --linelength=84 --root=src src/*.h src/*.cpp
+  echo
+  cpplint.py --linelength=84 --root=tests tests/*.h tests/*.cpp
 fi
 
-if [ "$LCOV" == 1 ]; then
+if [ "$LCOV" == 1 -a "$SUCCESS" == 0 ]; then
   echo
   cd "$BUILD_DIR"
   make "${BIN_NAME}_coverage"

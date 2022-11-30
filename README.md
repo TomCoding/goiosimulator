@@ -1,7 +1,18 @@
-# Guns of Icarus Online simulator
-[Guns of Icarus Online](http://gunsoficarus.com/) damage/repair simulator
-
-[![Build Status](https://travis-ci.org/Lasall/goiosimulator.svg)](https://travis-ci.org/Lasall/goiosimulator)
-
-
-Ability to simulate complex routines, modular interface, supports AI. WIP
+         _              
+     ___| |_ ___  _ __  
+    / __| __/ _ \| '_ \ 
+    \__ \ || (_) | |_) |
+    |___/\__\___/| .__/ 
+                 |_|    
+                     _            _   _             
+     _ __  _ __ ___ | |_ ___  ___| |_(_)_ __   __ _ 
+    | '_ \| '__/ _ \| __/ _ \/ __| __| | '_ \ / _` |
+    | |_) | | | (_) | ||  __/ (__| |_| | | | | (_| |
+    | .__/|_|  \___/ \__\___|\___|\__|_|_| |_|\__, |
+    |_|                                       |___/ 
+     _           _ _ _           
+    | |__  _   _| | (_) ___  ___ 
+    | '_ \| | | | | | |/ _ \/ __|
+    | |_) | |_| | | | |  __/\__ \
+    |_.__/ \__,_|_|_|_|\___||___/
+                                 
